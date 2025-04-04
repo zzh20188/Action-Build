@@ -1,4 +1,4 @@
-name: Build OnePlus_Kernel-3
+name: Build OnePlus_Kernel
 on:
   workflow_dispatch:
     inputs:
@@ -209,7 +209,7 @@ jobs:
          cd kernel_workspace
          LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
          
-    - name: Make AnyKernel3
+      - name: Make AnyKernel3
         run: |
          git clone https://github.com/Numbersf/AnyKernel3 --depth=1
          rm -rf ./AnyKernel3/.git
