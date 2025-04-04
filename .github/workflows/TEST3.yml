@@ -22,10 +22,7 @@ on:
         description: "内核版本"
         required: true
         default: '5.15'
-      KERNEL_NAME:
-        description: "修改内核名称"
-        required: true
-        default: '-android13-8-o-Numbersf'
+
 jobs:
   build:
     runs-on: ubuntu-latest
