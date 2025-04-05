@@ -160,6 +160,16 @@ jobs:
          rm -rf ./AnyKernel3/.git
          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./AnyKernel3/
          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./kernel_workspace/kernel
+
+      - name: Apply patch_linux and replace Image
+        run: |
+          cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist
+          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
+          chmod +x patch_linux
+          ./patch_linux
+          rm -f Image
+          mv oImage Image
+          cp Image ../../../../../../AnyKernel3/Image
          
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
