@@ -99,8 +99,6 @@ jobs:
           cp ../../SukiSU_patch/69_hide_stuff.patch ./
           echo "正在打隐藏应用补丁"
           patch -p1 -F 3 < 69_hide_stuff.patch
-          cp ../../Action-Build/kpm.patch ./
-          patch -p1 -F 3 < kpm.patch
 
       - name: Apply New Hooks Patches
         run: |
@@ -116,6 +114,8 @@ jobs:
           # Add KSU configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
+          cp ../../Action-Build/kpm.patch ./
+          patch -p1 -F 3 < kpm.patch
           
           # Add VFS configuration settings
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
