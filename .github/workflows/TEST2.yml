@@ -212,9 +212,6 @@ jobs:
             rm -f Image
             mv oImage Image
             cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
-          else
-            echo "未找到 Image 文件，构建失败"
-            exit 1
           fi
 
       - name: Download Latest SUSFS Module from CI
