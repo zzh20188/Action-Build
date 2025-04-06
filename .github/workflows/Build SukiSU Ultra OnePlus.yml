@@ -54,10 +54,11 @@ jobs:
           git config --global user.name "Numbersf"
           git config --global user.email "263623064@qq.com"
 
-      - name: Install dependencies
+            - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          sudo apt install -y python3 git curl
+          sudo apt-get install jq -y
+          sudo apt install -y python3 git curl patch bc bison flex libssl-dev
 
       - name: Install repo tool
         run: |
