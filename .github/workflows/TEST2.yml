@@ -6,27 +6,22 @@ on:
         description: "分支"
         required: true
         default: 'sm8550'
-
       FEIL:
         description: "配置文件"
         required: true
         default: 'oneplus_ace2pro_v'
-
       CPUD:
         description: "处理器代号"
         required: true
         default: 'kalama'
-
       ANDROID_VERSION:
         description: "内核安卓版本"
         required: true
         default: 'android13'
-
       KERNEL_VERSION:
         description: "内核版本"
         required: true
         default: '5.15'
-
       SUSFS_CI:
         description: "SUSFS模块下载是否调用CI？"
         required: true
@@ -100,7 +95,6 @@ jobs:
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
           cd kernel_platform
-
           # Copy SUSFS patches
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
@@ -206,18 +200,22 @@ jobs:
               fi
             fi
           fi
-          # 导出 Image 路径
-          echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
 
       - name: Apply patch_linux and replace Image
         run: |
-          cd $(dirname "$IMAGE_PATH")
-          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
-          chmod +x patch_linux
-          ./patch_linux
-          rm -f Image
-          mv oImage Image
-          cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+          if [ -n "$image_path" ]; then
+            echo "正在进入目录: $image_path"
+            cd $(dirname "$image_path")
+            curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
+            chmod +x patch_linux
+            ./patch_linux
+            rm -f Image
+            mv oImage Image
+            cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+          else
+            echo "未找到 Image 文件，构建失败"
+            exit 1
+          fi
 
       - name: Download Latest SUSFS Module from CI
         if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
@@ -236,7 +234,7 @@ jobs:
         run: |
           wget https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
           cp ksu_module_susfs_1.5.2+.zip ./AnyKernel3/
-   
+
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
