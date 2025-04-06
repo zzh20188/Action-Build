@@ -41,30 +41,30 @@ jobs:
 
       - name: Configure Git
         run: |
-         git config --global user.name "Numbersf"
-         git config --global user.email "263623064@qq.com"
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
 
       - name: Install dependencies
         run: |
-         sudo apt update && sudo apt upgrade -y
-         sudo apt install -y python3 git curl
+          sudo apt update && sudo apt upgrade -y
+          sudo apt install -y python3 git curl
 
       - name: Install repo tool
         run: |
-         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
-         chmod a+x ~/repo
-         sudo mv ~/repo /usr/local/bin/repo
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
+          chmod a+x ~/repo
+          sudo mv ~/repo /usr/local/bin/repo
 
       - name: Initialize repo and sync
         run: |
-         mkdir kernel_workspace && cd kernel_workspace
-         repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
-         repo sync
-         rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
-         sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
-      
+          mkdir kernel_workspace && cd kernel_workspace
+          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
+          repo sync
+          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
+          sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
+
       - name: Add KernelSU-SukiSU-Ultra
         run: |
           cd kernel_workspace/kernel_platform
@@ -73,7 +73,7 @@ jobs:
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 12506)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           #sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-          
+
       - name: Apply SUSFS Patches SukiSU
         run: |
           cd kernel_workspace
@@ -85,7 +85,7 @@ jobs:
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-          
+
           echo "正在给内核打susfs补丁"
           cd ./common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
@@ -112,11 +112,11 @@ jobs:
           # Add KSU configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
-          
+
           # Add VFS configuration settings
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
-          
+
           # Add SUSFS configuration settings
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -139,48 +139,48 @@ jobs:
 
       - name: Add make name
         run: |
-         cd kernel_workspace/kernel_platform
-         sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
+          cd kernel_workspace/kernel_platform
+          sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
 
       - name: Build kernel
-        if: github.event.inputs.CPU == 'sm8650' 
+        if: github.event.inputs.CPU == 'sm8650'
         run: |
-         cd kernel_workspace
-         ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
-          
+          cd kernel_workspace
+          ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
+
       - name: Fallback build kernel
-        if: github.event.inputs.CPU != 'sm8650' 
+        if: github.event.inputs.CPU != 'sm8650'
         run: |
-         cd kernel_workspace
-         LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
-         
+          cd kernel_workspace
+          LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
+
       - name: Make AnyKernel3
         run: |
-         git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
-         rm -rf ./AnyKernel3/.git
-         cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./AnyKernel3/
-         cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./kernel_workspace/kernel
+          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
+          rm -rf ./AnyKernel3/.git
+          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./AnyKernel3/
+          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./kernel_workspace/kernel
 
-     - name: Apply patch_linux and replace Image
-       run: |
-    cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist
-    curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
-    chmod +x patch_linux
-    ./patch_linux
-    rm -f Image
-    mv oImage Image
-    cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
-    mkdir -p $GITHUB_WORKSPACE/kernel_workspace/kernel
-    cp Image $GITHUB_WORKSPACE/kernel_workspace/kernel/Image
-         
+      - name: Apply patch_linux and replace Image
+        run: |
+          cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist
+          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
+          chmod +x patch_linux
+          ./patch_linux
+          rm -f Image
+          mv oImage Image
+          cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+          mkdir -p $GITHUB_WORKSPACE/kernel_workspace/kernel
+          cp Image $GITHUB_WORKSPACE/kernel_workspace/kernel/Image
+
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-         name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
-         path: ./AnyKernel3/*
+          name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
+          path: ./AnyKernel3/*
 
       - name: Upload Image
         uses: actions/upload-artifact@v4
         with:
-         name: Image_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
-         path: kernel_workspace/kernel
+          name: Image_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
+          path: kernel_workspace/kernel
