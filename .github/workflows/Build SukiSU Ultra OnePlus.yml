@@ -168,7 +168,7 @@ jobs:
          LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
          
       - name: Make AnyKernel3
-  run: |
+        run: |
     # 克隆 AnyKernel3 仓库
     git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
     rm -rf ./AnyKernel3/.git
@@ -211,8 +211,8 @@ jobs:
     # 导出 Image 路径
     echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
 
-- name: Apply patch_linux and replace Image
-  run: |
+      - name: Apply patch_linux and replace Image
+        run: |
     cd $(dirname "$IMAGE_PATH")
     curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
     chmod +x patch_linux
