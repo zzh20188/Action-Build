@@ -204,18 +204,22 @@ jobs:
               fi
             fi
           fi
-          # 导出 Image 路径
-          echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
 
       - name: Apply patch_linux and replace Image
         run: |
-          cd $(dirname "$IMAGE_PATH")
-          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
-          chmod +x patch_linux
-          ./patch_linux
-          rm -f Image
-          mv oImage Image
-          cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+          if [ -n "$image_path" ]; then
+  echo "正在进入目录: $image_path"
+  cd $(dirname "$image_path")
+  curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
+  chmod +x patch_linux
+  ./patch_linux
+  rm -f Image
+  mv oImage Image
+  cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+else
+  echo "未找到 Image 文件，构建失败"
+  exit 1
+fi
 
       - name: Download Latest SUSFS Module from CI
         if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
