@@ -9,6 +9,7 @@ Build OnePlus SukiSU Ultra KPM Kernel
 外显版本号存在问题可以忽视,内核版本号没问题
  
 # 更新日志:
+- 修复一个bug
 - 支持自动下载最新CI/Release的susfs模块并调用ksud安装
 - 支持KPM(无需任何修改复制什么的）
 - 支持VFS HOOK
