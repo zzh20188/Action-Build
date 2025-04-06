@@ -150,7 +150,7 @@ jobs:
           ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
 
       - name: Make AnyKernel3
-  run: |
+        run: |
     git clone https://github.com/Numbersf/AnyKernel3 --depth=1
     rm -rf ./AnyKernel3/.git
     dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
