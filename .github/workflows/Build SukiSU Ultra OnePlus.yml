@@ -167,7 +167,7 @@ jobs:
           cd kernel_workspace
           LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
          
-            - name: Make AnyKernel3
+      - name: Make AnyKernel3
         run: |
           # 克隆 AnyKernel3 仓库
           git clone https://github.com/Numbersf/AnyKernel3 --depth=1
