@@ -168,43 +168,58 @@ jobs:
          LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
          
       - name: Make AnyKernel3
-        run: |
-          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
-          rm -rf ./AnyKernel3/.git
+  run: |
+    # 克隆 AnyKernel3 仓库
+    git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
+    rm -rf ./AnyKernel3/.git
 
-          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
-          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
-          target1="./AnyKernel3/"
-          target2="./kernel_workspace/kernel"
+    # 定义目录路径
+    dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+    dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
+    target1="./AnyKernel3/"
+    target2="./kernel_workspace/kernel"
 
-          if find "$dir1" -name "Image" | grep -q "Image"; then
-            echo "Image found in dist directory"
-            image_path="$dir1/Image"
-          elif find "$dir2" -name "Image" | grep -q "Image"; then
-            echo "Image found in arch/arm64/boot directory"
-            image_path="$dir2/Image"
-          else
-            image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
-            if [ -z "$image_path" ]; then
-              echo "Image file not found, build might have failed"
-              exit 1
-            fi
-            echo "Found Image at $image_path"
-          fi
+    # 在第一个目录中查找 Image 文件
+    if [ -f "${dir1}Image" ]; then
+      echo "文件 Image 在dist目录中"
+      image_path="${dir1}Image"
+      cp "$image_path" "$target1"
+      cp "$image_path" "$target2"
+    
+    # 在第二个目录中查找 Image 文件
+    elif [ -f "${dir2}Image" ]; then
+      echo "文件 Image 在arch/arm64/boot目录中"
+      image_path="${dir2}Image"
+      cp "$image_path" "$target1"
+      cp "$image_path" "$target2"
 
-          cp "$image_path" "$target1"
-          cp "$image_path" "$target2"
-          echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
+    # 在所有子目录中查找 Image 文件
+    else
+      echo "在 kernel_workspace/kernel_platform/common/out/ 的所有子目录中查找 Image 文件"
+      image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
 
-      - name: Apply patch_linux and replace Image
-        run: |
-          cd $(dirname "$IMAGE_PATH")
-          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
-          chmod +x patch_linux
-          ./patch_linux
-          rm -f Image
-          mv oImage Image
-          cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+      if [ -n "$image_path" ]; then
+        echo "找到 Image 文件: $image_path"
+        cp "$image_path" "$target1"
+        cp "$image_path" "$target2"
+      else
+        echo "在所有目录中未找到 Image 文件，构建可能失败"
+        exit 1
+      fi
+    fi
+
+    # 导出 Image 路径
+    echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
+
+- name: Apply patch_linux and replace Image
+  run: |
+    cd $(dirname "$IMAGE_PATH")
+    curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
+    chmod +x patch_linux
+    ./patch_linux
+    rm -f Image
+    mv oImage Image
+    cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
 
       - name: Download Latest SUSFS Module from CI
         if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
@@ -229,4 +244,3 @@ jobs:
         with:
          name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: ./AnyKernel3/*
-
