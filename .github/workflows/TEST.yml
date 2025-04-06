@@ -79,7 +79,7 @@ jobs:
           git add -A
           git commit -m "Force remove -dirty suffix from kernel version"
 
-      - name: Add KernelSU-SukiSU
+      - name: Add KernelSU-SukiSU-Ultra
         run: |
           cd kernel_workspace/kernel_platform
           curl -LSs "https://raw.githubusercontent.com/ShirkNeko/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
@@ -95,6 +95,7 @@ jobs:
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
           cd kernel_platform
+          # Copy SUSFS patches
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
@@ -149,7 +150,7 @@ jobs:
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
       - name: Build kernel
-        if: github.event.inputs.CPU == 'sm8650'
+        if: github.event.inputs.CPU == 'sm8650' 
         run: |
           cd kernel_workspace
           ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
@@ -203,7 +204,7 @@ jobs:
           cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
 
       - name: Download Latest SUSFS Module from CI
-        if: ${{ github.event.inputs.SUSFS_CI == true }}
+        if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
         run: |
           LATEST_RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/sidex15/susfs4ksu-module/actions/runs" | jq -r '.workflow_runs[0].id')
@@ -215,7 +216,7 @@ jobs:
           cp ksu_module_susfs.zip ./AnyKernel3/
 
       - name: Download Latest SUSFS Module from Release
-        if: ${{ github.event.inputs.SUSFS_CI == false }}
+        if: ${{ github.event.inputs.SUSFS_CI == 'false' }}
         run: |
           wget https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
           cp ksu_module_susfs_1.5.2+.zip ./AnyKernel3/
