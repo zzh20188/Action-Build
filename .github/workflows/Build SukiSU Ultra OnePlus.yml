@@ -26,6 +26,7 @@ on:
         description: "内核版本"
         required: true
         default: '5.15'
+
       SUSFS_CI:
         description: "SUSFS模块下载是否调用CI？"
         required: true
@@ -50,27 +51,27 @@ jobs:
 
       - name: Configure Git
         run: |
-         git config --global user.name "Numbersf"
-         git config --global user.email "263623064@qq.com"
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
 
       - name: Install dependencies
         run: |
-         sudo apt update && sudo apt upgrade -y
-         sudo apt install -y python3 git curl
+          sudo apt update && sudo apt upgrade -y
+          sudo apt install -y python3 git curl
 
       - name: Install repo tool
         run: |
-         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
-         chmod a+x ~/repo
-         sudo mv ~/repo /usr/local/bin/repo
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
+          chmod a+x ~/repo
+          sudo mv ~/repo /usr/local/bin/repo
 
       - name: Initialize repo and sync
         run: |
-         mkdir kernel_workspace && cd kernel_workspace
-         repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
-         repo sync
-         rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          mkdir kernel_workspace && cd kernel_workspace
+          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
+          repo sync
+          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
       - name: Force remove -dirty suffix
         run: |
@@ -89,8 +90,7 @@ jobs:
           cd ./KernelSU
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 12505)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-          #sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-          
+
       - name: Apply SUSFS Patches SukiSU
         run: |
           cd kernel_workspace
@@ -154,72 +154,71 @@ jobs:
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
-
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
         run: |
-         cd kernel_workspace
-         ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
+          cd kernel_workspace
+          ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
           
       - name: Fallback build kernel
         if: github.event.inputs.CPU != 'sm8650' 
         run: |
-         cd kernel_workspace
-         LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
+          cd kernel_workspace
+          LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
          
       - name: Make AnyKernel3
         run: |
-    # 克隆 AnyKernel3 仓库
-    git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
-    rm -rf ./AnyKernel3/.git
+          # 克隆 AnyKernel3 仓库
+          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
+          rm -rf ./AnyKernel3/.git
 
-    # 定义目录路径
-    dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
-    dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
-    target1="./AnyKernel3/"
-    target2="./kernel_workspace/kernel"
+          # 定义目录路径
+          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
+          target1="./AnyKernel3/"
+          target2="./kernel_workspace/kernel"
 
-    # 在第一个目录中查找 Image 文件
-    if [ -f "${dir1}Image" ]; then
-      echo "文件 Image 在dist目录中"
-      image_path="${dir1}Image"
-      cp "$image_path" "$target1"
-      cp "$image_path" "$target2"
-    
-    # 在第二个目录中查找 Image 文件
-    elif [ -f "${dir2}Image" ]; then
-      echo "文件 Image 在arch/arm64/boot目录中"
-      image_path="${dir2}Image"
-      cp "$image_path" "$target1"
-      cp "$image_path" "$target2"
+          # 在第一个目录中查找 Image 文件
+          if [ -f "${dir1}Image" ]; then
+            echo "文件 Image 在dist目录中"
+            image_path="${dir1}Image"
+            cp "$image_path" "$target1"
+            cp "$image_path" "$target2"
+          
+          # 在第二个目录中查找 Image 文件
+          elif [ -f "${dir2}Image" ]; then
+            echo "文件 Image 在arch/arm64/boot目录中"
+            image_path="${dir2}Image"
+            cp "$image_path" "$target1"
+            cp "$image_path" "$target2"
 
-    # 在所有子目录中查找 Image 文件
-    else
-      echo "在 kernel_workspace/kernel_platform/common/out/ 的所有子目录中查找 Image 文件"
-      image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
+          # 在所有子目录中查找 Image 文件
+          else
+            echo "在 kernel_workspace/kernel_platform/common/out/ 的所有子目录中查找 Image 文件"
+            image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
 
-      if [ -n "$image_path" ]; then
-        echo "找到 Image 文件: $image_path"
-        cp "$image_path" "$target1"
-        cp "$image_path" "$target2"
-      else
-        echo "在所有目录中未找到 Image 文件，构建可能失败"
-        exit 1
-      fi
-    fi
+            if [ -n "$image_path" ]; then
+              echo "找到 Image 文件: $image_path"
+              cp "$image_path" "$target1"
+              cp "$image_path" "$target2"
+            else
+              echo "在所有目录中未找到 Image 文件，构建可能失败"
+              exit 1
+            fi
+          fi
 
-    # 导出 Image 路径
-    echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
+          # 导出 Image 路径
+          echo "IMAGE_PATH=$image_path" >> $GITHUB_ENV
 
       - name: Apply patch_linux and replace Image
         run: |
-    cd $(dirname "$IMAGE_PATH")
-    curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
-    chmod +x patch_linux
-    ./patch_linux
-    rm -f Image
-    mv oImage Image
-    cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
+          cd $(dirname "$IMAGE_PATH")
+          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
+          chmod +x patch_linux
+          ./patch_linux
+          rm -f Image
+          mv oImage Image
+          cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
 
       - name: Download Latest SUSFS Module from CI
         if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
@@ -242,5 +241,5 @@ jobs:
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-         name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
-         path: ./AnyKernel3/*
+          name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
+          path: ./AnyKernel3/*
