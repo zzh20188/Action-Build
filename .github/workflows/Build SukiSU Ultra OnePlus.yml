@@ -71,15 +71,23 @@ jobs:
          repo sync
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-         sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
-         sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
-      
+
+      - name: Force remove -dirty suffix
+        run: |
+          cd kernel_workspace/kernel_platform
+          sed -i 's/ -dirty//g' common/scripts/setlocalversion
+          sed -i 's/ -dirty//g' msm-kernel/scripts/setlocalversion
+          sed -i 's/ -dirty//g' external/dtc/scripts/setlocalversion
+          sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' common/scripts/setlocalversion
+          git add -A
+          git commit -m "Force remove -dirty suffix from kernel version"
+
       - name: Add KernelSU-SukiSU-Ultra
         run: |
           cd kernel_workspace/kernel_platform
           curl -LSs "https://raw.githubusercontent.com/ShirkNeko/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
           cd ./KernelSU
-          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 12506)
+          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 12505)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           #sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
           
@@ -146,10 +154,6 @@ jobs:
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
-      - name: Add make name
-        run: |
-         cd kernel_workspace/kernel_platform
-         sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
 
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
