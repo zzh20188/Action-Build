@@ -149,39 +149,37 @@ jobs:
           cd kernel_workspace
           ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
 
-      - name: Fallback build kernel
-        if: github.event.inputs.CPU != 'sm8650'
-        run: |
-          cd kernel_workspace
-          LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
-
       - name: Make AnyKernel3
-        run: |
-          git clone https://github.com/Numbersf/AnyKernel3 --depth=1
-          rm -rf ./AnyKernel3/.git
-          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
-          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
-          dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-gki/dist/"
-          target1="./AnyKernel3/"
-          target2="./kernel_workspace/kernel"
+  run: |
+    git clone https://github.com/Numbersf/AnyKernel3 --depth=1
+    rm -rf ./AnyKernel3/.git
+    dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+    dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
+    dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-gki/dist/"
+    target1="./AnyKernel3/"
+    target2="./kernel_workspace/kernel"
 
-          if find "$dir1" -name "Image" | grep -q "Image"; then
-            image_path="$dir1"Image
-          elif find "$dir2" -name "Image" | grep -q "Image"; then
-            image_path="$dir2"Image
-          elif find "$dir3" -name "Image" | grep -q "Image"; then
-            image_path="$dir3"Image
-          else
-            image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
-          fi
+    if find "$dir1" -name "Image" | grep -q "Image"; then
+      image_path="$dir1"Image
+    elif find "$dir2" -name "Image" | grep -q "Image"; then
+      image_path="$dir2"Image
+    elif find "$dir3" -name "Image" | grep -q "Image"; then
+      image_path="$dir3"Image
+    else
+      image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
+    fi
 
-          if [ -n "$image_path" ] && [ -f "$image_path" ]; then
-            mkdir -p "$dir1"
-            cp "$image_path" "$dir1"
-          else
-            echo "未找到 Image 文件，构建可能失败"
-            exit 1
-          fi
+    if [ -n "$image_path" ] && [ -f "$image_path" ]; then
+      mkdir -p "$dir1"
+      if [ "$(realpath "$image_path")" != "$(realpath "$dir1"Image)" ]; then
+        cp "$image_path" "$dir1"
+      else
+        echo "源文件与目标相同，跳过复制"
+      fi
+    else
+      echo "未找到 Image 文件，构建可能失败"
+      exit 1
+    fi
 
       - name: Apply patch_linux and replace Image
         run: |
