@@ -122,25 +122,26 @@ jobs:
       - name: Add SUSFS Configuration Settings
         run: |
           cd kernel_workspace/kernel_platform
-          echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          defconfig=./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU=y" >> $defconfig
+          echo "CONFIG_KPM=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> $defconfig
+          echo "CONFIG_KSU_MANUAL_HOOK=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> $defconfig
+          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> $defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
       - name: Build kernel
@@ -151,35 +152,35 @@ jobs:
 
       - name: Make AnyKernel3
         run: |
-    git clone https://github.com/Numbersf/AnyKernel3 --depth=1
-    rm -rf ./AnyKernel3/.git
-    dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
-    dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
-    dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-gki/dist/"
-    target1="./AnyKernel3/"
-    target2="./kernel_workspace/kernel"
+          git clone https://github.com/Numbersf/AnyKernel3 --depth=1
+          rm -rf ./AnyKernel3/.git
+          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
+          dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-gki/dist/"
+          target1="./AnyKernel3/"
+          target2="./kernel_workspace/kernel"
 
-    if find "$dir1" -name "Image" | grep -q "Image"; then
-      image_path="$dir1"Image
-    elif find "$dir2" -name "Image" | grep -q "Image"; then
-      image_path="$dir2"Image
-    elif find "$dir3" -name "Image" | grep -q "Image"; then
-      image_path="$dir3"Image
-    else
-      image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
-    fi
+          if find "$dir1" -name "Image" | grep -q "Image"; then
+            image_path="$dir1"Image
+          elif find "$dir2" -name "Image" | grep -q "Image"; then
+            image_path="$dir2"Image
+          elif find "$dir3" -name "Image" | grep -q "Image"; then
+            image_path="$dir3"Image
+          else
+            image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
+          fi
 
-    if [ -n "$image_path" ] && [ -f "$image_path" ]; then
-      mkdir -p "$dir1"
-      if [ "$(realpath "$image_path")" != "$(realpath "$dir1"Image)" ]; then
-        cp "$image_path" "$dir1"
-      else
-        echo "源文件与目标相同，跳过复制"
-      fi
-    else
-      echo "未找到 Image 文件，构建可能失败"
-      exit 1
-    fi
+          if [ -n "$image_path" ] && [ -f "$image_path" ]; then
+            mkdir -p "$dir1"
+            if [ "$(realpath "$image_path")" != "$(realpath "$dir1"Image)" ]; then
+              cp "$image_path" "$dir1"
+            else
+              echo "源文件与目标相同，跳过复制"
+            fi
+          else
+            echo "未找到 Image 文件，构建可能失败"
+            exit 1
+          fi
 
       - name: Apply patch_linux and replace Image
         run: |
