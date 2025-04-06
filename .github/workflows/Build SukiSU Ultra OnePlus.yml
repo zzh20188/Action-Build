@@ -169,10 +169,41 @@ jobs:
          
       - name: Make AnyKernel3
         run: |
-         git clone https://github.com/Numbersf/AnyKernel3 --depth=1
-         rm -rf ./AnyKernel3/.git
-         cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./AnyKernel3/
-         cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./kernel_workspace/kernel
+          # 克隆 AnyKernel3 仓库
+          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
+          rm -rf ./AnyKernel3/.git
+
+          # 定义目录路径
+          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
+          target1="./AnyKernel3/"
+          target2="./kernel_workspace/kernel"
+
+          # 在第一个目录中查找 Image 文件
+          if find "$dir1" -name "Image" | grep -q "Image"; then
+            echo "文件 Image 在dist目录中"
+            cp "$dir1"Image "$target1"
+            cp "$dir1"Image "$target2"
+          else
+            # 在第二个目录中查找 Image 文件
+            if find "$dir2" -name "Image" | grep -q "Image"; then
+              echo "文件 Image 在arch/arm64/boot目录中"
+              cp "$dir2"Image "$target1"
+              cp "$dir2"Image "$target2"
+            else
+              # 在 kernel_workspace/kernel_platform/common/out/ 的所有子目录中查找 Image 文件
+              echo "在 kernel_workspace/kernel_platform/common/out/ 的所有子目录中查找 Image 文件"
+              image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
+              
+              if [ -n "$image_path" ]; then
+                echo "找到 Image 文件: $image_path"
+                cp "$image_path" "$target1"
+                cp "$image_path" "$target2"
+              else
+                echo "在所有目录中未找到 Image 文件，构建可能失败"
+              fi
+            fi
+          fi
 
       - name: Apply patch_linux and replace Image
         run: |
