@@ -195,11 +195,7 @@ jobs:
       - name: Apply patch_linux and replace Image
         run: |
           cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist
-          latest_url=$(curl -s https://api.github.com/repos/ShirkNeko/SukiSU_KernelPatch_patch/releases/latest \
-            | grep browser_download_url \
-            | grep patch_linux \
-            | cut -d '"' -f 4)
-          curl -LO "$latest_url"
+          curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
           chmod +x patch_linux
           ./patch_linux
           rm -f Image
