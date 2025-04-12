@@ -130,7 +130,7 @@ jobs:
           echo "正在打隐藏应用补丁"
           patch -p1 -F 3 < 69_hide_stuff.patch
 
-      # VFS补丁 + lz4钩子
+      # VFS？LZ4？
       - name: Apply VFS and LZ4KD
         run: |
           cd kernel_workspace/kernel_platform/common
@@ -140,7 +140,14 @@ jobs:
           patch -p1 -F 3 < new_hooks.patch
           echo "vfs_patch完成"
           fi
-          
+
+          if [ "${{ github.event.inputs.VFS }}" = "false" ]; then
+          cp ../../SukiSU_patch/hooks/new_hooks.patch ./
+          echo "正在打ksu官方补丁"
+          patch -p1 -F 3 < ksu_hooks.patch
+          echo "ksu_patch完成"
+          fi
+
           if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
             cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
