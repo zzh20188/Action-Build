@@ -8,7 +8,7 @@ Build OnePlus SukiSU Ultra KPM Kernel
 
 LZ4 has issues on some devices and is currently being fixed. **If the build fails, please avoid using LZ4 for now.**
  
-Recently, there have been problems with GitHub Actions. If the "Initialize repo and sync" step takes more than 5 minutes, please **cancel** the run immediately!
+Recently, there have been problems with GitHub Actions. If the "Install dependencies" step takes more than 5 minutes, please **cancel** the run immediately!
  
 **If you encounter issues with Ace3V or Ace5, try running the build multiple times.**
  
