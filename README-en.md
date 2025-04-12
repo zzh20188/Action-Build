@@ -1,4 +1,4 @@
-Enlish(README-en.md) | [简体中文](README.md)
+[Enlish](README-en.md) | [简体中文](README.md)
  
 # Action-Build
  
