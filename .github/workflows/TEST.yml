@@ -1,5 +1,4 @@
 name: Build TEST
-
 on:
   workflow_dispatch:
     inputs:
@@ -27,7 +26,17 @@ on:
         description: "SUSFS模块下载是否调用CI？"
         required: true
         type: boolean
-        default: true
+        default: 'true'
+      LZ4:
+        description: "是否启用lz4？"
+        required: true
+        type: boolean
+        default: 'true'
+      VFS:
+        description: "是否启用VFS？"
+        required: true
+        type: boolean
+        default: 'true'
 
 jobs:
   build:
@@ -69,6 +78,7 @@ jobs:
           rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
+      # 删除 -dirty 后缀
       - name: Force remove -dirty suffix
         run: |
           cd kernel_workspace/kernel_platform
@@ -79,7 +89,8 @@ jobs:
           git add -A
           git commit -m "Force remove -dirty suffix from kernel version"
 
-      - name: Add KernelSU-SukiSU-Ultra
+      # 添加 SukiSU Ultra
+      - name: Add KernelSU-SukiSU Ultra
         run: |
           cd kernel_workspace/kernel_platform
           curl -LSs "https://raw.githubusercontent.com/ShirkNeko/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
@@ -89,17 +100,25 @@ jobs:
           export KSU_VERSION=$KSU_VERSION
           sed -i "s/DKSU_VERSION=12500/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
-      - name: Apply SUSFS Patches SukiSU
+      - name: Apply SUSFS Patches SukiSU Ultra
         run: |
           cd kernel_workspace
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
           cd kernel_platform
           # Copy SUSFS patches
+          echo "正在给内核打susfs补丁"
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-          echo "正在给内核打susfs补丁"
+
+          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
+            echo "正在给内核打lz4补丁"
+            cp -r ../SukiSU_patch/other/lz4k/include/linux/* ./common/include/linux
+            cp -r ../SukiSU_patch/other/lz4k/lib/* ./common/lib
+            cp -r ../SukiSU_patch/other/lz4k/crypto/* ./common/crypto
+          fi
+
           cd ./common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           echo "完成"
@@ -111,26 +130,38 @@ jobs:
           echo "正在打隐藏应用补丁"
           patch -p1 -F 3 < 69_hide_stuff.patch
 
-      - name: Apply New Hooks Patches
+      # VFS补丁 + lz4钩子
+      - name: Apply VFS and LZ4KD
         run: |
           cd kernel_workspace/kernel_platform/common
+          if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
           cp ../../SukiSU_patch/hooks/new_hooks.patch ./
           echo "正在打vfs补丁"
           patch -p1 -F 3 < new_hooks.patch
-          echo "完成"
+          echo "vfs_patch完成"
+          fi
+          
+          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
+            cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
+            echo "正在打lz4kd补丁"
+            patch -p1 -F 3 < lz4kd.patch || true
+            echo "lz4_patch完成"
+          fi
 
+      # 配置 SUSFS
       - name: Add SUSFS Configuration Settings
+        if: ${{ github.event.inputs.VFS == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform
-          # Add KSU configuration settings
+          # SukiSU Ultra config
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
-          
-          # Add VFS configuration settings
+
+          # VFS config
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
-          
-          # Add SUSFS configuration settings
+
+          # SUSFS config
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -148,6 +179,52 @@ jobs:
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
+
+      # 添加 LZ4 Config
+      - name: Add ZRAM + LZ4KD Configuration Settings
+        if: ${{ github.event.inputs.LZ4 == 'true' }}
+        run: |
+          cd kernel_workspace/kernel_platform
+          KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
+
+          if [[ "$KERNEL_VERSION" = "5.10" ]]; then
+              echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_ZRAM=y" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_MODULE_SIG=n" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_CRYPTO_LZO=y" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_ZRAM_DEF_COMP_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
+
+          if [[ "$KERNEL_VERSION" != "6.6" && "$KERNEL_VERSION" != "5.10" ]]; then
+              sed -i 's/CONFIG_MODULE_SIG=y/CONFIG_MODULE_SIG=n/g' ./common/arch/arm64/configs/gki_defconfig
+              sed -i 's/CONFIG_ZSMALLOC=m/CONFIG_ZSMALLOC=y/g' ./common/arch/arm64/configs/gki_defconfig
+              sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' ./common/arch/arm64/configs/gki_defconfig
+          fi
+
+          if [[ "$KERNEL_VERSION" = "6.6" ]]; then
+              echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
+              sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' ./common/arch/arm64/configs/gki_defconfig
+          fi
+
+          if grep -q "CONFIG_ZSMALLOC=y" ./common/arch/arm64/configs/gki_defconfig && grep -q "CONFIG_ZRAM=y" ./common/arch/arm64/configs/gki_defconfig; then
+              echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_CRYPTO_842=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
+
+          sed -i 's/check_defconfig//' ./common/build.config.gki
+
+      - name: Fix GKI modules list
+        if: ${{ github.event.inputs.LZ4 == 'true' }}
+        run: |
+          MODULES_ORDER_PATH=$(find kernel_workspace/kernel_platform/out -name "modules.order" | grep gki_kernel/common | head -n 1)
+          if [ -f "$MODULES_ORDER_PATH" ]; then
+            cp "$MODULES_ORDER_PATH" kernel_workspace/kernel_platform/common/android/gki_aarch64_modules
+            echo "已更新 gki_aarch64_modules"
+          else
+            echo "未找到 modules.order，跳过"
+          fi
 
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
@@ -203,6 +280,7 @@ jobs:
           mv oImage Image
           cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
 
+      # 下载 SUSFS 模块（CI）
       - name: Download Latest SUSFS Module from CI
         if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
         run: |
@@ -215,6 +293,7 @@ jobs:
           curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -o ksu_module_susfs.zip "$ARTIFACT_URL"
           cp ksu_module_susfs.zip ./AnyKernel3/
 
+      # 下载 SUSFS 模块（Release）
       - name: Download Latest SUSFS Module from Release
         if: ${{ github.event.inputs.SUSFS_CI == 'false' }}
         run: |
@@ -224,5 +303,5 @@ jobs:
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
+          name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
           path: ./AnyKernel3/*
