@@ -158,8 +158,13 @@ jobs:
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # VFS config
+          if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
+          if [ "${{ github.event.inputs.VFS }}" = "false" ]; then
+          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
 
           # SUSFS config
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -178,13 +183,12 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           # Remove check_defconfig
+          if [ "${{ github.event.inputs.LZ4 }}" = "false" ]; then
           sed -i 's/check_defconfig//' ./common/build.config.gki
+          fi
 
-      # 添加 LZ4 Config
-      - name: Add ZRAM + LZ4KD Configuration Settings
-        if: ${{ github.event.inputs.LZ4 == 'true' }}
-        run: |
-          cd kernel_workspace/kernel_platform
+          # 添加 LZ4 Config
+          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
           CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
           KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
 
@@ -212,8 +216,10 @@ jobs:
               echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
               echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
               echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
+
+          # Remove check_defconfig
+          sed -i 's/check_defconfig//' ./common/build.config.gki
           fi
-              sed -i 's/check_defconfig//' ./common/build.config.gki
 
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
