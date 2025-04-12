@@ -150,7 +150,6 @@ jobs:
 
       # 配置 SUSFS
       - name: Add SUSFS Configuration Settings
-        if: ${{ github.event.inputs.VFS == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform
           CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
