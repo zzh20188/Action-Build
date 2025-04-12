@@ -142,7 +142,7 @@ jobs:
           fi
 
           if [ "${{ github.event.inputs.VFS }}" = "false" ]; then
-          cp ../../SukiSU_patch/hooks/new_hooks.patch ./
+          cp ../../SukiSU_patch/hooks/ksu_hooks.patch ./
           echo "正在打ksu官方补丁"
           patch -p1 -F 3 < ksu_hooks.patch
           echo "ksu_patch完成"
