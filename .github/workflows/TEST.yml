@@ -145,6 +145,7 @@ jobs:
             cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
             patch -p1 -F 3 < lz4kd.patch || true
+            patch -p1 -F 3 < lz4.patch || true
             echo "lz4_patch完成"
           fi
 
@@ -185,46 +186,32 @@ jobs:
         if: ${{ github.event.inputs.LZ4 == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform
-          KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
+          echo "CONFIG_CRYPTO_LZ4=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_842=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_LZO=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_ZSTD=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_XZ=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CRYPTO_DEFLATE=y" >> ./common/arch/arm64/configs/gki_defconfig
 
-          if [[ "$KERNEL_VERSION" = "5.10" ]]; then
-              echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_ZRAM=y" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_MODULE_SIG=n" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_CRYPTO_LZO=y" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_ZRAM_DEF_COMP_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
-          fi
+          # ZRAM/ZSWAP配置
+          echo "CONFIG_ZRAM=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_ZRAM_WRITEBACK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_ZSMALLOC_CHAIN_SIZE=8" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_ZSWAP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_ZPOOL=y" >> ./common/arch/arm64/configs/gki_defconfig
 
-          if [[ "$KERNEL_VERSION" != "6.6" && "$KERNEL_VERSION" != "5.10" ]]; then
-              sed -i 's/CONFIG_MODULE_SIG=y/CONFIG_MODULE_SIG=n/g' ./common/arch/arm64/configs/gki_defconfig
-              sed -i 's/CONFIG_ZSMALLOC=m/CONFIG_ZSMALLOC=y/g' ./common/arch/arm64/configs/gki_defconfig
-              sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' ./common/arch/arm64/configs/gki_defconfig
-          fi
+          # 其他内核配置
+          echo "CONFIG_MODULE_SIG=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MODULE_SIG_ALL=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MODULE_SIG_SHA512=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MODULE_SIG_HASH=sha512" >> ./common/arch/arm64/configs/gki_defconfig
 
-          if [[ "$KERNEL_VERSION" = "6.6" ]]; then
-              echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
-              sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' ./common/arch/arm64/configs/gki_defconfig
-          fi
-
-          if grep -q "CONFIG_ZSMALLOC=y" ./common/arch/arm64/configs/gki_defconfig && grep -q "CONFIG_ZRAM=y" ./common/arch/arm64/configs/gki_defconfig; then
-              echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
-              echo "CONFIG_CRYPTO_842=y" >> ./common/arch/arm64/configs/gki_defconfig
-          fi
-
+          # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
-
-      - name: Fix GKI modules list
-        if: ${{ github.event.inputs.LZ4 == 'true' }}
-        run: |
-          MODULES_ORDER_PATH=$(find kernel_workspace/kernel_platform/out -name "modules.order" | grep gki_kernel/common | head -n 1)
-          if [ -f "$MODULES_ORDER_PATH" ]; then
-            cp "$MODULES_ORDER_PATH" kernel_workspace/kernel_platform/common/android/gki_aarch64_modules
-            echo "已更新 gki_aarch64_modules"
-          else
-            echo "未找到 modules.order，跳过"
-          fi
 
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
