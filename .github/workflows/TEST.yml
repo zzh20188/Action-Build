@@ -31,7 +31,7 @@ on:
         description: "是否启用lz4？"
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       VFS:
         description: "是否启用VFS？"
         required: true
@@ -111,14 +111,6 @@ jobs:
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-
-          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
-            echo "正在给内核打lz4补丁"
-            cp -r ../SukiSU_patch/other/lz4k/include/linux/* ./common/include/linux
-            cp -r ../SukiSU_patch/other/lz4k/lib/* ./common/lib
-            cp -r ../SukiSU_patch/other/lz4k/crypto/* ./common/crypto
-          fi
-
           cd ./common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           echo "完成"
@@ -145,7 +137,6 @@ jobs:
             cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
             patch -p1 -F 3 < lz4kd.patch || true
-            patch -p1 -F 3 < lz4.patch || true
             echo "lz4_patch完成"
           fi
 
@@ -159,8 +150,13 @@ jobs:
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # VFS config
+          if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
+          if [ "${{ github.event.inputs.VFS }}" = "false" ]; then
+          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
 
           # SUSFS config
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -179,39 +175,43 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           # Remove check_defconfig
+          if [ "${{ github.event.inputs.LZ4 }}" = "false" ]; then
           sed -i 's/check_defconfig//' ./common/build.config.gki
+          fi
 
-      # 添加 LZ4 Config
-      - name: Add ZRAM + LZ4KD Configuration Settings
-        if: ${{ github.event.inputs.LZ4 == 'true' }}
-        run: |
-          cd kernel_workspace/kernel_platform
-          echo "CONFIG_CRYPTO_LZ4=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_842=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_LZO=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_ZSTD=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_XZ=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_CRYPTO_DEFLATE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # 添加 LZ4 Config
+          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
+          CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
+          KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
 
-          # ZRAM/ZSWAP配置
-          echo "CONFIG_ZRAM=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_ZRAM_WRITEBACK=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_ZSMALLOC_CHAIN_SIZE=8" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_ZSWAP=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_ZPOOL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          if [[ "$KERNEL_VERSION" = "5.10" ]]; then
+              echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+              echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"
+              echo "CONFIG_MODULE_SIG=n" >> "$CONFIG_FILE"
+              echo "CONFIG_CRYPTO_LZO=y" >> "$CONFIG_FILE"
+              echo "CONFIG_ZRAM_DEF_COMP_LZ4KD=y" >> "$CONFIG_FILE"
+          fi
 
-          # 其他内核配置
-          echo "CONFIG_MODULE_SIG=n" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MODULE_SIG_ALL=n" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MODULE_SIG_SHA512=n" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MODULE_SIG_HASH=sha512" >> ./common/arch/arm64/configs/gki_defconfig
+          if [[ "$KERNEL_VERSION" != "6.6" && "$KERNEL_VERSION" != "5.10" ]]; then
+              sed -i 's/CONFIG_MODULE_SIG=y/CONFIG_MODULE_SIG=n/g' "$CONFIG_FILE"
+              sed -i 's/CONFIG_ZSMALLOC=m/CONFIG_ZSMALLOC=y/g' "$CONFIG_FILE"
+              sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
+          fi
+
+          if [[ "$KERNEL_VERSION" = "6.6" ]]; then
+              echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+              sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
+          fi
+
+          if grep -q "CONFIG_ZSMALLOC=y" "$CONFIG_FILE" && grep -q "CONFIG_ZRAM=y" "$CONFIG_FILE"; then
+              echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
+              echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
+              echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
+              echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
 
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
+          fi
 
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
