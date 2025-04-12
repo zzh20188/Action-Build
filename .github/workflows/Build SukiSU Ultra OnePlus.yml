@@ -169,6 +169,7 @@ jobs:
 
       # 添加 LZ4 Config
       - name: Add ZRAM + LZ4KD Configuration
+        if: ${{ github.event.inputs.LZ4 == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform
           CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
