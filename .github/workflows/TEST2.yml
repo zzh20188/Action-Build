@@ -215,6 +215,17 @@ jobs:
           fi
               sed -i 's/check_defconfig//' ./common/build.config.gki
 
+      - name: Fix GKI modules list
+        if: ${{ github.event.inputs.LZ4 == 'true' }}
+        run: |
+          MODULES_ORDER_PATH=$(find kernel_workspace/kernel_platform/out -name "modules.order" | grep gki_kernel/common | head -n 1)
+          if [ -f "$MODULES_ORDER_PATH" ]; then
+            cp "$MODULES_ORDER_PATH" kernel_workspace/kernel_platform/common/android/gki_aarch64_modules
+            echo "已更新 gki_aarch64_modules"
+          else
+            echo "未找到 modules.order，跳过"
+          fi
+
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
         run: |
