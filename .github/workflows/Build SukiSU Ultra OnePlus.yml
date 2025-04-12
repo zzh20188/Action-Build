@@ -213,6 +213,7 @@ jobs:
               echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
               echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
           fi
+              sed -i 's/check_defconfig//' ./common/build.config.gki
 
       - name: Build kernel
         if: github.event.inputs.CPU == 'sm8650' 
