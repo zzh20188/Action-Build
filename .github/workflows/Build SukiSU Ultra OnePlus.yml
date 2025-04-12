@@ -31,7 +31,7 @@ on:
         description: "是否启用lz4？"
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       VFS:
         description: "是否启用VFS？"
         required: true
