@@ -7,6 +7,7 @@ Build OnePlus SukiSU Ultra KPM Kernel
 记得**音量下**安装模块,系统更新等无root状态使用**音量上**不安装模块
  
 # 更新日志:
+- 支持lz4、lz4可以自选是否开启
 - 修复版本号错误
 - 新增dir3用于支持sm8750(比如ace2)
 - 支持自动下载最新CI/Release的susfs模块并调用ksud安装
