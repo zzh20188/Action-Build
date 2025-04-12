@@ -94,7 +94,7 @@ jobs:
           sed -i "s/DKSU_VERSION=12500/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
       - name: Apply SUSFS Patches SukiSU Ultra LZ4
-      if: ${{ github.event.inputs.LZ4 == 'true' }}
+        if: ${{ github.event.inputs.LZ4 == 'true' }}
         run: |
           cd kernel_workspace
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
@@ -115,7 +115,7 @@ jobs:
           echo "完成"
   
       - name: Apply SUSFS Patches SukiSU Ultra
-      if: ${{ github.event.inputs.LZ4 == 'false' }}
+        if: ${{ github.event.inputs.LZ4 == 'false' }}
         run: |
           cd kernel_workspace
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
