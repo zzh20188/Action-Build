@@ -139,7 +139,8 @@ jobs:
           echo "正在打vfs补丁"
           patch -p1 -F 3 < new_hooks.patch
           echo "vfs_patch完成"
-
+          fi
+          
           if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
             cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
