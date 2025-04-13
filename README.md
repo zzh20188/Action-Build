@@ -6,8 +6,6 @@ Build OnePlus SukiSU Ultra KPM Kernel
 # 公告
 部分设备的lz4存在问题,尝试修复中,**跑不出来请先不要使用lz4**
  
-近期GitHub Action有问题,如果你在**Install dependencies**这一步跑了超过5分钟,请果断**暂停**！重新开始
- 
 **Ace3V和Ace5有问题就多跑几次**
  
 记得**音量下**安装模块,系统更新等无root状态使用**音量上**不安装模块
