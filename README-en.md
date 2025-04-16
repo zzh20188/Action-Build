@@ -1,7 +1,5 @@
 **Enlish** | [简体中文](README.md)
  
-**简体中文** | [English](README-en.md)
- 
 # Action-Build  
 ```Build OnePlus SukiSU Ultra KPM Kernel```
  
