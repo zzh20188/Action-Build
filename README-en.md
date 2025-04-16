@@ -1,24 +1,21 @@
 **Enlish** | [简体中文](README.md)
  
-# Action-Build
+**简体中文** | [English](README-en.md)
  
-Build OnePlus SukiSU Ultra KPM Kernel
-
-# Announcement
-
-LZ4 has issues on some devices and is currently being fixed. **If the build fails, please avoid using LZ4 for now.**
+# Action-Build  
+```Build OnePlus SukiSU Ultra KPM Kernel```
  
-**If you encounter issues with Ace3V or Ace5, try running the build multiple times.**
+OnePlus kernel open source address: [OnePlusOSS](https://github.com/OnePlusOSS/kernel_manifest)
  
-Remember to use **Volume Down** to install modules. For system updates or other non-root situations, use **Volume Up** to skip module installation.
+# Announcement  
+Some devices have issues with ``lz4kd``, currently under investigation. **If it fails to boot, please do not enable ``lz4``**
  
-# Changelog:
+Remember to install the module with **Volume Down**
  
-- Support for lz4kd (optional toggle)
-- Fixed version number error
-- Added dir3 to support sm8750 (e.g., Ace2)
-- Supports automatic download of the latest CI/Release SUSFS module and installation via ksud
-- KPM support (no need for any manual copying or modifications)
-- VFS HOOK support (optional toggle)
- 
-OnePlus kernel source:[OnePlusOSS](https://github.com/OnePlusOSS/kernel_manifest)
+# Changelog:  
+- Optimized ```build``` scheme for ```sm8750``` and ```sm7675```  
+- Support for ```lz4kd``` (optional to enable)  
+- Fixed version number error  
+- Added ```dir3``` path to support ```sm8750``` (e.g., ```ace2```)  
+- Supports automatic download and installation of the latest ```susfs``` module from ```CI/Release``` via ```ksud```  
+- Supports ```KPM``` (no need for any modification or copying), and ```VFS HOOK``` (optional to enable)
