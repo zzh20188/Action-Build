@@ -1,7 +1,7 @@
 **简体中文** | [English](README-en.md)
  
 # Action-Build
-```Build OnePlus SukiSU Ultra KPM Kernel```
+**```Build OnePlus SukiSU Ultra KPM Kernel```**
  
 一加内核开源地址：[OnePlusOSS](https://github.com/OnePlusOSS/kernel_manifest)
  
