@@ -135,9 +135,9 @@ jobs:
         run: |
           cd kernel_workspace/kernel_platform/common
           if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
-          cp ../../SukiSU_patch/hooks/new_hooks.patch ./
+          cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
           echo "正在打vfs补丁"
-          patch -p1 -F 3 < new_hooks.patch
+          patch -p1 -F 3 < syscall_hooks.patch
           echo "vfs_patch完成"
           fi
 
