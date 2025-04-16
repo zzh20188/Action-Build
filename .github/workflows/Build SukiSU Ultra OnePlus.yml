@@ -148,7 +148,7 @@ jobs:
           echo "ksu_patch完成"
           fi
 
-          if [ "${{ github.event.inputs.LZ4 }}" = "true" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" != "5.10" ]; then
+          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
             cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
             patch -p1 -F 3 < lz4kd.patch || true
