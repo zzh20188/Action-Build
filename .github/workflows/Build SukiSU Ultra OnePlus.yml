@@ -260,6 +260,7 @@ jobs:
           dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
           dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
           target1="./AnyKernel3/"
+          target2="./kernel_workspace/kernel"
 
           # 查找 Image 文件
           if find "$dir1" -name "Image" | grep -q "Image"; then
