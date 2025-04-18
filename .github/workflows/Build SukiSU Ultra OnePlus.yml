@@ -301,6 +301,7 @@ jobs:
               echo "$file 不存在，跳过复制"
             fi
           done
+          fi
 
       - name: Apply patch_linux and replace Image
         run: |
