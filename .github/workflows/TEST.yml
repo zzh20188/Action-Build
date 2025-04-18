@@ -287,24 +287,20 @@ jobs:
             exit 1
           fi
 
-          # 仅在 sm8750 时复制附加文件
-    if [ "${{ github.event.inputs.CPUD }}" = "sm8750" ]; then
-      echo "当前 CPU 为 sm8750，复制附加镜像文件..."
-      for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
-        if [ -f "$dir1$file" ]; then
-          target_name="$file"
-          if [ "$file" = "system_dlkm.erofs.img" ]; then
-            target_name="system_dlkm.img"
-          fi
-          cp "$dir1$file" "./AnyKernel3/$target_name"
-        else
-          echo "$file 不存在，跳过复制"
-        fi
-      done
-    else
-      echo "当前 CPU 不是 sm8750，跳过附加镜像文件复制"
-    fi
-          
+          # 可选复制其它新文件（如果存在）
+          if [ "${{ github.event.inputs.CPUD }}" = "sm8750" ]; then
+          for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
+            if [ -f "$dir1$file" ]; then
+              target_name="$file"
+              # 特殊处理 system_dlkm.erofs.img 的目标名
+              if [ "$file" = "system_dlkm.erofs.img" ]; then
+                target_name="system_dlkm.img"
+              fi
+              cp "$dir1$file" "./AnyKernel3/$target_name"
+            else
+              echo "$file 不存在，跳过复制"
+            fi
+          done
 
       - name: Apply patch_linux and replace Image
         run: |
