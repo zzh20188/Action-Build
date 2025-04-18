@@ -289,7 +289,6 @@ jobs:
 
           # 可选复制其它新文件（如果存在）
           if [ "${{ github.event.inputs.CPUD }}" = "sm8750" ]; then
-          echo "当前 CPU 为 sm8750，复制附加镜像文件..."
           for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
             if [ -f "$dir1$file" ]; then
               target_name="$file"
@@ -302,9 +301,6 @@ jobs:
               echo "$file 不存在，跳过复制"
             fi
           done
-        else
-            echo "当前 CPU 不是 sm8750，跳过附加镜像文件复制"
-        fi
 
       - name: Apply patch_linux and replace Image
         run: |
