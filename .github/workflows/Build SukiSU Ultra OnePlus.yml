@@ -30,17 +30,17 @@ on:
         description: "SUSFS模块下载是否调用CI？"
         required: true
         type: boolean
-        default: 'true'
+        default: true
       LZ4:
         description: "是否启用lz4？"
         required: true
         type: boolean
-        default: 'false'
+        default: false
       VFS:
         description: "是否启用VFS？"
         required: true
         type: boolean
-        default: 'true'
+        default: true
 
 jobs:
   build:
