@@ -22,6 +22,10 @@ on:
         description: "内核版本"
         required: true
         default: '5.15'
+      BUILD_METHOD:
+        description: "编译方式gki？perf？"
+        required: true
+        default: 'gki'
       SUSFS_CI:
         description: "SUSFS模块下载是否调用CI？"
         required: true
@@ -239,24 +243,25 @@ jobs:
         if: ${{ github.event.inputs.CPU == 'sm8650' || github.event.inputs.CPU == 'sm8750' || github.event.inputs.CPU == 'sm7675' }}
         run: |
           cd kernel_workspace
-          ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
+          ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
           
       - name: Fallback build kernel
         if: ${{ github.event.inputs.CPU != 'sm8650' && github.event.inputs.CPU != 'sm8750' && github.event.inputs.CPU != 'sm7675' }}
         run: |
          cd kernel_workspace
-         LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
+         LTO=thin ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
 
       - name: Make AnyKernel3
         run: |
           git clone https://github.com/Numbersf/AnyKernel3 --depth=1
           rm -rf ./AnyKernel3/.git
-          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
-          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
-          dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-gki/dist/"
-          target1="./AnyKernel3/"
-          target2="./kernel_workspace/kernel"
 
+          dir1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
+          dir2="./kernel_workspace/kernel_platform/common/out/arch/arm64/boot/"
+          dir3="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
+          target1="./AnyKernel3/"
+
+          # 查找 Image 文件
           if find "$dir1" -name "Image" | grep -q "Image"; then
             image_path="$dir1"Image
           elif find "$dir2" -name "Image" | grep -q "Image"; then
@@ -267,6 +272,7 @@ jobs:
             image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
           fi
 
+          # 拷贝 Image
           if [ -n "$image_path" ] && [ -f "$image_path" ]; then
             mkdir -p "$dir1"
             if [ "$(realpath "$image_path")" != "$(realpath "$dir1"Image)" ]; then
@@ -274,14 +280,29 @@ jobs:
             else
               echo "源文件与目标相同，跳过复制"
             fi
+            cp "$dir1"Image ./AnyKernel3/Image
           else
             echo "未找到 Image 文件，构建可能失败"
             exit 1
           fi
 
+          # 可选复制其它新文件（如果存在）
+          for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
+            if [ -f "$dir1$file" ]; then
+              target_name="$file"
+              # 特殊处理 system_dlkm.erofs.img 的目标名
+              if [ "$file" = "system_dlkm.erofs.img" ]; then
+                target_name="system_dlkm.img"
+              fi
+              cp "$dir1$file" "./AnyKernel3/$target_name"
+            else
+              echo "$file 不存在，跳过复制"
+            fi
+          done
+
       - name: Apply patch_linux and replace Image
         run: |
-          cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist
+          cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist
           curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
           chmod +x patch_linux
           ./patch_linux
