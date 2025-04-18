@@ -303,7 +303,7 @@ jobs:
             fi
           done
         else
-          echo "当前 CPU 不是 sm8750，跳过附加镜像文件复制"
+            echo "当前 CPU 不是 sm8750，跳过附加镜像文件复制"
         fi
 
       - name: Apply patch_linux and replace Image
