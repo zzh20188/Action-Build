@@ -319,12 +319,13 @@ jobs:
         run: |
           LATEST_RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/sidex15/susfs4ksu-module/actions/runs?status=success" | \
-      jq -r '.workflow_runs[] | select(.name == "v1.5.2+") | .id' | head -n 1)
+            jq -r '.workflow_runs[] | select(.name == "v1.5.2+") | .id' | head -n 1)
 
-    if [ -z "$LATEST_RUN_ID" ]; then
-      echo "No successful run found for channel v1.5.2+"
-      exit 1
-    fi
+          if [ -z "$LATEST_RUN_ID" ]; then
+            echo "No successful run found for channel v1.5.2+"
+            exit 1
+          fi
+
           ARTIFACT_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/sidex15/susfs4ksu-module/actions/runs/$LATEST_RUN_ID/artifacts" | jq -r '.artifacts[0].archive_download_url')
 
