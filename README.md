@@ -6,8 +6,6 @@
 一加内核开源地址：[OnePlusOSS](https://github.com/OnePlusOSS/kernel_manifest)
  
 # 公告
-**新版susfs-ci下载项目没了,请耐心等待修复!!!**
- 
 部分设备的``lz4kd``存在问题,尝试修复中,**跑不出来请先不要启用``lz4``**
  
 记得**音量下**安装模块
