@@ -1,5 +1,7 @@
 **简体中文** | [English](README-en.md)
  
+[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/taichi91)
+ 
 # Action-Build
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
  
