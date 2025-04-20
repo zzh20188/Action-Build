@@ -11,6 +11,7 @@ Some devices have issues with ``lz4kd``, currently under investigation. **If it 
 Remember to install the module with **Volume Down**
  
 # Changelog:  
+- Synchronize the changes of the upstream download branch/tag of the ```susfs``` module to solve the problem of being unable to download
 - Optimized ```build``` scheme for ```sm8750``` and ```sm7675```  
 - Support for ```lz4kd``` (optional to enable)  
 - Fixed version number error  
