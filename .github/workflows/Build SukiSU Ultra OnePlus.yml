@@ -8,12 +8,12 @@ on:
         required: true
         default: sm8550
         options:
+          - sm7550
+          - sm7675
           - sm8450
           - sm8475
           - sm8550
           - sm8650
-          - sm7550
-          - sm7675
           - sm8750
       FEIL:
         type: choice
@@ -21,15 +21,9 @@ on:
         required: true
         default: oneplus_ace2pro_v
         options:
-          - oneplus_ace2pro_v
-          - oneplus12_v
-          - oneplus_13r
-          - oneplus_ace3_pro_v
-          - oneplus_ace5
-          - oneplus_pad2_v
+          - oneplus_nord_ce4_v
           - oneplus_ace_3v_v
           - oneplus_nord_4_v
-          - oneplus_nord_ce4_v
           - oneplus_10_pro_v
           - oneplus_10t_v
           - oneplus_11r_v
@@ -37,21 +31,27 @@ on:
           - oneplus_ace_pro_v
           - oneplus_11_v
           - oneplus_12r_v
+          - oneplus_ace2pro_v
           - oneplus_ace3_v
           - oneplus_open_v
+          - oneplus12_v
+          - oneplus_13r
+          - oneplus_ace3_pro_v
+          - oneplus_ace5
+          - oneplus_pad2_v
           - oneplus_13
           - oneplus_ace5_pro
-          - GitHub有bug不显示最后一项,误使用
+          - GitHub有bug可能不显示最后一项,误使用此项
       CPUD:
         type: choice
         description: "处理器代号"
         required: true
         default: kalama
         options:
-          - kalama
-          - waipio
-          - pineapple
           - crow
+          - waipio
+          - kalama
+          - pineapple
           - sun
       ANDROID_VERSION:
         type: choice
