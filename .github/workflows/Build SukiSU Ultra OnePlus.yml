@@ -64,15 +64,15 @@ on:
           - android14
           - android15
       KERNEL_VERSION:
-        type: choice
-        description: "内核版本"
-        required: true
-        default: 5.15
-        options:
-          - 5.10
-          - 5.15
-          - 6.1
-          - 6.6
+       type: choice
+       description: "内核版本"
+       required: true
+       default: "5.15"
+       options:
+         - "5.10"
+         - "5.15"
+         - "6.1"
+         - "6.6"
       BUILD_METHOD:
         type: choice
         description: "编译方式gki？perf？"
