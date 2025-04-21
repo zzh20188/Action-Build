@@ -75,7 +75,7 @@ on:
          - "6.6"
       BUILD_METHOD:
         type: choice
-        description: "编译方式gki？perf？"
+        description: "编译方式"
         required: true
         default: gki
         options:
