@@ -7,6 +7,10 @@ on:
         description: '清理的仓库(格式:用户名/仓库名)'
         required: true
         default: 'Numbersf/Action-Build'
+      workflow_name:
+        description: '清理的工作流名称'
+        required: true
+        default: 'Build OnePlus_SukiSU Ultra All'
       count:
         description: '检查的最多运行次数'
         required: false
@@ -26,10 +30,6 @@ on:
         required: false
         type: boolean
         default: false
-      workflow_name:
-        description: '清理的工作流名称'
-        required: true
-        default: 'Build OnePlus_SukiSU Ultra All'
 
 permissions:
   actions: write
