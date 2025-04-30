@@ -6,28 +6,33 @@ on:
       repo:
         description: '要清理的仓库（格式：用户名/仓库名）'
         required: true
+        default: 'Numbersf/Action-Build'
       count:
         description: '要检查的最多运行次数'
         required: false
         default: '20'
       delete_failed:
-        description: '是否删除失败的运行记录？(true/false)'
+        description: '是否删除失败的运行记录？'
         required: false
-        default: 'true'
+        type: boolean
+        default: true
       delete_success:
-        description: '是否删除成功的运行记录？(true/false)'
+        description: '是否删除成功的运行记录？'
         required: false
-        default: 'false'
+        type: boolean
+        default: false
       delete_cancelled:
-        description: '是否删除已取消的运行记录？(true/false)'
+        description: '是否删除已取消的运行记录？'
         required: false
-        default: 'false'
+        type: boolean
+        default: false
       workflow_name:
         description: '要清理的工作流名称'
         required: true
+        default: 'Build OnePlus_SukiSU Ultra All'
 
 permissions:
-  actions: write  # 关键：允许删除 workflow runs
+  actions: write
 
 jobs:
   cleanup:
@@ -70,6 +75,12 @@ jobs:
           echo "$RUNS" | while read run; do
             ID=$(echo "$run" | jq -r '.id')
             STATUS=$(echo "$run" | jq -r '.conclusion')
+            STATE=$(echo "$run" | jq -r '.status')
+
+            if [[ "$STATE" == "in_progress" || "$STATE" == "queued" ]]; then
+              echo "跳过运行 ID: $ID（状态为 $STATE）"
+              continue
+            fi
 
             if [[ "$STATUS" == "failure" && "$DELETE_FAILED" != "true" ]]; then continue; fi
             if [[ "$STATUS" == "success" && "$DELETE_SUCCESS" != "true" ]]; then continue; fi
