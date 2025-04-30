@@ -4,30 +4,30 @@ on:
   workflow_dispatch:
     inputs:
       repo:
-        description: '要清理的仓库（格式：用户名/仓库名）'
+        description: '清理的仓库(格式:用户名/仓库名)'
         required: true
         default: 'Numbersf/Action-Build'
       count:
-        description: '要检查的最多运行次数'
+        description: '检查的最多运行次数'
         required: false
         default: '20'
       delete_failed:
-        description: '是否删除失败的运行记录？'
+        description: '删除失败的运行记录？'
         required: false
         type: boolean
         default: true
       delete_success:
-        description: '是否删除成功的运行记录？'
+        description: '删除成功的运行记录？'
         required: false
         type: boolean
         default: false
       delete_cancelled:
-        description: '是否删除已取消的运行记录？'
+        description: '删除已取消的运行记录？'
         required: false
         type: boolean
         default: false
       workflow_name:
-        description: '要清理的工作流名称'
+        description: '清理的工作流名称'
         required: true
         default: 'Build OnePlus_SukiSU Ultra All'
 
