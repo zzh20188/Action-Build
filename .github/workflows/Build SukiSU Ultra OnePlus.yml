@@ -194,13 +194,6 @@ jobs:
           cp -r ../SukiSU_patch/other/lz4k/lib/* ./common/lib
           cp -r ../SukiSU_patch/other/lz4k/crypto/* ./common/crypto
           fi
-          # Change to common directory and apply SUSFS patch
-          cd ../common
-
-          if [ "${{ github.event.inputs.CPU }}" = "sm8750" ]; then
-            sed -i '/#include <trace\/hooks\/blk.h>/a #include <trace/hooks/fs.h>' ./fs/namespace.c
-          fi
-
           cd ./common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           echo "完成"
