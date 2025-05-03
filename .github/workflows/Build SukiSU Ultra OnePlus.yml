@@ -86,11 +86,6 @@ on:
         description: "SUSFS模块下载是否调用CI？"
         required: true
         default: true
-      LZ4:
-        type: boolean
-        description: "是否启用LZ4？"
-        required: true
-        default: false
       VFS:
         type: boolean
         description: "是否启用VFS？"
@@ -101,6 +96,11 @@ on:
         description: "是否启用KPM？"
         required: true
         default: true
+      LZ4:
+        type: boolean
+        description: "是否启用LZ4？"
+        required: true
+        default: false
 
 jobs:
   build:
