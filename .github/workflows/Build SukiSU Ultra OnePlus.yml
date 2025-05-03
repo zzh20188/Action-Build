@@ -139,6 +139,7 @@ jobs:
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
           echo "Selected LZ4: ${{ github.event.inputs.LZ4 }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
+          echo "Selected KPM: ${{ github.event.inputs.KPM }}"
 
       - name: Install repo tool
         run: |
