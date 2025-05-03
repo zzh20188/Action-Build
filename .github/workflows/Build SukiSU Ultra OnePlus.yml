@@ -88,7 +88,7 @@ on:
         default: true
       LZ4:
         type: boolean
-        description: "是否启用lz4？"
+        description: "是否启用LZ4？"
         required: true
         default: false
       VFS:
