@@ -85,10 +85,10 @@ on:
         type: boolean
         description: "SUSFS模块下载是否调用CI？"
         required: true
-        default: true
+        default: false
       VFS:
         type: boolean
-        description: "是否启用VFS？"
+        description: "是否启用手动钩子？"
         required: true
         default: true
       KPM:
@@ -96,9 +96,9 @@ on:
         description: "是否启用KPM？"
         required: true
         default: true
-      LZ4:
+      ZRAM:
         type: boolean
-        description: "是否启用LZ4？"
+        description: "是否启用添加更多的ZRAM算法？"
         required: true
         default: false
 
@@ -137,7 +137,7 @@ jobs:
           echo "Selected KERNEL_VERSION: ${{ github.event.inputs.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
-          echo "Selected LZ4: ${{ github.event.inputs.LZ4 }}"
+          echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected KPM: ${{ github.event.inputs.KPM }}"
 
@@ -194,11 +194,13 @@ jobs:
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
-          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
-          echo "正在给内核打lz4补丁"
-          cp -r ../SukiSU_patch/other/lz4k/include/linux/* ./common/include/linux
-          cp -r ../SukiSU_patch/other/lz4k/lib/* ./common/lib
-          cp -r ../SukiSU_patch/other/lz4k/crypto/* ./common/crypto
+          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
+          echo "正在给内核打zram补丁"
+          cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
+          cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
+          cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
+          cp -r ../SukiSU_patch/other/zram/zstdn ./common/lib/
+          cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
           fi
 
           cd ./common
@@ -212,8 +214,7 @@ jobs:
           echo "正在打隐藏应用补丁"
           patch -p1 -F 3 < 69_hide_stuff.patch
 
-      # VFS？LZ4？
-      - name: Apply VFS and LZ4KD
+      - name: Apply VFS
         run: |
           cd kernel_workspace/kernel_platform/common
           if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
@@ -223,11 +224,19 @@ jobs:
           echo "vfs_patch完成"
           fi
 
-          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
-            cp ../../SukiSU_patch/other/lz4k_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
+      - name: Apply LZ4KD&ZSTDN
+        run: |
+          cd kernel_workspace/kernel_platform/common
+          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
+            cp ../../SukiSU_patch/other/zram/zram_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
             patch -p1 -F 3 < lz4kd.patch || true
-            echo "lz4_patch完成"
+            echo '完成LZ4KD补丁'
+
+            cp ../../SukiSU_patch/other/zram/zram_patch/${{ github.event.inputs.KERNEL_VERSION }}/zstdn.patch ./
+            echo "正在打zstdn补丁"
+            patch -p1 -F 3 < zstdn.patch || true
+            echo '完成ZSTDN补丁'
           fi
 
       # 配置信息
@@ -273,12 +282,10 @@ jobs:
           fi
 
           # Remove check_defconfig
-          if [ "${{ github.event.inputs.LZ4 }}" = "false" ]; then
-            sed -i 's/check_defconfig//' ./common/build.config.gki
-          fi
+          sed -i 's/check_defconfig//' ./common/build.config.gki
 
-          # 添加 LZ4 Config
-          if [ "${{ github.event.inputs.LZ4 }}" = "true" ]; then
+          # LZ4KD&ZSTDN配置
+          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
           CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
 
             if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "5.10" ]; then
@@ -289,9 +296,16 @@ jobs:
               echo "CONFIG_ZRAM_DEF_COMP_LZ4KD=y" >> "$CONFIG_FILE"
             fi
 
+
             if [ "${{ github.event.inputs.KERNEL_VERSION }}" != "6.6" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" != "5.10" ]; then
-              sed -i 's/CONFIG_MODULE_SIG=y/CONFIG_MODULE_SIG=n/g' "$CONFIG_FILE"
-              sed -i 's/CONFIG_ZSMALLOC=m/CONFIG_ZSMALLOC=y/g' "$CONFIG_FILE"
+              if [ "${{ github.event.inputs.KERNEL_VERSION }}" != "5.15" ]; then
+                sed -i 's/CONFIG_MODULE_SIG=y/CONFIG_MODULE_SIG=n/g' "$CONFIG_FILE"
+              fi
+              if grep -q "CONFIG_ZSMALLOC" -- "$CONFIG_FILE"; then
+                sed -i 's/CONFIG_ZSMALLOC=m/CONFIG_ZSMALLOC=y/g' "$CONFIG_FILE"
+              else
+                echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+              fi
               sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
             fi
 
@@ -300,13 +314,20 @@ jobs:
               sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
             fi
 
+            if [ "${{ github.event.inputs.ANDROID_VERSION }}" = "android14" ] || [ "${{ github.event.inputs.ANDROID_VERSION }}" = "android15" ]; then
+              if [  -e ./common/modules.bzl ]; then
+                sed -i 's/"drivers\/block\/zram\/zram\.ko",//g; s/"mm\/zsmalloc\.ko",//g' "./common/modules.bzl"
+              fi
+              echo "CONFIG_MODULE_SIG_FORCE=n" >> "$CONFIG_FILE"
+            fi
+
             if grep -q "CONFIG_ZSMALLOC=y" "$CONFIG_FILE" && grep -q "CONFIG_ZRAM=y" "$CONFIG_FILE"; then
               echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
               echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
               echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
               echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
-              # Remove check_defconfig
-              sed -i 's/check_defconfig//' ./common/build.config.gki
+              echo "CONFIG_CRYPTO_ZSTDN=m" >> "$CONFIG_FILE"
+              echo "CONFIG_CRYPTO_LZ4K_OPLUS=n" >> "$CONFIG_FILE"
             fi
           fi
 
@@ -414,7 +435,7 @@ jobs:
       - name: Set suffix
         id: suffix
         run: |
-          echo "value=${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.LZ4 == 'true' && '_LZ4KD' || '' }}" >> $GITHUB_OUTPUT
+          echo "value=${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD_ZSTDN' || '' }}" >> $GITHUB_OUTPUT
 
       - name: Remove _uv suffix from FEIL
         id: feil_clean
