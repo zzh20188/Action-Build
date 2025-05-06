@@ -85,7 +85,7 @@ on:
         type: boolean
         description: "SUSFS模块下载是否调用CI？"
         required: true
-        default: false
+        default: true
       VFS:
         type: boolean
         description: "是否启用手动钩子？"
