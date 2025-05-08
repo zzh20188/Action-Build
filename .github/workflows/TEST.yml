@@ -231,6 +231,7 @@ jobs:
             echo "正在打lz4kd补丁"
             patch -p1 -F 3 < lz4kd.patch || true
             echo '完成LZ4KD补丁'
+          fi
 
       # 配置信息
       - name: Add Configuration Settings
