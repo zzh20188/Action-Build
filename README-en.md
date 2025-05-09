@@ -11,11 +11,12 @@ Some devices have issues with ``lz4kd``, currently under investigation. **If it 
 Remember to install the module with **Volume Down**
  
 # Changelog:  
-- Remove any ```_v _u``` suffixes that may exist in the configuration file
-- Synchronize the changes of the upstream download branch/tag of the ```susfs``` module to solve the problem of being unable to download
-- Optimized ```build``` scheme for ```sm8750``` and ```sm7675```  
-- Support for ```lz4kd``` (optional to enable)  
-- Fixed version number error  
-- Added ```dir3``` path to support ```sm8750``` (e.g., ```ace2```)  
-- Supports automatic download and installation of the latest ```susfs``` module from ```CI/Release``` via ```ksud```  
-- Supports ```KPM``` (no need for any modification or copying), and ```VFS HOOK``` (optional to enable)
+- Added ```dir4``` and ```dir5``` paths to support ```sm8750 and some models with zram enabled``` (e.g. ```ace2p```, ```13T```)
+- Added support for the ```LZ4K``` compression algorithm in the ```zram``` module
+- Removed possible ```_v``` or ```_u``` suffixes from configuration files
+- Synced changes of the ```susfs``` module's upstream download channel to fix the download issue
+- Optimized the ```build``` scheme for ```sm8750``` and ```sm7675```
+- Fixed incorrect version number
+- Added ```dir3``` path to support ```sm8450``` (e.g. ```ace2```)
+- Supported automatic download of the latest ```CI/Release``` ```susfs``` module and installation via ```ksud```
+- Supported ```KPM``` (no need to copy or modify anything), and ```VFS HOOK``` (optional to enable)
