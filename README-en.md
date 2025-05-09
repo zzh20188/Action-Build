@@ -17,6 +17,6 @@ Remember to install the module with **Volume Down**
 - Synced changes of the ```susfs``` module's upstream download channel to fix the download issue
 - Optimized the ```build``` scheme for ```sm8750``` and ```sm7675```
 - Fixed incorrect version number
-- Added ```dir3``` path to support ```sm8450``` (e.g. ```ace2```)
+- Added ```dir3``` path to support ```sm8475``` (e.g. ```ace2```)
 - Supported automatic download of the latest ```CI/Release``` ```susfs``` module and installation via ```ksud```
 - Supported ```KPM``` (no need to copy or modify anything), and ```VFS HOOK``` (optional to enable)
