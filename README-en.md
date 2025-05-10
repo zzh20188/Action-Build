@@ -6,7 +6,7 @@
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
  
 # Announcement  
-The _v in the configuration file is used when you are using the system version Android15, _u is Android14, and _t is Android13.
+The _x suffix in the configuration file indicates the system version you are using. _v is Android 15, _u is Android 14, and _t is Android 13.
  
 Some devices have issues with ``lz4kd``, currently under investigation. **If it fails to boot, please do not enable ``lz4``**
  
