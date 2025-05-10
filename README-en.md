@@ -6,6 +6,8 @@
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
  
 # Announcement  
+The _v in the configuration file is used when you are using the system version Android15, _u is Android14, and _t is Android13.
+ 
 Some devices have issues with ``lz4kd``, currently under investigation. **If it fails to boot, please do not enable ``lz4``**
  
 Remember to install the module with **Volume Down**
