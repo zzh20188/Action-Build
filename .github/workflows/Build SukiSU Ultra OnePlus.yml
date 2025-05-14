@@ -429,15 +429,15 @@ jobs:
           ARTIFACT_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/sidex15/susfs4ksu-module/actions/runs/$LATEST_RUN_ID/artifacts" | jq -r '.artifacts[0].archive_download_url')
 
-          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -o ksu_module_susfs.zip "$ARTIFACT_URL"
-          cp ksu_module_susfs.zip ./AnyKernel3/
+          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -o ksu_module_susfs_1.5.2+_CI.zip "$ARTIFACT_URL"
+          cp ksu_module_susfs_1.5.2+_CI.zip ./AnyKernel3/
 
       # 下载 SUSFS 模块（Release）
       - name: Download Latest SUSFS Module from Release
         if: ${{ github.event.inputs.SUSFS_CI == 'false' }}
         run: |
-          wget https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
-          cp ksu_module_susfs_1.5.2+.zip ./AnyKernel3/
+          wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
+          cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
 
       - name: Set suffix
         id: suffix
