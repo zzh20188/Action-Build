@@ -13,6 +13,10 @@ Some devices have issues with ``lz4kd``, currently under investigation. **If it 
 Remember to install the module with **Volume Down**
  
 # Changelog:  
+- Support specifying the corresponding source `Android` version in `ak3.zip`, for example:
+```
+AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
+```
 - Added ```dir4``` and ```dir5``` paths to support ```sm8750 and some models with zram enabled``` (e.g. ```ace2p```, ```13T```)
 - Added support for the ```LZ4K``` compression algorithm in the ```zram``` module
 - Removed possible ```_v``` or ```_u``` suffixes from configuration files
