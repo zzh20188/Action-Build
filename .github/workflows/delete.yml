@@ -30,11 +30,6 @@ on:
         required: false
         type: boolean
         default: false
-      reverse_order:
-        description: '从旧到新开始清理？'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   actions: write
@@ -60,7 +55,6 @@ jobs:
           DELETE_FAILED: ${{ inputs.delete_failed }}
           DELETE_SUCCESS: ${{ inputs.delete_success }}
           DELETE_CANCELLED: ${{ inputs.delete_cancelled }}
-          REVERSE_ORDER: ${{ inputs.reverse_order }}
           WORKFLOW_NAME: ${{ inputs.workflow_name }}
           CURRENT_RUN_ID: ${{ github.run_id }}
         run: |
@@ -77,13 +71,7 @@ jobs:
           echo "找到工作流 ID: $WORKFLOW_ID"
           echo "正在获取最近 $COUNT 条运行记录..."
 
-          RUNS_RAW=$(gh api "repos/$REPO/actions/workflows/$WORKFLOW_ID/runs?per_page=$COUNT" | jq -c '.workflow_runs')
-          if [[ "$REVERSE_ORDER" == "true" ]]; then
-            echo "启用从旧到新清理顺序"
-            RUNS=$(echo "$RUNS_RAW" | jq -c '. | reverse | .[]')
-          else
-            RUNS=$(echo "$RUNS_RAW" | jq -c '.[]')
-          fi
+          RUNS=$(gh api "repos/$REPO/actions/workflows/$WORKFLOW_ID/runs?per_page=$COUNT" | jq -c '.workflow_runs[]')
 
           echo "$RUNS" | while read run; do
             ID=$(echo "$run" | jq -r '.id')
