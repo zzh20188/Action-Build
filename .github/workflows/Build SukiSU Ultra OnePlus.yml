@@ -175,15 +175,17 @@ jobs:
 
       # 自定义内核名
       - name: Modify setlocalversion suffix if suffix is set
-        if: ${{ github.event.inputs.SUFFIX != '' }}
-        run: |
-          cd kernel_workspace
-          for path in \
-            kernel_platform/common/scripts/setlocalversion \
-            kernel_platform/msm-kernel/scripts/setlocalversion \
-            kernel_platform/external/dtc/scripts/setlocalversion; do
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res${{ github.event.inputs.SUFFIX }}\"|" "$path"
-          done
+      if: ${{ github.event.inputs.SUFFIX != '' }}
+      run: |
+        cd kernel_workspace
+        for path in \
+          kernel_platform/common/scripts/setlocalversion \
+          kernel_platform/msm-kernel/scripts/setlocalversion \
+          kernel_platform/external/dtc/scripts/setlocalversion; do
+            sed -i "\$s|echo \"\\\$res\"|echo \"\$res${{ github.event.inputs.SUFFIX }}\"|" "$path"
+        done
+        git add -A
+        git commit -m "Apply custom kernel suffix: ${{ github.event.inputs.SUFFIX }}"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
