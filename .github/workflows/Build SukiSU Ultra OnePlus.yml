@@ -97,11 +97,6 @@ on:
         description: "是否启用手动钩子(VFS)？"
         required: true
         default: true
-      KPM:
-        type: boolean
-        description: "是否启用内核模块支持(KPM)？"
-        required: true
-        default: true
       ZRAM:
         type: boolean
         description: "是否启用添加更多的ZRAM算法？"
@@ -426,7 +421,6 @@ jobs:
           fi
 
       - name: Apply patch_linux and replace Image
-        if: ${{ github.event.inputs.KPM == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist
           curl -LO https://raw.githubusercontent.com/Numbersf/Action-Build/main/patch_linux
