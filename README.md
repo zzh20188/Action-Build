@@ -14,6 +14,8 @@
 记得**音量下**安装模块
  
 # 更新日志:
+- [beta]允许自定义内核后缀
+- KPM默认开启不再可关闭
 - 支持在``ak3.zip``中标明使用源码对应的``Android``版本号,例如:
 ```
 AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
@@ -26,4 +28,4 @@ AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
 - 修复版本号错误
 - 新增```dir3```路径用于支持```sm8475```(比如```ace2```)
 - 支持自动下载最新```CI/Release```的```susfs```模块并调用```ksud```安装
-- 支持```KPM```(无需任何修改复制什么的）、```VFS HOOK```（自选是否开启）
+- 支持```KPM```(无需任何修改复制）、```VFS HOOK```（自选是否开启）
