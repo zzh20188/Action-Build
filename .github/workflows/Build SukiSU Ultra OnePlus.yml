@@ -175,7 +175,7 @@ jobs:
 
       # 自定义内核名
       - name: Modify setlocalversion suffix if suffix is set
-      if: ${{ github.event.inputs.SUFFIX != '' }}
+        if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
           cd kernel_workspace
           for path in \
