@@ -82,6 +82,11 @@ on:
         options:
           - gki
           - perf
+      SUFFIX:
+        type: string
+        description: "自定义内核后缀 (留空则不修改)"
+        required: false
+        default: ""
       SUSFS_CI:
         type: boolean
         description: "下载SUSFS模块是否使用CI构建？"
@@ -137,6 +142,7 @@ jobs:
           echo "Selected ANDROID_VERSION: ${{ github.event.inputs.ANDROID_VERSION }}"
           echo "Selected KERNEL_VERSION: ${{ github.event.inputs.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
+          echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
           echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
@@ -172,6 +178,17 @@ jobs:
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' common/scripts/setlocalversion
           git add -A
           git commit -m "Force remove -dirty suffix from kernel version"
+
+      #自定义内核名
+      - name: Modify setlocalversion suffix if suffix is set
+        if: ${{ github.event.inputs.SUFFIX != '' }}
+        run: |
+          for path in \
+            kernel_platform/common/scripts/setlocalversion \
+            kernel_platform/msm-kernel/scripts/setlocalversion \
+            kernel_platform/external/dtc/scripts/setlocalversion; do
+              sed -i "\$s|echo \"\\\$res\"|echo \"\$res${{ github.event.inputs.SUFFIX }}\"|" "$path"
+          done
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
