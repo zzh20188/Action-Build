@@ -182,7 +182,7 @@ jobs:
             kernel_platform/common/scripts/setlocalversion \
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res${{ github.event.inputs.SUFFIX }}\"|" "$path"
+              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${{ github.event.inputs.SUFFIX }}\"|" "$path"
           done
           git add -A
           git commit -m "Apply custom kernel suffix: ${{ github.event.inputs.SUFFIX }}"
