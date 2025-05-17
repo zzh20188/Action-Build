@@ -13,6 +13,8 @@ Some devices have issues with ``lz4kd``, currently under investigation. **If it 
 Remember to install the module with **Volume Down**
  
 # Changelog:  
+- [beta] Allow custom kernel suffixes
+- KPM is enabled by default and can no longer be disabled
 - Support specifying the corresponding source `Android` version in `ak3.zip`, for example:
 ```
 AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
