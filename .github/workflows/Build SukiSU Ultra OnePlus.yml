@@ -173,8 +173,8 @@ jobs:
           git add -A
           git commit -m "Force remove -dirty suffix from kernel version"
 
-      # 自定义内核名
-      - name: Modify setlocalversion suffix if suffix is set
+      # 自定义内核后缀
+      - name: Modify setlocalversion suffix if SUFFIX is set
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
           cd kernel_workspace
@@ -186,6 +186,26 @@ jobs:
           done
           git add -A
           git commit -m "Apply custom kernel suffix: ${{ github.event.inputs.SUFFIX }}"
+
+      # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
+      - name: Generate random kernel suffix if SUFFIX is empty
+        if: ${{ github.event.inputs.SUFFIX == '' }}
+        run: |
+          cd kernel_workspace
+          for path in \
+            kernel_platform/common/scripts/setlocalversion \
+            kernel_platform/msm-kernel/scripts/setlocalversion \
+            kernel_platform/external/dtc/scripts/setlocalversion; do
+              echo '' >> "$path"
+              echo '# Append random suffix if SUFFIX is not set' >> "$path"
+              echo 'if [ -z "${{ github.event.inputs.SUFFIX }}" ]; then' >> "$path"
+              echo '  RANDOM_DIGIT=$((RANDOM % 11))' >> "$path"
+              echo '  RANDOM_HASH=$(hexdump -n 7 -e '\''7/1 "%02x"'\'' /dev/urandom)' >> "$path"
+              echo '  res="$res-$RANDOM_DIG-o-g$RANDOM_HASH"' >> "$path"
+              echo 'fi' >> "$path"
+          done
+          git add -A
+          git commit -m "Add random suffix if SUFFIX is not set"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
