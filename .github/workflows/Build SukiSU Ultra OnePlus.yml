@@ -174,9 +174,10 @@ jobs:
           git commit -m "Force remove -dirty suffix from kernel version"
 
       #自定义内核名
-      - name: Modify setlocalversion suffix if suffix is set
+      - name: [beta]Modify setlocalversion suffix if suffix is set
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
+          cd kernel_workspace
           for path in \
             kernel_platform/common/scripts/setlocalversion \
             kernel_platform/msm-kernel/scripts/setlocalversion \
@@ -455,7 +456,7 @@ jobs:
           wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
           cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
 
-      - name: Set suffix
+      - name: Set  ZIP suffix
         id: suffix
         run: |
           echo "value=${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}" >> $GITHUB_OUTPUT
