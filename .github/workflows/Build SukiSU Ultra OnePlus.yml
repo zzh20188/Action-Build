@@ -193,20 +193,25 @@ jobs:
         if: ${{ github.event.inputs.SUFFIX == '' }}
         run: |
           cd kernel_workspace
+
+          RANDOM_DIGIT=$(od -An -N1 -tu1 < /dev/urandom | tr -d '[:space:]' | awk '{print $1 % 11}')
+          RANDOM_HASH=$(od -An -N7 -tx1 /dev/urandom | tr -d ' \n')
+          RANDOM_SUFFIX="${RANDOM_DIGIT}-o-g${RANDOM_HASH}"
+
           for path in \
             kernel_platform/common/scripts/setlocalversion \
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
-              echo '' >> "$path"
-              echo '# Append random suffix if SUFFIX is not set' >> "$path"
-              echo 'if [ -z "${{ github.event.inputs.SUFFIX }}" ]; then' >> "$path"
-              echo '  RANDOM_DIGIT=$((RANDOM % 11))' >> "$path"
-              echo '  RANDOM_HASH=$(hexdump -n 7 -e '\''7/1 "%02x"'\'' /dev/urandom)' >> "$path"
-              echo '  res="$res-$RANDOM_DIG-o-g$RANDOM_HASH"' >> "$path"
-              echo 'fi' >> "$path"
+
+              # 清理默认后缀
+              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-fA-F]{7,}//g'\'')' "$path"
+
+              # 替换 echo "$res" 为带随机后缀
+              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-$RANDOM_SUFFIX\"|" "$path"
           done
+
           git add -A
-          git commit -m "Add random suffix if SUFFIX is not set"
+          git commit -m "Fix: inject random suffix"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
