@@ -84,7 +84,7 @@ on:
           - perf
       SUFFIX:
         type: string
-        description: "自定义内核后缀 (留空则不修改)"
+        description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
         default: ""
       SUSFS_CI:
@@ -139,8 +139,8 @@ jobs:
           echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
           echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
-          echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
+          echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
 
       - name: Install repo tool
         run: |
