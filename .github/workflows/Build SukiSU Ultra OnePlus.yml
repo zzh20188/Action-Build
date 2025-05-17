@@ -174,7 +174,7 @@ jobs:
           git commit -m "Force remove -dirty suffix from kernel version"
 
       #自定义内核名
-      - name: [beta]Modify setlocalversion suffix if suffix is set
+      - name: Modify setlocalversion suffix if suffix is set
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
           cd kernel_workspace
