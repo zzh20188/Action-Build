@@ -16,9 +16,8 @@
 # 更新日志
 --允许自定义内核后缀  <**`beta`**  
 ```
-当自定义内核后缀为空时,使用随机字符串 不再是默认的x.xx.xxx-androidxx-8-o-g3b1e97b8b29f
-当自定义启用时,修改内核为x.xx.xxx-androidxx-自定义内容
-同时也不再保留androidxx-8-o-g3b1e97b8b29f
+1.当自定义内核后缀为空时,使用随机字符串,不再是默认的“x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
+2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
 ```
 --KPM 默认开启，不再可关闭  
 --支持在 `ak3.zip` 中标明使用源码对应的 `Android` 版本号
