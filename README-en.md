@@ -16,6 +16,7 @@ Special handling is required for `OnePlus Ace5Pro (ColorOS)` and `OnePlus 13 (Co
 Remember to install the module with **volume down**.
  
 # Changelog
+-- Remove the version code that may exist in the suffix of the configuration file and convert it to the corresponding Android version.  
 -- Temporarily fixed the build issue for `OnePlus Ace5Pro` and `OnePlus 13` [@reigadegr](https://github.com/reigadegr)   
 
 -- Allow custom kernel suffix  <- **`beta`**
@@ -33,7 +34,6 @@ AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
 
 -- Added support for the `LZ4K` compression algorithm in the `zram` module. [@ShirkNeko](https://github.com/ShirkNeko)   
 
--- Removed potential version code suffix in configuration files.
 -- Synchronized changes with the upstream download channel for the `susfs` module to fix download issues.  
 -- Optimized the build scheme for `sm8750` and `sm7675`.  
 -- Fixed the version number error.  
