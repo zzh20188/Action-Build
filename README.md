@@ -7,7 +7,7 @@
  
 # 公告
  
-配置文件中的``_x``后缀是你正在使用系统版本。``_v``是``Android15``、``_u``是``Android14``、``_t``是``Android13``、无后缀一般是一个机型出厂``Android``版本。
+配置文件中的``_x``后缀是你正在使用系统版本的代号。比如``_w Android16、_v Android15、_u Android14、_t Android13、_sAndroid12``而无后缀的一般是一个机型出厂``Android``版本。
  
 部分设备的``lz4kd``存在问题,修复中,**跑不出来请先不要启用``ZRAM算法``**,请提前备份``boot.img``
  
@@ -32,7 +32,7 @@ AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
  
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
  
---移除配置文件后缀可能存在的版本代号 `_tuv`  
+--移除配置文件后缀可能存在的版本代号 
 --同步 `susfs` 模块上游下载频道的变化，解决无法下载的问题  
 --优化 `sm8750`、`sm7675` 的 `build` 方案  
 --修复版本号错误  
