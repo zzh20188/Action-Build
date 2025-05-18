@@ -508,7 +508,7 @@ jobs:
            clean_feil="${feil%_*}_Android${version}"
           else
            # 非法后缀 字母a-z有用完的那一天,谁又知道呢?
-           clean_feil="${feil}_AndroidFactory?Unknown?"
+           clean_feil="${feil}_AndroidFactoryUnknown"
           fi
           echo "value=$clean_feil" >> $GITHUB_OUTPUT
 
