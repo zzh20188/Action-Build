@@ -16,7 +16,7 @@
 记得**音量下**安装模块
  
 # 更新日志
---移除配置文件后缀可能存在的版本代号,并转化为对应的Android版本  
+--移除配置文件后缀可能存在的版本代号并自动转化为对应的Android版本  
 --暂时性修复`OnePlus Ace5Pro、OnePlus 13`跑不出来的问题[@reigadegr](https://github.com/reigadegr)    
  
 --允许自定义内核后缀  <- **`beta`**  
