@@ -8,9 +8,14 @@ on:
         required: true
         default: 'Numbersf/Action-Build'
       workflow_name:
+        type: choice
         description: '清理的工作流名称'
         required: true
         default: 'Build OnePlus_SukiSU Ultra All'
+        options:
+          - Build OnePlus_SukiSU Ultra All
+          - Build TEST
+          - Build TEST2
       count:
         description: '最多清理的运行次数'
         required: false
