@@ -16,6 +16,7 @@
 记得**音量下**安装模块
  
 # 更新日志
+--移除配置文件后缀可能存在的版本代号,并转化为对应的Android版本  
 --暂时性修复`OnePlus Ace5Pro、OnePlus 13`跑不出来的问题[@reigadegr](https://github.com/reigadegr)    
  
 --允许自定义内核后缀  <- **`beta`**  
@@ -32,7 +33,6 @@ AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
  
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
  
---移除配置文件后缀可能存在的版本代号 
 --同步 `susfs` 模块上游下载频道的变化，解决无法下载的问题  
 --优化 `sm8750`、`sm7675` 的 `build` 方案  
 --修复版本号错误  
