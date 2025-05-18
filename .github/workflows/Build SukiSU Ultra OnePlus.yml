@@ -499,7 +499,7 @@ jobs:
           feil="${{ github.event.inputs.FEIL }}"
           suffix="${feil##*_}"
           if [[ "$feil" == "$suffix" ]]; then
-           # 没有后缀
+           # 没有后缀 出厂Android版本
            clean_feil="${feil}_AndroidFactory"
           elif [[ "$suffix" =~ ^[a-z]$ ]]; then
            # 全自动计算 Android 版本号（基于 t = Android13）
@@ -508,8 +508,8 @@ jobs:
            version=$((13 - (ord_t - ord_x)))
            clean_feil="${feil%_*}_Android${version}"
           else
-           # 非法后缀
-           clean_feil="${feil}_NULL"
+           # 非法后缀 字母a-z有用完的那一天,谁又知道呢?
+           clean_feil="${feil}_AndroidNULL"
           fi
           echo "value=$clean_feil" >> $GITHUB_OUTPUT
 
