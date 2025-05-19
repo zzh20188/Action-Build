@@ -1,4 +1,4 @@
-**Enlish** | [简体中文](README.md)
+**`Enlish`** | [简体中文](README.md)
 
 [![Build](https://img.shields.io/badge/GitHub%20Actions-Build-181717?logo=github&logoColor=white&style=flat-square)](https://github.com/Numbersf/Action-Build/actions/workflows/Build%20SukiSU%20Ultra%20OnePlus.yml) [![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/taichi91) [![OnePlus Kernel Manifest](https://img.shields.io/badge/OnePlus%20Kernel%20Manifest-EB0029?logo=oneplus&logoColor=white&style=flat-square)](https://github.com/OnePlusOSS/kernel_manifest)
 
@@ -16,27 +16,26 @@ Special handling is required for `OnePlus Ace5Pro (ColorOS)` and `OnePlus 13 (Co
 Remember to install the module with **volume down**.
  
 # Changelog
--- Remove the version code that may exist in the suffix of the configuration file and convert it to the corresponding Android version.  
--- Temporarily fixed the build issue for `OnePlus Ace5Pro` and `OnePlus 13` [@reigadegr](https://github.com/reigadegr)   
-
--- Allow custom kernel suffix  <- **`beta`**
+-- Remove potential version code from the suffix of the configuration file written to `ak3.zip` and replace it with the exact `Android` version number `XX.X.X`.  
+```
+Examples:
+AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip  
+AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip  
+AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
+```  
+-- Temporarily fixed the build issue for `OnePlus Ace5Pro` and `OnePlus 13` [@reigadegr](https://github.com/reigadegr)  
+-- Allow custom kernel suffix  <- **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
  
 2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-[custom content]”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
-```
+```  
 -- KPM is enabled by default and can no longer be disabled.  
--- Supports indicating the corresponding `Android` version from the source code in the `ak3.zip`
-```
-AnyKernel3_SukiSUUltra_12866_oneplus_ace2pro_Android15_KPM_VFS.zip
-```
--- New `dir4` and `dir5` paths added to support `sm8750` and some devices with new paths when ZRAM is enabled (such as `ace2p`, `13T`). [@ShirkNeko](https://github.com/ShirkNeko)   
-
--- Added support for the `LZ4K` compression algorithm in the `zram` module. [@ShirkNeko](https://github.com/ShirkNeko)   
-
+-- New `dir4` and `dir5` paths added to support `sm8750` and some devices with new paths when ZRAM is enabled (such as `ace2p`, `13T`).   [@ShirkNeko](https://github.com/ShirkNeko)  
+-- Added support for the `LZ4K` compression algorithm in the `zram` module.   [@ShirkNeko](https://github.com/ShirkNeko)  
 -- Synchronized changes with the upstream download channel for the `susfs` module to fix download issues.  
 -- Optimized the build scheme for `sm8750` and `sm7675`.  
 -- Fixed the version number error.  
 -- New `dir3` path added to support `sm8475` (such as `ace2`).  
 -- Supports automatic download of the latest `CI/Release` `susfs` module and uses `ksud` for installation.  
--- Supports `KPM` (copy without modifications) and `VFS HOOK` (optional).
+-- Supports `KPM` (copy without modifications) and `VFS HOOK` (optional).  
