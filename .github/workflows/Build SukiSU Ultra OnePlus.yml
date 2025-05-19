@@ -493,24 +493,54 @@ jobs:
         run: |
           echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}" >> $GITHUB_OUTPUT
 
-      - name: Auto map FEIL suffix to Android version
+      - name: Auto map FEIL to Android version by manifest
         id: feil_clean
         run: |
           feil="${{ github.event.inputs.FEIL }}"
-          suffix="${feil##*_}"
-          if [[ "$feil" == "$suffix" ]]; then
-           clean_feil="${feil}_AndroidFactory"
-          elif [[ "$suffix" =~ ^[a-z]$ ]]; then
-           # 全自动计算 Android 版本号（基于 t = Android13）
-           ord_t=$(printf '%d' "'t")   # ASCII of 't' = 116
-           ord_x=$(printf '%d' "'$suffix'")
-           version=$((13 - (ord_t - ord_x)))
-           clean_feil="${feil%_*}_Android${version}"
-          else
-           # 非法后缀 字母a-z有用完的那一天,谁又知道呢?
-           clean_feil="${feil}_AndroidFactoryUnknown"
+          cpu="${{ github.event.inputs.CPU }}"
+          xml=".repo/manifests/${feil}.xml"
+
+          if [ ! -f "$xml" ]; then
+            echo "Manifest $xml not found, attempting to download from branch oneplus/$cpu..."
+            mkdir -p .repo/manifests
+            git clone --depth=1 --branch oneplus/$cpu https://github.com/OnePlusOSS/kernel_manifest.git repo_tmp || {
+              echo "Failed to clone branch oneplus/$cpu"
+              echo "value=${feil}_AndroidUnknown" >> "$GITHUB_OUTPUT"
+              exit 0
+            }
+
+            if [ -f "repo_tmp/${feil}.xml" ]; then
+              mv "repo_tmp/${feil}.xml" "$xml"
+            else
+              echo "Manifest file ${feil}.xml not found in branch oneplus/$cpu"
+              echo "value=${feil}_AndroidUnknown" >> "$GITHUB_OUTPUT"
+              rm -rf repo_tmp
+              exit 0
+            fi
+            rm -rf repo_tmp
           fi
-          echo "value=$clean_feil" >> $GITHUB_OUTPUT
+
+          echo "Manifest $xml found."
+
+          # 去掉末尾的 _x（只删一次）
+          feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
+
+          # 提取 revision 并解析 Android 版本
+          revision_full=$(grep -oP '<project[^>]*name="android_kernel[^"]*"[^>]*revision="\K[^"]+' "$xml" | head -n1 || true)
+
+          if [ -n "$revision_full" ]; then
+            android_ver=$(echo "$revision_full" | grep -oP '_v?_?\K([0-9]+\.[0-9]+\.[0-9]+)' || true)
+            if [ -n "$android_ver" ]; then
+              clean_feil="${feil_base}_Android${android_ver}"
+            else
+              clean_feil="${feil_base}_AndroidUnknown"
+            fi
+          else
+            clean_feil="${feil_base}_AndroidUnknown"
+          fi
+
+          echo "value=$clean_feil" >> "$GITHUB_OUTPUT"
+
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
