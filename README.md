@@ -11,8 +11,6 @@
  
 部分设备的``lz4kd``存在问题,修复中,**跑不出来请先不要启用``ZRAM算法``**,请提前备份``boot.img``
  
-``OnePlus Ace5Pro(ColorOS)OnePlus 13(ColorOS)``需要特殊处理并替换``dtbo.img``
- 
 记得**音量下**安装模块
  
 # 更新日志
