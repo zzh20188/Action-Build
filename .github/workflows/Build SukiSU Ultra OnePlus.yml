@@ -261,6 +261,7 @@ jobs:
           echo "隐藏应用_patch完成"
 
       - name: Convert HMBIRD_OGKI to HMBIRD_GKI
+        if: ${{ github.event.inputs.CPU == 'sm8750' }}
         run: |
           if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             cd kernel_workspace/kernel_platform/common
