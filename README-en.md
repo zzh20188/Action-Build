@@ -11,7 +11,6 @@ The _x suffix in the configuration file indicates the codename of the Android ve
  
 Some devices have issues with `lz4kd`, and a fix is in progress. **If the build fails, please do NOT enable the `ZRAM algorithm`**, and make sure to back up your `boot.img` in advance!
  
-Special handling is required for `OnePlus Ace5Pro (ColorOS)` and `OnePlus 13 (ColorOS)`, and you must replace the `dtbo.img`.
  
 Remember to install the module with **volume down**.
  
