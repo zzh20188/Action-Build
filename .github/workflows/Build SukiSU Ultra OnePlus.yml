@@ -261,7 +261,7 @@ jobs:
           echo "隐藏应用_patch完成"
 
       # OGKI转换GKI，可以直接使用官方 dtbo 开机，按需是否启用
-      - name: Convert HMBIRD_OGKI to HMBIRD_GKI
+      - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
         if: ${{ github.event.inputs.KERNEL_VERSION == '6.6' }}
         run: |
             cd kernel_workspace/kernel_platform/common
