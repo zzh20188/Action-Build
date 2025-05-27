@@ -262,8 +262,8 @@ jobs:
 
       # OGKI转换GKI，可以直接使用官方 dtbo 开机，按需是否启用
       - name: Convert HMBIRD_OGKI to HMBIRD_GKI
+        if: ${{ github.event.inputs.KERNEL_VERSION == "6.6" }}
         run: |
-          if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             cd kernel_workspace/kernel_platform/common
             sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
             wget https://github.com/Numbersf/Action-Build/raw/main/patchs/hmbird_patch.patch
@@ -273,9 +273,9 @@ jobs:
           fi
 
       - name: Apply VFS
+        if: ${{ github.event.inputs.VFS == "true" }}
         run: |
           cd kernel_workspace/kernel_platform/common
-          if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
             cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
             echo "正在打vfs补丁"
             patch -p1 -F 3 < syscall_hooks.patch
@@ -283,9 +283,9 @@ jobs:
           fi
 
       - name: Apply LZ4KD
+        if: ${{ github.event.inputs.ZRAM == "true" }}
         run: |
           cd kernel_workspace/kernel_platform/common
-          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
             cp ../../SukiSU_patch/other/zram/zram_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
             echo "正在打lz4kd补丁"
             patch -p1 -F 3 < lz4kd.patch || true
