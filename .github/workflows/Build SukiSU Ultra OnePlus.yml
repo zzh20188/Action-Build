@@ -272,7 +272,7 @@ jobs:
             echo "OGKI转换GKI patch完成"
 
       - name: Apply VFS
-        if: ${{ github.event.inputs.VFS == "true" }}
+        if: ${{ github.event.inputs.VFS == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform/common
             cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
@@ -281,7 +281,7 @@ jobs:
             echo "vfs_patch完成"
 
       - name: Apply LZ4KD
-        if: ${{ github.event.inputs.ZRAM == "true" }}
+        if: ${{ github.event.inputs.ZRAM == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform/common
             cp ../../SukiSU_patch/other/zram/zram_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4kd.patch ./
