@@ -105,6 +105,7 @@ on:
 
 jobs:
   build:
+    name: For ${{ github.event.inputs.FEIL }} ${{ github.event.inputs.KERNEL_VERSION }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
 
     steps:
