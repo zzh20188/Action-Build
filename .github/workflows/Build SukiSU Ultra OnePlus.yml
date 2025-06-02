@@ -89,7 +89,7 @@ on:
         default: ""
       FAST_BUILD:
         type: boolean
-        description: "是否使用快速构建？"
+        description: "是否使用极速构建？"
         required: true
         default: true
       VFS:
