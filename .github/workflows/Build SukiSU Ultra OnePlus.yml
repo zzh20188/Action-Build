@@ -87,9 +87,9 @@ on:
         description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
         default: ""
-      SUSFS_CI:
+      FAST_BUILD:
         type: boolean
-        description: "下载SUSFS模块是否使用CI构建？"
+        description: "是否使用快速构建？"
         required: true
         default: true
       VFS:
@@ -107,18 +107,31 @@ jobs:
   build:
     name: For ${{ github.event.inputs.FEIL }} ${{ github.event.inputs.KERNEL_VERSION }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
-
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+      CCACHE_DIR: /home/runner/.ccache  
+      CCACHE_MAXSIZE: 8G
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
           temp-reserve-mb: 2048
-          swap-size-mb: 2048
           remove-dotnet: 'true'
           remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
+
+      - name: Create and enable 6G swap
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 6G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
 
       - name: Configure Git
         run: |
@@ -134,7 +147,7 @@ jobs:
           echo "Selected KERNEL_VERSION: ${{ github.event.inputs.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
           echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
-          echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
+          echo "Selected SUSFS_CI: ${{ github.event.inputs.FAST_BUILD }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
 
@@ -142,7 +155,15 @@ jobs:
         run: |
           sudo apt update && sudo apt upgrade -y
           sudo apt install -y python3 git curl
+          sudo apt install -y python3 git curl ccache
 
+      - name: Restore ccache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.ccache
+          key: ccache-${{ runner.os }}-${{ github.ref }}
+          restore-keys: |
+            ccache-${{ runner.os }}-
 
       - name: Install repo tool
         run: |
@@ -395,17 +416,60 @@ jobs:
             fi
           fi
 
-      - name: Build kernel
-        if: ${{ github.event.inputs.CPU == 'sm8650' || github.event.inputs.CPU == 'sm7675' }}
+      - name: Enable lto=thin For FAST 5.15
+        if: ${{ github.event.inputs.KERNEL_VERSION == '5.15' && github.event.inputs.FAST_BUILD == 'true' }}
+        run: |
+          cd kernel_workspace/kernel_platform
+
+          DEFCONFIG=./common/arch/arm64/configs/gki_defconfig
+
+          echo "Enabling ThinLTO in $DEFCONFIG"
+
+          # 开启 CONFIG_LTO
+          sed -i 's/^CONFIG_LTO=n/CONFIG_LTO=y/' "$DEFCONFIG"
+
+          # 替换 FULL/NONE 为 THIN，防止冲突
+          sed -i 's/^CONFIG_LTO_CLANG_FULL=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG"
+          sed -i 's/^CONFIG_LTO_CLANG_NONE=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG"
+
+          # 添加 THIN（若未设置）
+          grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG"
+
+      - name: Build Kernel FAST
+        if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
+        run: |
+          KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
+          if [[ "$KERNEL_VERSION" == "6.1" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "6.6" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "5.15" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
+          else
+            cd kernel_workspace
+            LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 \
+            ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
+            exit 0
+          fi
+          ccache clang -v
+          sudo apt install -y libelf-dev
+          cd kernel_workspace/kernel_platform/common
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+            RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
+            PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
+            LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
+
+      - name: Fallback Build Kernel
+        if: ${{ github.event.inputs.FAST_BUILD == 'false' }}
         run: |
           cd kernel_workspace
-          ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
-          
-      - name: Fallback build kernel
-        if: ${{ github.event.inputs.CPU != 'sm8650' && github.event.inputs.CPU != 'sm7675' }}
-        run: |
-         cd kernel_workspace
-         LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
+          if [[ "${{ github.event.inputs.CPU }}" == "sm8650" || "${{ github.event.inputs.CPU }}" == "sm7675" ]]; then
+            ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
+          else
+            LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 \
+            ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
+          fi
+      
 
       - name: Make AnyKernel3
         run: |
@@ -477,7 +541,6 @@ jobs:
 
       # 下载 SUSFS 模块（CI）
       - name: Download Latest SUSFS Module from CI
-        if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
         run: |
           LATEST_RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/sidex15/susfs4ksu-module/actions/runs?status=success" | \
@@ -494,12 +557,6 @@ jobs:
           curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -o ksu_module_susfs_1.5.2+_CI.zip "$ARTIFACT_URL"
           cp ksu_module_susfs_1.5.2+_CI.zip ./AnyKernel3/
 
-      # 下载 SUSFS 模块（Release）*
-      - name: Download Latest SUSFS Module from Release
-        if: ${{ github.event.inputs.SUSFS_CI == 'false' }}
-        run: |
-          wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
-          cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
 
       # 解压 SukiSU Ultra（CI）（不自动安装）
       - name: Download Latest SukiSU-Ultra APK from CI
