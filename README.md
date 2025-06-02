@@ -14,11 +14,17 @@
  
 关于要跑多久的问题 一般来说越往前的机型跑的速度越快
 >***使用clang make(极速编译)***
+>>>-1.已知的特殊机型:部分非A15机型(eg:一加11-A14)
+ 
+>>`1h12min~1h14min,max:?`
 >>>0.All
  
->>`22min~31min,max:40min`
+>>`22min~31min,max:35min`
  
 >***使用官方build.sh***
+>>>-1.已知的特殊机型:部分非A15机型(eg:一加11-A14)
+ 
+>>`1h22min~1h28min,max:?`
 >>>1.sm8450、sm8475、sm8550
  
 >>`30~35min,max:45min`
@@ -28,9 +34,6 @@
 >>>3.sm8750
  
 >>`2h1min~2h22min,max:2h45min`
->>>4.已知的特殊机型:部分非A15机型
- 
->>`1h22min~1h28min,max:?`
 > 
 
 也就是说,如果你跑的机型时长超过了以上的最高时间,请尝试重新跑并查看``step``确保不是官方自己的问题
@@ -45,24 +48,24 @@
  
 # 更新日志
 --支持部分机型极速编译`(目前支持5.15、6.1、6.6)`  
+--修复`OnePlus Ace5Pro、OnePlus 13`跑不出来无法开机问题,直接使用官方dtbo就可以直接开机[@reigadegr](https://github.com/reigadegr)  
+--支持显示自己填入的内容在`Show selected inputs debug`这一步,同时工作流名称也可以看到一些东西  
 --从写入 `ak3.zip` 的配置文件后缀中删除潜在的版本代码,替换成精确的 `Android` 版本号`XX.X.X`
 ```
 AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
 ```
---暂时性修复`OnePlus Ace5Pro、OnePlus 13`跑不出来的问题[@reigadegr](https://github.com/reigadegr)  
 --允许自定义内核后缀  <- **`beta`**  
 ```
 1.当自定义内核后缀为空时,使用随机字符串,不再是默认的“x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
 2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
 ```  
 --`KPM` 默认开启，不再可关闭  
---新增 `dir4`、`dir5` 路径用于支持 `sm8750` 和部分机型开启 ZRAM 后的新路径（比如 `ace2p`、`13T`）[@ShirkNeko](https://github.com/ShirkNeko)  
+--新增 `dir4`、`dir5` 路径用于支持 `sm8750` 和部分机型开启 `ZRAM` 后的新路径（比如 `ace2p`、`13T`）[@ShirkNeko](https://github.com/ShirkNeko)  
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
 --同步 `susfs` 模块上游下载频道的变化，解决无法下载的问题  
 --优化 `sm8750`、`sm7675` 的 `build` 方案  
---修复版本号错误  
 --新增 `dir3` 路径用于支持 `sm8475`（比如 `ace2`）  
---支持自动下载最新 `CI` 的 `susfs` 模块并调用 `ksud` 安装  
+--支持自动下载最新 `CI` 的 `susfs` 模块并调用 `ksud` 安装、自动获取管理器`CI-APK`解压但不安装  
 --支持 `KPM`（无需任何修改复制）、`VFS HOOK`（自选是否开启）  
