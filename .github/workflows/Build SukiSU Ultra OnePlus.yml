@@ -222,11 +222,13 @@ jobs:
           git add -A
           git commit -m "Updated kernel version suffix"
 
-      # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
+      # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）
       - name: Generate random kernel suffix if SUFFIX is empty
         if: ${{ github.event.inputs.SUFFIX == '' }}
         run: |
           cd kernel_workspace
+          ANDROID_VERSION="${{ github.event.inputs.ANDROID_VERSION }}"
+          FAST_BUILD="${{ github.event.inputs.FAST_BUILD }}"
 
           RANDOM_DIGIT=$(od -An -N1 -tu1 < /dev/urandom | tr -d '[:space:]' | awk '{print $1 % 11}')
           RANDOM_HASH=$(od -An -N7 -tx1 /dev/urandom | tr -d ' \n')
@@ -237,15 +239,18 @@ jobs:
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
 
-              # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}//'\'')' "$path"
+            [ -f "$path" ] || continue
 
-              # 替换 echo "$res" 为随机后缀
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-$RANDOM_SUFFIX\"|" "$path"
+            if [ "$FAST_BUILD" = "true" ]; then
+              sed -i "s/^res=.*/res=\"-${ANDROID_VERSION}-${RANDOM_SUFFIX}\"/" "$path"
+            else
+              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}//'\'')' "$path"
+              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${RANDOM_SUFFIX}\"|" "$path"
+            fi
           done
 
           git add -A
-          git commit -m "Fix: inject random suffix"
+          git commit -m "Fix: inject random kernel suffix"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
