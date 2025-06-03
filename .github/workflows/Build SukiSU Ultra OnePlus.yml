@@ -206,7 +206,7 @@ jobs:
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
               # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-f]{7,}//'\'')' "$path"
+              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}//'\'')' "$path"
               # 替换 echo "$res" 为自定义后缀，使用 bazel 编译有特殊符号字数限制，如果出错，请减短
               sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${{ github.event.inputs.SUFFIX }}\"|" "$path"
           done
@@ -229,7 +229,7 @@ jobs:
             kernel_platform/external/dtc/scripts/setlocalversion; do
 
               # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-fA-F]{7,}//g'\'')' "$path"
+              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}//'\'')' "$path"
 
               # 替换 echo "$res" 为随机后缀
               sed -i "\$s|echo \"\\\$res\"|echo \"\$res-$RANDOM_SUFFIX\"|" "$path"
