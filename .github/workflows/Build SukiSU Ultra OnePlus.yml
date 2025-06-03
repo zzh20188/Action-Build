@@ -201,17 +201,27 @@ jobs:
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
           cd kernel_workspace
+          SUFFIX="${{ github.event.inputs.SUFFIX }}"
+          ANDROID_VERSION="${{ github.event.inputs.ANDROID_VERSION }}"
+          FAST_BUILD="${{ github.event.inputs.FAST_BUILD }}"
+
           for path in \
             kernel_platform/common/scripts/setlocalversion \
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
-              # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}//'\'')' "$path"
-              # 替换 echo "$res" 为自定义后缀，使用 bazel 编译有特殊符号字数限制，如果出错，请减短
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${{ github.event.inputs.SUFFIX }}\"|" "$path"
+
+            [ -f "$path" ] || continue
+
+            if [ "$FAST_BUILD" = "true" ]; then
+              sed -i "s/^res=.*/res=\"-${ANDROID_VERSION}-${SUFFIX}\"/" "$path"
+            else
+              current_res=$(grep '^res=' "$path" | cut -d= -f2- | tr -d '"')
+              cleaned_res=$(echo "$current_res" | sed -E 's/-[0-9]+-o-g[a-f0-9]+$//')
+              sed -i "s/^res=.*/res=\"${cleaned_res}-${SUFFIX}\"/" "$path"
+            fi
           done
           git add -A
-          git commit -m "Clean git describe suffix and append custom suffix: ${{ github.event.inputs.SUFFIX }}"
+          git commit -m "Updated kernel version suffix"
 
       # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Generate random kernel suffix if SUFFIX is empty
