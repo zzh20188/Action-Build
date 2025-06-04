@@ -13,16 +13,16 @@
 ------
  
 关于要跑多久的问题 一般来说越往前的机型跑的速度越快
->***使用clang make(极速编译)***
->>>-1.已知的特殊机型:部分非A15机型(eg:一加11-A14)
+>***使用极速编译clang make***
+>>>0.已知的特殊机型:部分非A15机型(eg:一加11-A14)
  
 >>`1h12min~1h14min,max:?`
->>>0.All
+>>>0.其他所有机型
  
 >>`22min~31min,max:35min`
  
 >***使用官方build.sh***
->>>-1.已知的特殊机型:部分非A15机型(eg:一加11-A14)
+>>>0.已知的特殊机型:部分非A15机型(eg:一加11-A14)
  
 >>`1h22min~1h28min,max:?`
 >>>1.sm8450、sm8475、sm8550
@@ -36,7 +36,7 @@
 >>`2h1min~2h22min,max:2h45min`
 > 
 
-也就是说,如果你跑的机型时长超过了以上的最高时间,请尝试重新跑并查看``step``确保不是官方自己的问题
+也就是说,如果你跑的时长超过了对应机型的最高时间,请尝试重新跑并查看``step``确保不是官方自己的问题
  
 ------
 部分设备的``lz4kd``存在问题,修复中,**跑不出来请先不要启用``ZRAM算法``**,请提前备份``boot.img``
@@ -47,6 +47,12 @@
 ------
  
 # 更新日志
+--允许自定义内核后缀  <- **`beta`**  
+```
+1.当自定义内核后缀为空时,使用随机字符串,不再是默认的“x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
+2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
+3.当使用clang make(Fast Build)时,为新的内核信息x.xx.xxx-o-g3b1e97b8b29f添加缺失的内核android版本号,再进行1或2操作
+```  
 --支持部分机型极速编译`(目前支持5.15、6.1、6.6)`  
 --修复`OnePlus Ace5Pro、OnePlus 13`跑不出来无法开机问题,直接使用官方dtbo就可以直接开机[@reigadegr](https://github.com/reigadegr)  
 --支持显示自己填入的内容在`Show selected inputs debug`这一步,同时工作流名称也可以看到一些东西  
@@ -56,11 +62,6 @@ AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
 ```
---允许自定义内核后缀  <- **`beta`**  
-```
-1.当自定义内核后缀为空时,使用随机字符串,不再是默认的“x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
-2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
-```  
 --`KPM` 默认开启，不再可关闭  
 --新增 `dir4`、`dir5` 路径用于支持 `sm8750` 和部分机型开启 `ZRAM` 后的新路径（比如 `ace2p`、`13T`）[@ShirkNeko](https://github.com/ShirkNeko)  
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
