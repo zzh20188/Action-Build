@@ -454,10 +454,10 @@ jobs:
         if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
         run: |
           KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
-          if [[ "$KERNEL_VERSION" == "6.1" ]]; then
-            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
-          elif [[ "$KERNEL_VERSION" == "6.6" ]]; then
+          if [[ "$KERNEL_VERSION" == "6.6" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "6.1" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
           elif [[ "$KERNEL_VERSION" == "5.15" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
           else
