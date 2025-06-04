@@ -14,15 +14,15 @@ The ``_x`` suffix in the config file indicates the codename of the Android versi
  
 Regarding build time: generally, the older the model, the faster the build.
 >***Using clang make (ultra-fast build)***
->>>-1.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14)
+>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14)
  
 >>`1h12min~1h14min,max:?`
->>>0.All
+>>>0.All Other Devices
  
 >>`22min~31min,max:35min`
  
 >***Using official build.sh***
->>>-1.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14)
+>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14)
  
 >>`1h22min~1h28min,max:?`
 >>>1.sm8450, sm8475, sm8550
@@ -36,7 +36,7 @@ Regarding build time: generally, the older the model, the faster the build.
 >>`2h1min~2h22min,max:2h45min`
 > 
 
-That is, if your build time exceeds the maximum listed above, please try rerunning the workflow and check the ``step`` to ensure it’s not an issue with the official process.
+That is to say, if your running time exceeds the maximum time of the corresponding model, please try to run again and check the steps to make sure it is not the official problem.
  
 ------
 Some devices have issues with ``lz4kd``, currently under fix. **If the build fails, please don’t enable ``ZRAM algorithm`` yet.** Make sure to back up your ``boot.img`` in advance.
@@ -47,6 +47,13 @@ Remember to press **Volume Down** to install the module.
 ------
  
 # Changelog
+-- Allow custom kernel suffix.  <- **`beta`**
+```
+1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
+ 
+2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-[custom content]”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
+3. When using clang make (Fast Build), add the missing kernel android version number to the new source kernel information x.xx.xxx-o-g3b1e97b8b29f, and then perform operations in 1 or 2.
+```  
 -- Support ultra-fast builds for some models `(currently supports 5.15, 6.1, 6.6)`  
 -- Fixed OnePlus Ace5Pro and OnePlus 13 boot issues after build failure; using official dtbo now allows booting directly. [@reigadegr](https://github.com/reigadegr)  
 -- Support displaying user-defined inputs during `Show selected inputs debug` step; workflow name will also reflect some values.  
@@ -56,12 +63,6 @@ Examples:
 AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip  
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip  
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
-```  
--- Allow custom kernel suffix.  <- **`beta`**
-```
-1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
- 
-2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-[custom content]”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
 ```  
 -- KPM is enabled by default and can no longer be disabled.  
 -- New `dir4` and `dir5` paths added to support `sm8750` and some devices with new paths when ZRAM is enabled (such as `ace2p`, `13T`).   [@ShirkNeko](https://github.com/ShirkNeko)  
