@@ -58,7 +58,7 @@
 2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-[custom content]”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
 3. When using clang make (Fast Build), add the missing kernel android version number to the new source kernel information x.xx.xxx-o-g3b1e97b8b29f, and then perform operations in 1 or 2.
 ```  
--- Support ultra-fast builds for some models `(currently supports 5.15, 6.1, 6.6)`  
+-- Support ultra-fast builds for some models `(currently supports 5.10, 5.15, 6.1, 6.6)`  
 -- Fixed OnePlus Ace5Pro and OnePlus 13 boot issues after build failure; using official dtbo now allows booting directly. [@reigadegr](https://github.com/reigadegr)  
 -- Support displaying user-defined inputs during `Show selected inputs debug` step; workflow name will also reflect some values.  
 -- Removed potential version codes from the suffix of `ak3.zip` config file, replaced with exact `Android` version numbers `XX.X.X`.
