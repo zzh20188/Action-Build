@@ -6,7 +6,7 @@ on:
         type: choice
         description: "分支"
         required: true
-        default: sm8550
+        default: sm8475
         options:
           - sm7550
           - sm7675
@@ -19,7 +19,7 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_ace2pro_v
+        default: oneplus_ace2_v
         options:
           - oneplus_nord_ce4_v
           - oneplus_ace_3v_v
@@ -47,7 +47,7 @@ on:
         type: choice
         description: "处理器代号"
         required: true
-        default: kalama
+        default: waipio
         options:
           - crow
           - waipio
@@ -58,7 +58,7 @@ on:
         type: choice
         description: "内核初始安卓版本"
         required: true
-        default: android13
+        default: android12
         options:
           - android12
           - android13
@@ -68,7 +68,7 @@ on:
        type: choice
        description: "内核版本"
        required: true
-       default: "5.15"
+       default: "5.10"
        options:
          - "5.10"
          - "5.15"
@@ -87,9 +87,9 @@ on:
         description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
         default: ""
-      SUSFS_CI:
+      FAST_BUILD:
         type: boolean
-        description: "下载SUSFS模块是否使用CI构建？"
+        description: "是否使用极速构建？"
         required: true
         default: true
       VFS:
@@ -124,6 +124,15 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
 
+      - name: Create and enable 6G swap
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 6G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Configure Git
         run: |
           git config --global user.name "Numbersf"
@@ -138,7 +147,7 @@ jobs:
           echo "Selected KERNEL_VERSION: ${{ github.event.inputs.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
           echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
-          echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
+          echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
 
@@ -192,23 +201,35 @@ jobs:
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
           cd kernel_workspace
+          SUFFIX="${{ github.event.inputs.SUFFIX }}"
+          ANDROID_VERSION="${{ github.event.inputs.ANDROID_VERSION }}"
+          FAST_BUILD="${{ github.event.inputs.FAST_BUILD }}"
+
           for path in \
             kernel_platform/common/scripts/setlocalversion \
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
-              # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-f]{7,}//'\'')' "$path"
-              # 替换 echo "$res" 为自定义后缀，使用 bazel 编译有特殊符号字数限制，如果出错，请减短
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${{ github.event.inputs.SUFFIX }}\"|" "$path"
+
+            [ -f "$path" ] || continue
+
+            if [ "$FAST_BUILD" = "true" ]; then
+              sed -i "s/^res=.*/res=\"-${ANDROID_VERSION}-${SUFFIX}\"/" "$path"
+            else
+              # 使用官方脚本编译，当使用 build_with_bazel 时，可能受特殊符号数量限制，需要小于4
+              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}.*$//'\'')' "$path"
+              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${SUFFIX}\"|" "$path"
+            fi
           done
           git add -A
-          git commit -m "Clean git describe suffix and append custom suffix: ${{ github.event.inputs.SUFFIX }}"
+          git commit -m "Updated kernel version suffix"
 
       # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Generate random kernel suffix if SUFFIX is empty
         if: ${{ github.event.inputs.SUFFIX == '' }}
         run: |
           cd kernel_workspace
+          ANDROID_VERSION="${{ github.event.inputs.ANDROID_VERSION }}"
+          FAST_BUILD="${{ github.event.inputs.FAST_BUILD }}"
 
           RANDOM_DIGIT=$(od -An -N1 -tu1 < /dev/urandom | tr -d '[:space:]' | awk '{print $1 % 11}')
           RANDOM_HASH=$(od -An -N7 -tx1 /dev/urandom | tr -d ' \n')
@@ -219,15 +240,18 @@ jobs:
             kernel_platform/msm-kernel/scripts/setlocalversion \
             kernel_platform/external/dtc/scripts/setlocalversion; do
 
-              # 清理默认后缀
-              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/-[0-9]+-o-g[0-9a-fA-F]{7,}//g'\'')' "$path"
+            [ -f "$path" ] || continue
 
-              # 替换 echo "$res" 为随机后缀
-              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-$RANDOM_SUFFIX\"|" "$path"
+            if [ "$FAST_BUILD" = "true" ]; then
+              sed -i "s/^res=.*/res=\"-${ANDROID_VERSION}-${RANDOM_SUFFIX}\"/" "$path"
+            else
+              sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o-)?-g[0-9a-f]{7,}//'\'')' "$path"
+              sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${RANDOM_SUFFIX}\"|" "$path"
+            fi
           done
 
           git add -A
-          git commit -m "Fix: inject random suffix"
+          git commit -m "Fix: inject random kernel suffix"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
@@ -407,14 +431,42 @@ jobs:
             fi
           fi
 
-      - name: Build Kernel
+      - name: Enable lto=thin For FAST
+        if: ${{ (github.event.inputs.KERNEL_VERSION == '5.10' || github.event.inputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
+        run: |
+          cd kernel_workspace/kernel_platform
+
+          DEFCONFIG=./common/arch/arm64/configs/gki_defconfig
+
+          echo "Enabling ThinLTO in $DEFCONFIG"
+
+          # 开启 CONFIG_LTO
+          sed -i 's/^CONFIG_LTO=n/CONFIG_LTO=y/' "$DEFCONFIG"
+
+          # 替换 FULL/NONE 为 THIN，防止冲突
+          sed -i 's/^CONFIG_LTO_CLANG_FULL=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG"
+          sed -i 's/^CONFIG_LTO_CLANG_NONE=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG"
+
+          # 添加 THIN（若未设置）
+          grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG"
+
+      - name: Build Kernel FAST
+        if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
         run: |
           KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
-          if [[ "$KERNEL_VERSION" == "6.1" ]]; then
-            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
-          elif [[ "$KERNEL_VERSION" == "6.6" ]]; then
+
+          # 设置 Clang 路径
+          if [[ "$KERNEL_VERSION" == "6.6" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "6.1" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "5.15" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "5.10" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts-master/clang/host/linux-x86/clang-r416183b/bin:$PATH"
           else
+            echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本（同时开启自定义内核后缀可能导致内核后缀错乱）"
+            echo "请考虑关闭 FAST_BUILD 或补充该版本 clang 路径"
             cd kernel_workspace
             LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 \
             ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
@@ -427,6 +479,18 @@ jobs:
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
+
+      - name: Fallback Build Kernel
+        if: ${{ github.event.inputs.FAST_BUILD == 'false' }}
+        run: |
+          cd kernel_workspace
+          if [[ "${{ github.event.inputs.CPU }}" == "sm8650" || "${{ github.event.inputs.CPU }}" == "sm7675" ]]; then
+            ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
+          else
+            LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 \
+            ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
+          fi
+      
 
       - name: Make AnyKernel3
         run: |
@@ -454,6 +518,7 @@ jobs:
             image_path="$dir5"Image
           else
             image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
+            echo "使用 make 编译的统一路径，无需复制"
           fi
 
           # 复制 Image 到同一个路径方便直接调用
@@ -498,7 +563,6 @@ jobs:
 
       # 下载 SUSFS 模块（CI）
       - name: Download Latest SUSFS Module from CI
-        if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
         run: |
           LATEST_RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/sidex15/susfs4ksu-module/actions/runs?status=success" | \
@@ -515,12 +579,6 @@ jobs:
           curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -o ksu_module_susfs_1.5.2+_CI.zip "$ARTIFACT_URL"
           cp ksu_module_susfs_1.5.2+_CI.zip ./AnyKernel3/
 
-      # 下载 SUSFS 模块（Release）*
-      - name: Download Latest SUSFS Module from Release
-        if: ${{ github.event.inputs.SUSFS_CI == 'false' }}
-        run: |
-          wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
-          cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
 
       # 解压 SukiSU Ultra（CI）（不自动安装）
       - name: Download Latest SukiSU-Ultra APK from CI
