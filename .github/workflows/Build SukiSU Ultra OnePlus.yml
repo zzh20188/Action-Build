@@ -431,8 +431,8 @@ jobs:
             fi
           fi
 
-      - name: Enable lto=thin For FAST 5.15
-        if: ${{ github.event.inputs.KERNEL_VERSION == '5.15' && github.event.inputs.FAST_BUILD == 'true' }}
+      - name: Enable lto=thin For FAST
+        if: ${{ (github.event.inputs.KERNEL_VERSION == '5.10' || github.event.inputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform
 
@@ -454,12 +454,15 @@ jobs:
         if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
         run: |
           KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
+
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
           elif [[ "$KERNEL_VERSION" == "6.1" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
           elif [[ "$KERNEL_VERSION" == "5.15" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
+          elif [[ "$KERNEL_VERSION" == "5.10" ]]; then
+            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts-master/clang/host/linux-x86/clang-r416183b/bin:$PATH"
           else
             echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本（同时开启自定义内核后缀可能导致内核后缀错乱）"
             echo "请考虑关闭 FAST_BUILD 或补充该版本 clang 路径"
@@ -471,10 +474,17 @@ jobs:
           ccache clang -v
           sudo apt install -y libelf-dev
           cd kernel_workspace/kernel_platform/common
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+
+          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
-            LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
+            LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
+          # 如果是 5.10，添加 LLVM_IAS=1
+          if [[ "$KERNEL_VERSION" == "5.10" ]]; then
+            MAKE_ARGS="LLVM_IAS=1 $MAKE_ARGS"
+          fi
+          make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
+          make -j$(nproc --all) O=out $MAKE_ARGS
 
       - name: Fallback Build Kernel
         if: ${{ github.event.inputs.FAST_BUILD == 'false' }}
