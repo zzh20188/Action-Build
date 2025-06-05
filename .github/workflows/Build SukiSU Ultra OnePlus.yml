@@ -524,7 +524,9 @@ jobs:
             image_path="$dir5"Image
           else
             image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
-            echo "使用 make 编译的统一路径，无需复制"
+             if [ -n "$image_path" ]; then
+               echo "使用 make 编译的统一路径，无需复制"
+             fi
           fi
 
           # 复制 Image 到同一个路径方便直接调用
