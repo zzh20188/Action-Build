@@ -41,7 +41,7 @@
  
 ------
 > [!WARNING]
->部分设备的``lz4kd``存在问题,修复中,**跑不出来请先不要启用``ZRAM算法``**,请提前备份``boot.img``
+>部分设备的``lz4kd``存在问题,修复中,**跑不出来请先不要启用``ZRAM``算法**,请提前备份``boot.img``
  
 ------
 > [!TIP]
@@ -59,7 +59,7 @@
 2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
 3.当使用clang make(Fast Build)时,为新的源内核信息x.xx.xxx-o-g3b1e97b8b29f添加缺失的内核android版本号,再进行1或2中的操作
 ```  
---支持部分机型极速编译`(目前支持5.15、6.1、6.6)`  
+--支持部分机型极速编译`(目前支持5.10、5.15、6.1、6.6)`  
 --修复`OnePlus Ace5Pro、OnePlus 13`跑不出来无法开机问题,直接使用官方dtbo就可以直接开机[@reigadegr](https://github.com/reigadegr)  
 --支持显示自己填入的内容在`Show selected inputs debug`这一步,同时工作流名称也可以看到一些东西  
 --从写入 `ak3.zip` 的配置文件后缀中删除潜在的版本代码,替换成精确的 `Android` 版本号`XX.X.X`
