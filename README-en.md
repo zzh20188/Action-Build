@@ -15,15 +15,15 @@
 > [!IMPORTANT]
 >Regarding build time: generally, the older the model, the faster the build.
 >>***Using clang make (ultra-fast build)***
->>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14)
+>>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13)
 > 
->>>`1h12min~1h14min,max:?`
+>>>`1h12min~1h17min,max:?`
 >>>>0.All Other Devices
 > 
 >>>`22min~31min,max:35min`
 > 
 >>***Using official build.sh***
->>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14)
+>>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13Not Supported)
 > 
 >>>`1h22min~1h28min,max:?`
 >>>>1.sm8450, sm8475, sm8550
