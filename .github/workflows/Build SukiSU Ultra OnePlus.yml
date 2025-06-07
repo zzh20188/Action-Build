@@ -169,7 +169,7 @@ jobs:
       - name: Install repo tool
         run: |
           curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
-          chmod a+x ~/repoAdd commentMore actions
+          chmod a+x ~/repo
           sudo mv ~/repo /usr/local/bin/repo
 
       - name: Initialize repo and sync
