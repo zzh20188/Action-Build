@@ -4,25 +4,82 @@
 
 # Action-Build
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
- 
+
 # Announcements
- 
+
 ------
-> [!NOTE]
->The ``_x`` suffix in the config file indicates the codename of the Android version you're using. For example, ``_w Android16, _v Android15, _u Android14, _t Android13, _s Android12``, and so on in reverse alphabetical **lowercase** order. A config **without a suffix** usually refers to the factory ``Android`` version of a model. Currently, only models with ``Android15`` (``_v``) are pre-listed. If you are using another version, please manually change ``_v`` to the corresponding code.
- 
+> [!NOTE]  
+> The `_x` suffix in the config file corresponds to the code name of your current Android system version. The codes are in reverse alphabetical order and lowercase. A config without any suffix usually refers to the device’s stock Android version. Currently, only Android 15 (`_v`) variants are preset. If you are using a different version, please manually replace `_v` with the appropriate code.
+> <details>
+> <summary><strong>Click to view the Android version codes (subject to future updates)</strong></summary>
+>
+>`_z Android19 (Zebra Cake)`
+>
+>`_y Android18 (Yogurt Parfait)`
+>
+>`_x Android17 (Xmas Pudding)`
+>
+>`_w Android16 (Wedding Cake)`<strong>
+>
+>`_v Android15 (Vanilla Ice Cream)`
+>
+>`_u Android14 (Upside Down Cake)`
+>
+>`_t Android13 (Tiramisu)`
+>
+>`_s Android12 (Snow Cone)`</strong>
+>
+>`_r Android11 (Red Velvet Cake)`
+>
+>`_q Android10 (Quince Tart)`
+>
+>`_p Android9 (Pie)`
+>
+>`_o Android8 (Oreo)`
+>
+>`_n Android7 (Nougat)`
+>
+>`_m Android6 (Marshmallow)`
+>
+>`_l Android5 (Lollipop)`
+>
+>`_k Android4.4 (KitKat)`
+>
+>`_j Android4.3–4.1 (Jelly Bean)`
+>
+>`_i Android4.0 (Ice Cream Sandwich)`
+>
+>`_h Android3.x (Honeycomb)`
+>
+>`_g Android2.3 (Gingerbread)`
+>
+>`_f Android2.2 (FroYo)`
+>
+>`_e Android2.1 (Eclair)`
+>
+>`_d Android1.6 (Donut)`
+>
+>`_c Android1.5 (Cupcake)`
+>
+> </details>
+
 ------
-> [!IMPORTANT]
->Regarding build time: generally, the older the model, the faster the build.
->>***Using clang make (ultra-fast build)***
+> [!IMPORTANT]  
+> About compile time: generally, older devices build faster.  
+> <details>
+> <summary><strong>Click to view compile time Using Fast Build (clang make)</strong></summary>
+>
 >>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13)
-> 
+>
 >>>`1h12min~1h17min,max:?`
 >>>>0.All Other Devices
 > 
 >>>`22min~31min,max:35min`
 > 
->>***Using official build.sh***
+> </details>
+> <details>
+> <summary><strong>Click to view compile time Using official build.sh</strong></summary>
+>
 >>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13Not Supported)
 > 
 >>>`1h22min~1h28min,max:?`
@@ -36,19 +93,21 @@
 > 
 >>>`2h1min~2h22min,max:2h45min`
 >> 
+> </details>
 >
->That is to say, if your running time exceeds the maximum time of the corresponding model, please try to run again and check the steps to make sure it is not the official problem.
- 
+> So, if your runtime exceeds the max time listed, try rerunning and check the `step` logs in case it's a platform issue.
+
 ------
-> [!WARNING]
->Some devices have issues with ``lz4kd``, currently under fix. **If the build fails, please don’t enable ``ZRAM`` algorithm yet.** Make sure to back up your ``boot.img`` in advance.
- 
+> [!WARNING]  
+> Some devices have issues with `lz4kd`. Fix in progress. **If the build fails, please do not enable `ZRAM` compression**, and back up your `boot.img` in advance.
+
 ------
-> [!CAUTION] 
->Please do not install modules during **root-preserving update**!
- 
-> [!TIP]
->Remember to press **Volume Down** to install the module!
+> [!CAUTION]  
+> **Do not install modules when performing a root-preserving update!**
+
+> [!TIP]  
+> Remember to press **Volume Down** when installing modules!
+
  
 ------
  
