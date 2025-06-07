@@ -26,6 +26,7 @@ on:
           - oneplus_nord_4_v
           - oneplus_10_pro_v
           - oneplus_10t_v
+          - oneplus_11_t.xml
           - oneplus_11r_v
           - oneplus_ace2_v
           - oneplus_ace_pro_v
