@@ -122,7 +122,9 @@
 ------
  
 # 更新日志
---修复内核版本介于`5.15.0-5.15.123`之间官方脚本跑不出,极速编译结果有问题[@zzh20188](https://github.com/zzh20188)  
+--修复内核版本介于`5.15.0-5.15.123`之间官方脚本跑不出,极速编译结果有问题[@zzh20188](https://github.com/zzh20188)
+- - **来源：Google相关提交：**  
+    • [75f82c6](https://android.googlesource.com/kernel/common/+/75f82c6a15c4188cbb32825892fc6ae3e95479f0)  • [41755e2](https://android.googlesource.com/kernel/common/+/41755e2ac8e43a445def9663257d9af6e8aebec5)
 --支持`BBR`,默认不开启  
 --允许自定义内核后缀  <- **`beta`**  
 ```
