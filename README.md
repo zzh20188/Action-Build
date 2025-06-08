@@ -5,6 +5,17 @@
 # Action-Build
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
  
+<details>
+<summary><strong>点击查看如何fork项目</strong></summary>
+<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fmake.gif" width="500"/>
+</details>
+ 
+<details>
+<summary><strong>点击查看如何同步fork后的项目到最新</strong></summary>
+<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fsyncfork.png" width="150"/>
+<summary>请及时同步!某些更新可能会导致旧版本失效!</summary>
+</details>
+ 
 # 公告
  
 ------
