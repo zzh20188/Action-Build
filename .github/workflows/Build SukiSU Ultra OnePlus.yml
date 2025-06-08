@@ -26,6 +26,7 @@ on:
           - oneplus_nord_4_v
           - oneplus_10_pro_v
           - oneplus_10t_v
+          - oneplus_11_t
           - oneplus_11r_v
           - oneplus_ace2_v
           - oneplus_ace_pro_v
@@ -185,6 +186,16 @@ jobs:
           rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
+          cd kernel_platform/common
+
+          GKI_V="${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}"
+          SUBLEVEL=$(awk 'NR==4 {split($0, a, "="); print a[2]}' Makefile | tr -d ' ')
+
+          if [ "$GKI_V" == "android13-5.15" ] && [ "$SUBLEVEL" -lt 123 ]; then
+            echo '修复5.15'
+            curl -LSs https://github.com/zzh20188/GKI_KernelSU_SUSFS/raw/refs/heads/legacy/fix_5.15.legacy -o fix_5.15.legacy.patch
+            patch -p1 < fix_5.15.legacy.patch
+          fi
       # 删除 -dirty 脏块
       - name: Force remove -dirty suffix
         run: |
