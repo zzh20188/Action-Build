@@ -71,7 +71,7 @@
 >
 >>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13)
 >
->>>`1h12min~1h17min,max:?`
+>>>`1h8min~1h17min,max:1h17min`
 >>>>0.All Other Devices
 > 
 >>>`22min~31min,max:35min`
@@ -80,9 +80,9 @@
 > <details>
 > <summary><strong>Click to view compile time Using official build.sh</strong></summary>
 >
->>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13Not Supported)
+>>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13)
 > 
->>>`1h22min~1h28min,max:?`
+>>>`1h14min~1h28min,max:1h28min`
 >>>>1.sm8450, sm8475, sm8550
 > 
 >>>`30~35min,max:45min`
@@ -112,6 +112,8 @@
 ------
  
 # Changelog
+--Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
+--Support `BBR`, not enabled by default.  
 -- Allow custom kernel suffix.  <- **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
