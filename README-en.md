@@ -4,6 +4,15 @@
 
 # Action-Build
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
+<details>
+<summary><strong>Click to view how to fork</strong></summary>
+<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fmake.gif" width="500"/>
+</details>
+<details>
+<summary><strong>Click to view how to synchronize the forked project to the latest</strong></summary>
+<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fsyncfork.png" width="150"/>
+<summary>Please sync in time! Some updates may cause old versions to become invalid!</summary>
+</details>
 
 # Announcements
 
