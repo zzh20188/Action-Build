@@ -6,7 +6,7 @@ on:
         type: choice
         description: "分支"
         required: true
-        default: sm8475
+        default: sm8550
         options:
           - sm7550
           - sm7675
@@ -19,7 +19,7 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_ace2_v
+        default: oneplus_ace2pro_v
         options:
           - oneplus_nord_ce4_v
           - oneplus_ace_3v_v
@@ -47,7 +47,7 @@ on:
         type: choice
         description: "处理器代号"
         required: true
-        default: waipio
+        default: kalama
         options:
           - crow
           - waipio
@@ -58,7 +58,7 @@ on:
         type: choice
         description: "内核初始安卓版本"
         required: true
-        default: android12
+        default: android13
         options:
           - android12
           - android13
@@ -68,7 +68,7 @@ on:
        type: choice
        description: "内核版本"
        required: true
-       default: "5.10"
+       default: "5.15"
        options:
          - "5.10"
          - "5.15"
@@ -99,7 +99,7 @@ on:
         default: true
       ZRAM:
         type: boolean
-        description: "是否启用添加更多的ZRAM算法？"
+        description: "是否添加更多的ZRAM算法？"
         required: true
         default: false
 
@@ -285,7 +285,18 @@ jobs:
           fi
 
           cd ./common
+          GKI_V="${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}"
+          SUBLEVEL=$(grep '^SUBLEVEL *=' Makefile | head -n1 | cut -d= -f2 | tr -d ' ')
+
+          if [ "$GKI_V" == "android13-5.15" ] && [ "$SUBLEVEL" -lt 123 ]; then
+            echo "修复内核版本5.15.0到5.15.123可能存在的一些遗留问题"
+            curl -Lo fix_5.15.legacy.patch --retry 5 --retry-delay 2 --retry-connrefused https://raw.githubusercontent.com/Numbersf/Action-Build/main/patches/fix_5.15.legacy
+            patch -p1 < fix_5.15.legacy.patch
+            echo "fix_5.15_patch完成"
+          fi
+
           if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
+           echo "修复内核版本6.6部分机型susfs的问题"
            sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
            sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch
           fi
@@ -306,7 +317,7 @@ jobs:
         run: |
             cd kernel_workspace/kernel_platform/common
             sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
-            wget https://github.com/Numbersf/Action-Build/raw/main/patchs/hmbird_patch.patch
+            wget https://github.com/Numbersf/Action-Build/raw/main/patches/hmbird_patch.patch
             echo "正在打OGKI转换GKI补丁"
             patch -p1 -F 3 < hmbird_patch.patch
             echo "OGKI转换GKI_patch完成"
@@ -378,10 +389,16 @@ jobs:
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
+          # BBR配置*
+          # echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$CONFIG_FILE"
+          # echo "CONFIG_TCP_CONG_BBR=y" >> "$CONFIG_FILE"
+          # echo "CONFIG_NET_SCH_FQ=y" >> "$CONFIG_FILE"
+          # echo "CONFIG_TCP_CONG_BIC=n" >> "$CONFIG_FILE"
+          # echo "CONFIG_TCP_CONG_WESTWOOD=n" >> "$CONFIG_FILE"
+          # echo "CONFIG_TCP_CONG_HTCP=n" >> "$CONFIG_FILE"
+
           # LZ4KD配置*
           if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
-          CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
-
             if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "5.10" ]; then
               echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
               echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"
@@ -455,7 +472,6 @@ jobs:
         run: |
           KERNEL_VERSION="${{ github.event.inputs.KERNEL_VERSION }}"
 
-          # 设置 Clang 路径
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
           elif [[ "$KERNEL_VERSION" == "6.1" ]]; then
@@ -475,10 +491,17 @@ jobs:
           ccache clang -v
           sudo apt install -y libelf-dev
           cd kernel_workspace/kernel_platform/common
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+
+          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
-            LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
+            LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
+          # 如果是 5.10，添加 LLVM_IAS=1
+          if [[ "$KERNEL_VERSION" == "5.10" ]]; then
+            MAKE_ARGS="LLVM_IAS=1 $MAKE_ARGS"
+          fi
+          make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
+          make -j$(nproc --all) O=out $MAKE_ARGS
 
       - name: Fallback Build Kernel
         if: ${{ github.event.inputs.FAST_BUILD == 'false' }}
@@ -518,7 +541,9 @@ jobs:
             image_path="$dir5"Image
           else
             image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
-            echo "使用 make 编译的统一路径，无需复制"
+             if [ -n "$image_path" ]; then
+               echo "使用 make 编译的统一路径，无需复制"
+             fi
           fi
 
           # 复制 Image 到同一个路径方便直接调用
@@ -554,7 +579,7 @@ jobs:
       - name: Apply patch_linux and replace Image
         run: |
           cd kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist
-          curl -LO --retry 5 --retry-delay 2 --retry-connrefused https://raw.githubusercontent.com/Numbersf/Action-Build/main/patchs/patch_linux
+          curl -LO --retry 5 --retry-delay 2 --retry-connrefused https://raw.githubusercontent.com/Numbersf/Action-Build/main/patches/patch_linux
           chmod +x patch_linux
           ./patch_linux
           rm -f Image
