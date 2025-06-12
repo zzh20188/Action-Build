@@ -620,16 +620,17 @@ jobs:
             --jq '.workflow_runs[0].id' || echo "")
 
           if [[ -z "$run_id" ]]; then
-            echo "No successful workflow run found."
+            echo "⚠️ No successful workflow run found. Skipping artifact download."
           else
             artifact_url=$(gh api \
-              "repos/SukiSU-Ultra/SukiSU-Ultra/actions/runs/$run_id/artifacts" \
-              --jq '.artifacts[] | select(.name == "manager") | .archive_download_url')
+              "repos/SukiSU-Ultra/SukiSU-Ultra/actions/runs/$run_id/artifacts" | \
+              jq -r '.artifacts[] | select(.name == "manager") | .archive_download_url' | head -n1)
 
             if [[ -z "$artifact_url" ]]; then
-              echo "No manager artifact found."
+              echo "⚠️ No 'manager' artifact found in run $run_id. Skipping download."
             else
-              curl -L -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
+              echo "✅ Downloading from: $artifact_url"
+              curl -fL -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
               unzip -j manager.zip "*.apk" -d ./AnyKernel3/
             fi
           fi
