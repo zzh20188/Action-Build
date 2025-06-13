@@ -269,6 +269,7 @@ jobs:
           cd kernel_workspace
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
+          git clone https://github.com/WildPlusKernel/kernel_patches.git
           cd kernel_platform
           echo "正在打susfs补丁"
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
@@ -326,9 +327,9 @@ jobs:
         if: ${{ github.event.inputs.VFS == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform/common
-            cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
+            cp ../../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./
             echo "正在打vfs补丁"
-            patch -p1 -F 3 < syscall_hooks.patch
+            patch -p1 -F 3 < scope_min_manual_hooks_v1.4.patch
             echo "vfs_patch完成"
 
       - name: Apply LZ4KD
