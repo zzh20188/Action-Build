@@ -303,16 +303,7 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch
           echo "隐藏应用_patch完成"
 
-      # OGKI转换GKI，可以直接使用官方 dtbo 开机，按需是否启用
-      - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
-        if: ${{ github.event.inputs.KERNEL_VERSION == '6.6' }}
-        run: |
-            cd kernel_workspace/kernel_platform/common
-            sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
-            wget https://github.com/Numbersf/Action-Build/raw/main/patches/hmbird_patch.patch
-            echo "正在打OGKI转换GKI补丁"
-            patch -p1 -F 3 < hmbird_patch.patch
-            echo "OGKI转换GKI_patch完成"
+
 
       - name: Apply VFS
         if: ${{ github.event.inputs.VFS == 'true' }}
