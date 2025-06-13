@@ -42,6 +42,7 @@ on:
           - oneplus_13
           - oneplus_ace5_pro
           - oneplus_13t
+          - oneplus_13s
           - GitHub有bug可能不显示最后一项,误使用此项
       CPUD:
         type: choice
@@ -153,7 +154,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update
+          sudo apt update && sudo apt upgrade -y
           sudo apt install -y python3 git curl ccache
 
       - name: Restore ccache
@@ -256,7 +257,7 @@ jobs:
       - name: Add KernelSU-SukiSU Ultra
         run: |
           cd kernel_workspace/kernel_platform
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
           cd ./KernelSU
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10606)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -619,16 +620,17 @@ jobs:
             --jq '.workflow_runs[0].id' || echo "")
 
           if [[ -z "$run_id" ]]; then
-            echo "No successful workflow run found."
+            echo "⚠️ No successful workflow run found. Skipping artifact download."
           else
             artifact_url=$(gh api \
-              "repos/SukiSU-Ultra/SukiSU-Ultra/actions/runs/$run_id/artifacts" \
-              --jq '.artifacts[] | select(.name == "manager") | .archive_download_url')
+              "repos/SukiSU-Ultra/SukiSU-Ultra/actions/runs/$run_id/artifacts" | \
+              jq -r '.artifacts[] | select(.name == "manager") | .archive_download_url' | head -n1)
 
             if [[ -z "$artifact_url" ]]; then
-              echo "No manager artifact found."
+              echo "⚠️ No 'manager' artifact found in run $run_id. Skipping download."
             else
-              curl -L -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
+              echo "✅ Downloading from: $artifact_url"
+              curl -fL -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
               unzip -j manager.zip "*.apk" -d ./AnyKernel3/
             fi
           fi
