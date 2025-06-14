@@ -517,7 +517,7 @@ jobs:
           fi
 
           # 复制其它可能需要的文件（如果存在），部分 img 并不会直接安装，仅复制到 zip 供参考使用
-          if [ "${{ github.event.inputs.CPU }}" = "sm8750" ]; then
+          if [ "${{ github.event.inputs.CPU }}" = "sm8750" ] && [ "${{ github.event.inputs.FAST_BUILD }}" = "false" ]; then
           for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
             if [ -f "$dir1$file" ]; then
               target_name="$file"
@@ -651,3 +651,16 @@ jobs:
         with:
           name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.feil_clean.outputs.value }}_KPM${{ steps.suffix.outputs.value }}
           path: ./AnyKernel3/*
+
+      - name: Find And Upload .ko Files
+        if: ${{ github.event.inputs.ZRAM == 'true' }}
+        run: |
+          find . -name "zram.ko" -o -name "crypto_zstdn.ko" > ko.list
+          tar -czf ko-files.tar.gz -T ko.list
+
+      - name: Upload ko Files
+        if: ${{ github.event.inputs.ZRAM == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ko-files
+          path: ko-files.tar.gz
