@@ -651,3 +651,16 @@ jobs:
         with:
           name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.feil_clean.outputs.value }}_KPM${{ steps.suffix.outputs.value }}
           path: ./AnyKernel3/*
+
+      - name: Find And Upload .ko Files
+        if: ${{ github.event.inputs.ZRAM == 'true' }}
+        run: |
+          find . -name "zram.ko" -o -name "crypto_zstdn.ko" > ko.list
+          tar -czf ko-files.tar.gz -T ko.list
+
+      - name: Upload ko Files
+        if: ${{ github.event.inputs.ZRAM == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ko-files
+          path: ko-files.tar.gz
