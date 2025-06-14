@@ -661,7 +661,7 @@ jobs:
             grep "browser_download_url" | grep "ZRAM-Module-.*\.zip" | cut -d '"' -f 4 | xargs wget -N
           unzip "$(ls -t ZRAM-Module-*.zip | head -1)" -d ZRAM-Module
           zram1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
-          zram2="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
+          zram2="./kernel_workspace/kernel_platform/out/msm-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
           zram3="./kernel_workspace/kernel_platform/out/dist/"
           zram4="./kernel_workspace/kernel_platform/out/vendor/oplus/kernel/mm/"
           zram5="./kernel_workspace/device/qcom/${{ github.event.inputs.CPUD }}-kernel/vendor_dlkm/"
