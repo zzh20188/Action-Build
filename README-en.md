@@ -106,9 +106,6 @@
 >
 > So, if your runtime exceeds the max time listed, try rerunning and check the `step` logs in case it's a platform issue.
 
-------
-> [!WARNING]  
-> Some devices have issues with `lz4kd`. Fix in progress. **If the build fails, please do not enable `ZRAM` compression**, and back up your `boot.img` in advance.
 
 ------
 > [!CAUTION]  
@@ -121,8 +118,8 @@
 ------
  
 # Changelog
---Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
---Support `BBR`, not enabled by default.  
+-- Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
+-- Support `BBR`.  
 -- Allow custom kernel suffix.  <- **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
