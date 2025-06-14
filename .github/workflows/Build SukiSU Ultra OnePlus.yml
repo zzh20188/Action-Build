@@ -660,13 +660,13 @@ jobs:
           curl -s https://api.github.com/repos/FurLC/ZRAM-Module/releases/latest | \
             grep "browser_download_url" | grep "ZRAM-Module-.*\.zip" | cut -d '"' -f 4 | xargs wget -N
           unzip "$(ls -t ZRAM-Module-*.zip | head -1)" -d ZRAM-Module
-          zram1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+          zram1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/dist/"
           zram2="./kernel_workspace/kernel_platform/out/dist/"
           zram3="./kernel_workspace/kernel_platform/out/vendor/oplus/kernel/mm/"
           zram4="./kernel_workspace/device/qcom/${{ github.event.inputs.CPUD }}-kernel/vendor_dlkm/"
           zram5="./kernel_workspace/device/qcom/${{ github.event.inputs.CPUD }}-kernel/system_dlkm/flatten/lib/modules/"
-          zram6="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/msm-kernel/mm/oplus_mm/hybridswap_zram/"
-          zram7="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/msm-kernel/mm/oplus_bsp_hybridswap_zram/"
+          zram6="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/msm-kernel/mm/oplus_mm/hybridswap_zram/"
+          zram7="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-${{ github.event.inputs.BUILD_METHOD }}/msm-kernel/mm/oplus_bsp_hybridswap_zram/"
           target="./ZRAM-Module/zram/zram.ko"
           for dir in "$zram1" "$zram2" "$zram3" "$zram4" "$zram5" "$zram6" "$zram7"; do
             zram_path=$(find "$dir" -name "zram.ko" | head -n 1)
