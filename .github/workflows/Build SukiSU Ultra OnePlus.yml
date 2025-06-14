@@ -652,15 +652,45 @@ jobs:
           name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.feil_clean.outputs.value }}_KPM${{ steps.suffix.outputs.value }}
           path: ./AnyKernel3/*
 
-      - name: Find And Upload .ko Files
+      - name: Download And Unzip ZRAM
         if: ${{ github.event.inputs.ZRAM == 'true' }}
         run: |
-          find . -name "zram.ko" -o -name "crypto_zstdn.ko" > ko.list
-          tar -czf ko-files.tar.gz -T ko.list
-
-      - name: Upload ko Files
+          set -e
+          sudo apt install -y unzip
+          curl -s https://api.github.com/repos/FurLC/ZRAM-Module/releases/latest | \
+            grep "browser_download_url" | grep "ZRAM-Module-.*\.zip" | cut -d '"' -f 4 | xargs wget -N
+          unzip "$(ls -t ZRAM-Module-*.zip | head -1)" -d ZRAM-Module
+          zram1="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/"
+          zram2="./kernel_workspace/kernel_platform/out/dist/"
+          zram3="./kernel_workspace/kernel_platform/out/vendor/oplus/kernel/mm/"
+          zram4="./kernel_workspace/device/qcom/${{ github.event.inputs.CPUD }}-kernel/vendor_dlkm/"
+          zram5="./kernel_workspace/device/qcom/${{ github.event.inputs.CPUD }}-kernel/system_dlkm/flatten/lib/modules/"
+          zram6="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/msm-kernel/mm/oplus_mm/hybridswap_zram/"
+          zram7="./kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/msm-kernel/mm/oplus_bsp_hybridswap_zram/"
+          target="./ZRAM-Module/zram/zram.ko"
+          for dir in "$zram1" "$zram2" "$zram3" "$zram4" "$zram5" "$zram6" "$zram7"; do
+            zram_path=$(find "$dir" -name "zram.ko" | head -n 1)
+            [ -n "$zram_path" ] && break
+          done
+          if [ -z "$zram_path" ]; then
+            zram_path=$(find "./kernel_workspace" -name "zram.ko" | head -n 1)
+          fi
+          if [ -n "$zram_path" ] && [ -f "$zram_path" ]; then
+            echo "ZRAM module file located at: $zram_path"
+            mkdir -p "$(dirname "$target")"
+            if [ "$(realpath "$zram_path")" != "$(realpath "$target")" ]; then
+              cp "$zram_path" "$target"
+            else
+              echo "源文件与目标相同，跳过复制"
+            fi
+          else
+            echo "未找到 zram.ko 文件，构建可能失败"
+            exit 1
+          fi
+ 
+      - name: Upload ZRAM Module
         if: ${{ github.event.inputs.ZRAM == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ko-files
-          path: ko-files.tar.gz
+          name: ZRAM-Module
+          path: ZRAM-Module/*
