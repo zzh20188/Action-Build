@@ -108,18 +108,31 @@
 
 
 ------
-> [!CAUTION]  
-> **Do not install modules when performing a root-preserving update!**
-
-> [!TIP]  
-> Remember to press **Volume Down** when installing modules!
+> [!CAUTION]
+> Do **NOT** install modules during **root-preserving updates**!
+>
+> Remember to press **Volume Down** when installing the module!
+>
+> If your device is **`sm8750`**, and you previously used the official script to build,
+> but now want to use **`Fast Build`**, please **restore** the following images first:
+> `dtbo.img`, `system_dlkm.erofs.img`, `vendor_dlkm.img`, and `vendor_boot.img`,
+> **otherwise the device may fail to boot!**
+>
+> If you have enabled the **`ZRAM`** algorithm, make sure to install the ZRAM module
+> **before rebooting** after flashing with `Anykernel3`. You may need to adjust some parameters manually.
+> Note: The **5.10 kernel does NOT support `ZRAM`**, as the `zram.ko` module path could not be found.
+>
+> We've noticed that some **`sm8650`** devices fail to boot after updating to **830** due to kernel version changes.
+> Please wait for upstream sources to be updated.
 
  
 ------
  
 # Changelog
+-- Automatically download and modify the ZRAM add-on module when `ZRAM` is enabled.
+-- Fix issues where `ZRAM` is unusable or unable to launch non-system apps.
 -- Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
--- Support `BBR`.  
+-- Support for `TCP congestion control algorithm (BBR)`.  
 -- Allow custom kernel suffix.  <- **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
@@ -129,7 +142,7 @@
 -- Support ultra-fast builds for some models `(currently supports 5.10, 5.15, 6.1, 6.6)`  
 -- Fixed OnePlus Ace5Pro and OnePlus 13 boot issues after build failure; using official dtbo now allows booting directly. [@reigadegr](https://github.com/reigadegr)  
 -- Support displaying user-defined inputs during `Show selected inputs debug` step; workflow name will also reflect some values.  
--- Removed potential version codes from the suffix of `ak3.zip` config file, replaced with exact `Android` version numbers `XX.X.X`.
+-- Removed potential version codes from the suffix of `Anykernel3.zip` config file, replaced with exact `Android` version numbers `XX.X.X`.
 ```
 Examples:
 AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip  
