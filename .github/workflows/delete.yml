@@ -3,10 +3,6 @@ name: 清理工作流运行记录
 on:
   workflow_dispatch:
     inputs:
-      repo:
-        description: '清理的仓库(格式:用户名/仓库名)'
-        required: true
-        default: 'Numbersf/Action-Build'
       workflow_name:
         type: choice
         description: '清理的工作流名称'
@@ -59,7 +55,7 @@ jobs:
 
       - name: 清理指定工作流及本工作流运行记录
         env:
-          REPO: ${{ inputs.repo }}
+          REPO: ${{ github.repository }}
           COUNT: ${{ inputs.count }}
           DELETE_FAILED: ${{ inputs.delete_failed }}
           DELETE_SUCCESS: ${{ inputs.delete_success }}
