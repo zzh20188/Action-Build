@@ -129,8 +129,10 @@
 ------
  
 # Changelog
--- Automatically download and modify the ZRAM add-on module when `ZRAM` is enabled.
--- Fix issues where `ZRAM` is unusable or unable to launch non-system apps.
+-- Support enabling WindChill driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
+-- Remove all device-related parameters from `input` except the device config file `FEIL`, and propagate to `feil-map` to support more options.  
+-- When `ZRAM` is enabled, automatically download and modify the ZRAM additional module, module from [@FURLC](https://github.com/FURLC).  
+-- Fix issues where `ZRAM` is unusable or unable to launch non-system apps.  
 -- Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
 -- Support for `TCP congestion control algorithm (BBR)`.  
 -- Allow custom kernel suffix.  <- **`beta`**
@@ -149,11 +151,10 @@ AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip  
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip  
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
 ```  
--- KPM is enabled by default and can no longer be disabled.  
 -- New `dir4` and `dir5` paths added to support `sm8750` and some devices with new paths when ZRAM is enabled (such as `ace2p`, `13T`).   [@ShirkNeko](https://github.com/ShirkNeko)  
 -- Added support for the `LZ4K` compression algorithm in the `zram` module.   [@ShirkNeko](https://github.com/ShirkNeko)  
 -- Synchronized changes with the upstream download channel for the `susfs` module to fix download issues.  
 -- Optimized the build scheme for `sm8750` and `sm7675`.  
 -- New `dir3` path added to support `sm8475` (such as `ace2`).  
 -- Support automatic download of latest `CI` version of `susfs` module and install via `ksud`; also automatically extracts manager `CI-APK` but does not install it.  
--- Supports `KPM` (copy without modifications) and `VFS HOOK` (optional).  
+-- Supports `KPM` (copy without modifications;optional) and `VFS HOOK` (optional).  
