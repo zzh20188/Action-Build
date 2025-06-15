@@ -60,6 +60,12 @@ jobs:
               ANDROID_VERSION="android12"
               KERNEL_VERSION="5.10"
               ;;
+            oneplus_10_pro_s)
+              CPU="sm8450"
+              CPUD="waipio"
+              ANDROID_VERSION="android12"
+              KERNEL_VERSION="5.10"
+              ;;
             oneplus_10t_v)
               CPU="sm8475"
               CPUD="waipio"
@@ -67,6 +73,12 @@ jobs:
               KERNEL_VERSION="5.10"
               ;;
             oneplus_11r_v)
+              CPU="sm8475"
+              CPUD="waipio"
+              ANDROID_VERSION="android12"
+              KERNEL_VERSION="5.10"
+              ;;
+            oneplus_11r_u)
               CPU="sm8475"
               CPUD="waipio"
               ANDROID_VERSION="android12"
@@ -85,6 +97,18 @@ jobs:
               KERNEL_VERSION="5.10"
               ;;
             oneplus_11_v)
+              CPU="sm8550"
+              CPUD="kalama"
+              ANDROID_VERSION="android13"
+              KERNEL_VERSION="5.15"
+              ;;
+            oneplus_11_u)
+              CPU="sm8550"
+              CPUD="kalama"
+              ANDROID_VERSION="android13"
+              KERNEL_VERSION="5.15"
+              ;;
+            oneplus_11_t)
               CPU="sm8550"
               CPUD="kalama"
               ANDROID_VERSION="android13"
@@ -120,6 +144,12 @@ jobs:
               ANDROID_VERSION="android14"
               KERNEL_VERSION="6.1"
               ;;
+            oneplus12_u)
+              CPU="sm8650"
+              CPUD="pineapple"
+              ANDROID_VERSION="android14"
+              KERNEL_VERSION="6.1"
+              ;;
             oneplus_13r)
               CPU="sm8650"
               CPUD="pineapple"
@@ -127,6 +157,12 @@ jobs:
               KERNEL_VERSION="6.1"
               ;;
             oneplus_ace3_pro_v)
+              CPU="sm8650"
+              CPUD="pineapple"
+              ANDROID_VERSION="android14"
+              KERNEL_VERSION="6.1"
+              ;;
+            oneplus_ace3_pro)
               CPU="sm8650"
               CPUD="pineapple"
               ANDROID_VERSION="android14"
