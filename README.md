@@ -124,7 +124,9 @@
 ------
  
 # 更新日志
---当`ZRAM`开启时,自动下载并修改`ZRAM附加模块`  
+--支持部分机型开启风驰驱动(自选是否开启),驱动来自[@HanKuCha](https://github.com/HanKuCha)  
+--删除`input`中除机型配置文件`FEIL`以外的所有其他机型参数并递推到`feil-map`以支持更多选择  
+--当`ZRAM`开启时,自动下载并修改`ZRAM附加模块`,附加模块来自[@FURLC](https://github.com/FURLC)  
 --修复`ZRAM`无法使用或者打不开非系统应用的问题  
 --修复内核版本介于`5.15.0-5.15.123`之间官方脚本跑不出,极速编译结果有问题[@zzh20188](https://github.com/zzh20188)  
 --支持`TCP拥塞控制算法(BBR)`  
@@ -142,12 +144,11 @@
 AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
-```
---`KPM` 默认开启，不再可关闭  
+``` 
 --新增 `dir4`、`dir5` 路径用于支持 `sm8750` 和部分机型开启 `ZRAM` 后的新路径（比如 `ace2p`、`13T`）[@ShirkNeko](https://github.com/ShirkNeko)  
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
 --同步 `susfs` 模块上游下载频道的变化，解决无法下载的问题  
 --优化 `sm8750`、`sm7675` 的 `build` 方案  
 --新增 `dir3` 路径用于支持 `sm8475`（比如 `ace2`）  
---支持自动下载最新 `CI` 的 `susfs` 模块并调用 `ksud` 安装、自动获取管理器`CI-APK`解压但不安装  
---支持 `KPM`（无需任何修改复制）、`VFS HOOK`（自选是否开启）  
+--支持自动下载最新 `CI/Release` 的 `susfs` 模块并调用 `ksud` 安装、自动获取管理器`CI-APK`解压到`Anykernel3`但不安装  
+--支持 `KPM`（无需任何修改复制;自选是否开启）、`VFS HOOK`（自选是否开启）  
