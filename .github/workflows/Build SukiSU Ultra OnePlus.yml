@@ -30,7 +30,6 @@ on:
           - oneplus_ace5_pro
           - oneplus_13t
           - oneplus_13s
-          - GitHub有bug可能不显示最后一项,误使用此项
       BUILD_METHOD:
         type: choice
         description: "编译方式"
@@ -39,16 +38,20 @@ on:
         options:
           - gki
           - perf
+      SUSFS_CI:
+        type: choice
+        description: "下载SUSFS模块调用方式"
+        required: true
+        default: CI
+        options:
+          - CI
+          - Release
+          - NoN
       SUFFIX:
         type: string
         description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
         default: ""
-      SUSFS_CI:
-        type: boolean
-        description: "下载SUSFS模块是否调用CI构建？"
-        required: true
-        default: true
       FAST_BUILD:
         type: boolean
         description: "是否启用极速构建？"
@@ -64,14 +67,14 @@ on:
         description: "是否启用内核模块(KPM)？"
         required: true
         default: true
-      ZRAM:
-        type: boolean
-        description: "是否添加更多的ZRAM算法？"
-        required: true
-        default: false
       SCHED:
         type: boolean
         description: "是否添加风驰驱动？"
+        required: true
+        default: false
+      ZRAM:
+        type: boolean
+        description: "是否添加更多的ZRAM算法？"
         required: true
         default: false
 
@@ -84,7 +87,7 @@ jobs:
 
   build:
     needs: get-config
-    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }} For ${{ github.event.inputs.FEIL }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
+    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}For ${{ github.event.inputs.FEIL }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
     env:
       CPU: ${{ needs.get-config.outputs.CPU }}
@@ -543,7 +546,7 @@ jobs:
 
       # 下载 SUSFS 模块（CI）
       - name: Download Latest SUSFS Module from CI
-        if: ${{ github.event.inputs.SUSFS_CI == 'true' }}
+        if: ${{ github.event.inputs.SUSFS_CI == 'CI' }}
         continue-on-error: true
         run: |
           LATEST_RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -566,7 +569,7 @@ jobs:
 
       # 下载 SUSFS 模块（Release）*
       - name: Download Latest SUSFS Module from Release
-        if: ${{ github.event.inputs.SUSFS_CI == 'false' }}
+        if: ${{ github.event.inputs.SUSFS_CI == 'Release' }}
         continue-on-error: true
         run: |
           wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zipAdd commentMore actions
