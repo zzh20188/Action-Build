@@ -204,6 +204,18 @@ jobs:
               ANDROID_VERSION="android15"
               KERNEL_VERSION="6.6"
               ;;
+            oneplus_pad_2_pro)
+              CPU="sm8750"
+              CPUD="sun"
+              ANDROID_VERSION="android15"
+              KERNEL_VERSION="6.6"
+              ;;
+            oneplus_pad_3)
+              CPU="sm8750"
+              CPUD="sun"
+              ANDROID_VERSION="android15"
+              KERNEL_VERSION="6.6"
+              ;;
             *)
               echo "Unknown FEIL: $FEIL"
               exit 1
