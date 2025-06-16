@@ -288,7 +288,7 @@ jobs:
             echo "fix_5.15_patch完成"
           fi
 
-          if [[ "${{ github.event.inputs.FEIL }}" == "oneplus_13" || "${{ github.event.inputs.FEIL }}" == "oneplus_ace5_pro" ]]; then
+          if [[ "${{ github.event.inputs.FEIL }}" =~ ^(oneplus_13|oneplus_ace5_pro|oneplus_pad_2_pro|oneplus_pad_3)$ ]]; then
            echo "修复内核版本6.6部分机型susfs的问题"
            sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch
            sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch
