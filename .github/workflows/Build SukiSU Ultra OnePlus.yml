@@ -246,6 +246,16 @@ jobs:
           git add -A
           git commit -m "Fix: inject random kernel suffix"
 
+      - name: Download manifest to .repo/manifests
+        id: fetch_manifest
+        run: |
+          feil="${{ github.event.inputs.FEIL }}"
+          cpu="${{ needs.get-config.outputs.CPU }}"
+          mkdir -p .repo/manifests
+          echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
+          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
+          mv "$feil.xml" ".repo/manifests/${feil}.xml"
+
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
         run: |
@@ -287,11 +297,20 @@ jobs:
             patch -p1 < fix_5.15.legacy.patch
             echo "fix_5.15_patch完成"
           fi
+          KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
+          feil="${{ github.event.inputs.FEIL }}"
+          TRUSTY_EXISTS="false"
+          if [[ "$KERNEL_VERSION" == "6.6" ]]; then
+            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests/${feil}.xml"; then
+              TRUSTY_EXISTS="true"
+            fi
+            echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
 
-          if [[ "${{ github.event.inputs.FEIL }}" =~ ^(oneplus_13|oneplus_ace5_pro|oneplus_pad_2_pro|oneplus_pad_3)$ ]]; then
-           echo "修复内核版本6.6部分机型susfs的问题"
-           sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch
-           sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch
+            if [[ "$TRUSTY_EXISTS" == "false" ]]; then
+              echo "修复内核版本6.6部分机型susfs的问题"
+              sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+              sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+            fi
           fi
           patch -p1 < 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch || true
           echo "susfs_patch完成"
@@ -615,29 +634,7 @@ jobs:
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
           xml=".repo/manifests/${feil}.xml"
-
-          if [ ! -f "$xml" ]; then
-            echo "Manifest $xml not found,This is expected behavior,not an error.Attempting to download from branch oneplus/$cpu..."
-            mkdir -p .repo/manifests
-            git clone --depth=1 --branch oneplus/$cpu https://github.com/OnePlusOSS/kernel_manifest.git repo_tmp || {
-              echo "Failed to clone branch oneplus/$cpu"
-              echo "value=${feil}_AndroidUnknown" >> "$GITHUB_OUTPUT"
-              exit 0
-            }
-
-            if [ -f "repo_tmp/${feil}.xml" ]; then
-              mv "repo_tmp/${feil}.xml" "$xml"
-            else
-              echo "Manifest file ${feil}.xml not found in branch oneplus/$cpu"
-              echo "value=${feil}_AndroidUnknown" >> "$GITHUB_OUTPUT"
-              rm -rf repo_tmp
-              exit 0
-            fi
-            rm -rf repo_tmp
-          fi
-
-          echo "Manifest $xml found."
-
+          cd $GITHUB_WORKSPACE
           # 去掉末尾的 _x（只删一次）
           feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
 
