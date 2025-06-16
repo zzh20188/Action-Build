@@ -30,6 +30,8 @@ on:
           - oneplus_ace5_pro
           - oneplus_13t
           - oneplus_13s
+          - oneplus_pad_2_pro
+          - oneplus_pad_3
       BUILD_METHOD:
         type: choice
         description: "编译方式"
