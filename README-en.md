@@ -118,18 +118,18 @@
 > `dtbo.img`, `system_dlkm.erofs.img`, `vendor_dlkm.img`, and `vendor_boot.img`,
 > **otherwise the device may fail to boot!**
 >
-> If you have enabled the **`ZRAM`** algorithm, make sure to install the ZRAM module
+> If you have enabled the **`ZRAM`** algorithm, make sure to install the `ZRAM` module
 > **before rebooting** after flashing with `Anykernel3`. You may need to adjust some parameters manually.
 > Note: The **5.10 kernel does NOT support `ZRAM`**, as the `zram.ko` module path could not be found.
 >
-> We've noticed that some **`sm8650`** devices fail to boot after updating to **830** due to kernel version changes.
-> Please wait for upstream sources to be updated.
+> **We've noticed that some`sm8650`devices fail to boot after updating to`830/831`due to kernel version changes.Please wait for upstream sources to be updated.**
 
  
 ------
  
 # Changelog
--- Support enabling WindChill driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
+-- Add `TRUSTY_EXISTS` to automatically detect whether the `6.6` kernel has defects in the kernel source code and determine whether `sed` is needed.  
+-- Support enabling fongchi driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
 -- Remove all device-related parameters from `input` except the device config file `FEIL`, and propagate to `feil-map` to support more options.  
 -- When `ZRAM` is enabled, automatically download and modify the ZRAM additional module, module from [@FURLC](https://github.com/FURLC).  
 -- Fix issues where `ZRAM` is unusable or unable to launch non-system apps.  
