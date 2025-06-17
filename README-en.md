@@ -80,8 +80,8 @@
 >
 >|Device Type                | Average Duration Range            | Maximum Duration     |
 >|-------------------------------------|--------------------------|------------------|
->| `All other models`                  | `22min ~ 33min`         | `35min`         |
->| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13`    | `1h08min ~ 1h17min`     | `1h23min` |
+>| `All other models`                  | `19min ~ 33min`         | `35min`         |
+>| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13`    | `55min ~ 1h17min`     | `1h23min` |
 > </details>
 > 
 > <details>
@@ -89,10 +89,10 @@
 >
 >|Device Type        | Average Duration Range               | Maximum Duration |
 >|--------------------------|-----------------------------|------------------|
->| `sm8450, sm8475, sm8550` | `30min ~ 35min`             | `45min`
->| `sm7675, sm7550, sm8650` |`1h01min ~ 1h12min`| `1h28min`        |
->| `sm8750`|`2h01min ~ 2h22min`| `2h45min`       |
->| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h14min ~ 1h28min`  |`1h32min`|
+>| `sm8450, sm8475, sm8550` | `29min ~ 35min`             | `45min`
+>| `sm7675, sm7550, sm8650` |`59min ~ 1h12min`| `1h28min`        |
+>| `sm8750`|`1h55min ~ 2h22min`| `2h27min`       |
+>| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h1min ~ 1h28min`  |`1h32min`|
 >
 ></details>
 >If your build time exceeds the maximum duration listed for your model, please try rebuilding and check the steps to ensure it's not an issue with the official environment.
