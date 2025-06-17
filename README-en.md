@@ -73,39 +73,29 @@
 > </details>
 
 ------
-> [!IMPORTANT]  
-> About compile time: generally, older devices build faster.  
+> [!IMPORTANT]
+>Regarding build duration: in general, the older the device model, the faster the compilation.
 > <details>
-> <summary><strong>Click to view compile time Using Fast Build (clang make)</strong></summary>
+> <summary><strong>Click to view build time using ultra-fast clang + make</strong></summary>
 >
->>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13)
->
->>>`1h8min~1h17min,max:1h17min`
->>>>0.All Other Devices
-> 
->>>`22min~31min,max:35min`
-> 
+>|Device Type                | Average Duration Range            | Maximum Duration     |
+>|-------------------------------------|--------------------------|------------------|
+>| `All other models`                  | `22min ~ 33min`         | `35min`         |
+>| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13`    | `1h08min ~ 1h17min`     | `1h23min` |
 > </details>
+> 
 > <details>
-> <summary><strong>Click to view compile time Using official build.sh</strong></summary>
+> <summary><strong>Click to view build time using official build.sh</strong></summary>
 >
->>>>0.Known exceptions: some non-A15 models (e.g. OnePlus 11-A14;OnePlus 11-A13)
-> 
->>>`1h14min~1h28min,max:1h28min`
->>>>1.sm8450, sm8475, sm8550
-> 
->>>`30~35min,max:45min`
->>>>2.sm7675, sm7550, sm8650
-> 
->>>`1h1min~1h12min,max:1h32min`
->>>>3.sm8750
-> 
->>>`2h1min~2h22min,max:2h45min`
->> 
-> </details>
+>|Device Type        | Average Duration Range               | Maximum Duration |
+>|--------------------------|-----------------------------|------------------|
+>| `sm8450, sm8475, sm8550` | `30min ~ 35min`             | `45min`
+>| `sm7675, sm7550, sm8650` |`1h01min ~ 1h12min`| `1h28min`        |
+>| `sm8750`|`2h01min ~ 2h22min`| `2h45min`       |
+>| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h14min ~ 1h28min`  |`1h32min`|
 >
-> So, if your runtime exceeds the max time listed, try rerunning and check the `step` logs in case it's a platform issue.
-
+></details>
+>If your build time exceeds the maximum duration listed for your model, please try rebuilding and check the steps to ensure it's not an issue with the official environment.
 
 ------
 > [!CAUTION]
