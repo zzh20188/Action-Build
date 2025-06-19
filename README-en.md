@@ -80,7 +80,7 @@
 >
 >|Device Type                | Average Duration Range            | Maximum Duration     |
 >|-------------------------------------|--------------------------|------------------|
->| `All other models`                  | `19min ~ 33min`         | `35min`         |
+>| `All other models`                  | `19min ~ 29min`         | `35min`         |
 >| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13`    | `55min ~ 1h17min`     | `1h23min` |
 > </details>
 > 
