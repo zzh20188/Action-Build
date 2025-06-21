@@ -443,6 +443,7 @@ jobs:
 
       - name: Build Kernel FAST
         if: ${{ github.event.inputs.FAST_BUILD == 'true' }}
+        id: fast_build
         run: |
           KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
 
@@ -455,11 +456,9 @@ jobs:
           elif [[ "$KERNEL_VERSION" == "5.10" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts-master/clang/host/linux-x86/clang-r416183b/bin:$PATH"
           else
+            echo "fallback=true" >> "$GITHUB_OUTPUT"
             echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本（同时开启自定义内核后缀可能导致内核后缀错乱）"
             echo "请考虑关闭 FAST_BUILD 或补充该版本 clang 路径"
-            cd kernel_workspace
-            LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 \
-            ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ needs.get-config.outputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
             exit 0
           fi
           ccache clang -v
@@ -478,7 +477,7 @@ jobs:
           make -j$(nproc --all) O=out $MAKE_ARGS
 
       - name: Fallback Build Kernel
-        if: ${{ github.event.inputs.FAST_BUILD == 'false' }}
+        if: ${{ github.event.inputs.FAST_BUILD == 'false' || steps.fast_build.outputs.fallback == 'true' }}
         run: |
           cd kernel_workspace
           if [[ "${{ needs.get-config.outputs.CPU }}" == "sm8650" || "${{ needs.get-config.outputs.CPU }}" == "sm7675" ]]; then
