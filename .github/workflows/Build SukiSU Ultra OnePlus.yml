@@ -202,9 +202,11 @@ jobs:
             if [ "$FAST_BUILD" = "true" ]; then
               sed -i "s/^res=.*/res=\"-${ANDROID_VERSION}-${SUFFIX}\"/" "$path"
             else
-              # 使用官方脚本编译，当使用 build_with_bazel 时，可能受特殊符号数量限制，需要小于4
               sed -i '/^res=/a res=$(echo "$res" | sed -E '\''s/(-[0-9]+-o)+-g[0-9a-f]{7,}.*$//'\'')' "$path"
               sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${SUFFIX}\"|" "$path"
+                if [[ -f ./kernel_platform/build_with_bazel.py ]]; then
+                  echo "使用官方脚本编译且当使用 build_with_bazel 时，可能受特殊符号数量限制，编译失败请修改"
+                fi
             fi
           done
           git add -A
@@ -243,15 +245,15 @@ jobs:
           git add -A
           git commit -m "Fix: inject random kernel suffix & remove -dirty"
 
-      - name: Download manifest to .repo/manifests
+      - name: Download Kernel-manifest
         id: fetch_manifest
         run: |
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          mkdir -p .repo/manifests
+          mkdir -p .repo/manifests_fallback_Numbersf
           echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
           curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
-          mv "$feil.xml" ".repo/manifests/${feil}.xml"
+          mv "$feil.xml" ".repo/manifests_fallback_Numbersf/${feil}.xml"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
@@ -298,7 +300,7 @@ jobs:
           feil="${{ github.event.inputs.FEIL }}"
           TRUSTY_EXISTS="false"
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests/${feil}.xml"; then
+            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback_Numbersf/${feil}.xml"; then
               TRUSTY_EXISTS="true"
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
@@ -457,7 +459,7 @@ jobs:
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts-master/clang/host/linux-x86/clang-r416183b/bin:$PATH"
           else
             echo "fallback=true" >> "$GITHUB_OUTPUT"
-            echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本（同时开启自定义内核后缀可能导致内核后缀错乱）"
+            echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本"
             echo "请考虑关闭 FAST_BUILD 或补充该版本 clang 路径"
             exit 0
           fi
@@ -480,7 +482,7 @@ jobs:
         if: ${{ github.event.inputs.FAST_BUILD == 'false' || steps.fast_build.outputs.fallback == 'true' }}
         run: |
           cd kernel_workspace
-          if [[ "${{ needs.get-config.outputs.CPU }}" == "sm8650" || "${{ needs.get-config.outputs.CPU }}" == "sm7675" ]]; then
+          if [[ -f ./kernel_platform/build_with_bazel.py ]]; then
             ./kernel_platform/build_with_bazel.py -t ${{ needs.get-config.outputs.CPUD }} ${{ github.event.inputs.BUILD_METHOD }}
           else
             LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0 \
@@ -629,7 +631,7 @@ jobs:
         run: |
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          xml=".repo/manifests/${feil}.xml"
+          xml=".repo/manifests_fallback_Numbersf/${feil}.xml"
           cd $GITHUB_WORKSPACE
           # 去掉末尾的 _x（只删一次）
           feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
