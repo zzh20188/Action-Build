@@ -120,7 +120,7 @@ jobs:
               ANDROID_VERSION="android13"
               KERNEL_VERSION="5.15"
               ;;
-            oneplus_ace2pro_v)
+            oneplus_ace2_pro_v)
               CPU="sm8550"
               CPUD="kalama"
               ANDROID_VERSION="android13"
