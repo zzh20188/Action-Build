@@ -206,6 +206,7 @@ jobs:
               sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${SUFFIX}\"|" "$path"
                 if [[ -f ./kernel_platform/build_with_bazel.py ]]; then
                   echo "使用官方脚本编译且当使用 build_with_bazel 时，可能受特殊符号数量限制，编译失败请修改"
+                  echo "When using the official script and building with build_with_bazel, the build may fail due to a limit on the number of special characters. Please modify the configuration if that happens."
                 fi
             fi
           done
@@ -677,10 +678,10 @@ jobs:
             if [ "$(realpath "$zram_path")" != "$(realpath "$target")" ]; then
               cp "$zram_path" "$target"
             else
-              echo "源文件与目标相同，跳过复制"
+              echo "源文件与目标路径相同，跳过复制"
             fi
           else
-            echo "未找到 zram.ko 文件，构建可能失败"
+            echo "未找到 zram.ko 文件，可能是未支持的内核版本或者未成功构建"
             exit 1
           fi
 
