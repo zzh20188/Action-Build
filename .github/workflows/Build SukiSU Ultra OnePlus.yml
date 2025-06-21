@@ -283,7 +283,6 @@ jobs:
           cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
           cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
           cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
-          echo "zram_patch完成"
           fi
 
           cd ./common
@@ -412,9 +411,10 @@ jobs:
             echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
             echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
           fi
-          # Remove check_defconfig
+          # 移除构建校验
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
+      # 风驰内核，以 sm8750 为主体，其他 CPU 可能无效或者无法跑出
       - name: Add sched_ext
         if: ${{ github.event.inputs.SCHED == 'true' }}
         run: |
@@ -499,14 +499,14 @@ jobs:
           image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
           if [ -n "$image_path" ]; then
             dir1=$(dirname "$image_path")/
-            echo "使用 make 编译的统一路径找到 Image 文件"
+            echo "使用 make 编译的统一路径，成功找到 Image 文件"
           else
             image_path=$(find "./kernel_workspace/kernel_platform/out/" -name "Image" | head -n 1)
             if [ -n "$image_path" ]; then
               dir2=$(dirname "$image_path")/
-              echo "使用官方脚本编译找到 Image 文件"
+              echo "使用官方脚本编译，成功找到 Image 文件"
             else
-              echo "未找到 Image 文件，构建可能失败" >&2
+              echo "未找到 Image 文件，构建失败" >&2
               exit 1
             fi
           fi
@@ -516,16 +516,14 @@ jobs:
             echo "Image file finally located at: $image_path"
             cp "$image_path" ./AnyKernel3/Image
             cp "$image_path" kernel_workspace/kernel_platform/out/FinalImageFind/Image
-          else
-            echo "Image 文件不存在或不可访问" >&2
-            exit 1
           fi
 
-          # dir2 有效的 sm8750 且未开启 clang make ，选择性复制其它文件
+          # 使用官方脚本的 sm8750，选择性复制其它镜像文件
           if [ -n "$dir2" ] && [ "${{ needs.get-config.outputs.CPU }}" = "sm8750" ] && [ "${{ github.event.inputs.FAST_BUILD }}" = "false" ]; then
             for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
               if [ -f "$dir2$file" ]; then
                 target_name="$file"
+                # 特殊处理 system_dlkm.erofs.img 的目标名
                 if [ "$file" = "system_dlkm.erofs.img" ]; then
                   target_name="system_dlkm.img"
                 fi
@@ -617,7 +615,7 @@ jobs:
           cpu="${{ needs.get-config.outputs.CPU }}"
           xml=".repo/manifests_fallback_Numbersf/${feil}.xml"
           cd $GITHUB_WORKSPACE
-          # 去掉末尾的 _x（只删一次）
+          # 去掉末尾的 _x（只删一个）
           feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
 
           # 提取 revision 并解析 Android 版本
@@ -652,9 +650,8 @@ jobs:
           unzip "$(ls -t ZRAM-Module-*.zip | head -1)" -d ZRAM-Module
 
           target="./ZRAM-Module/zram/zram.ko"
-    
           echo "查找 zram.ko 模块文件..."
-    
+
           # 优先查找常见目录
           search_paths=(
             "./kernel_workspace/kernel_platform/out"
@@ -673,7 +670,7 @@ jobs:
           fi
 
           if [ -n "$zram_path" ] && [ -f "$zram_path" ]; then
-            echo "ZRAM module file finally located at: $zram_path"
+            echo " ZRAM module file finally located at: $zram_path "
             mkdir -p "$(dirname "$target")"
             if [ "$(realpath "$zram_path")" != "$(realpath "$target")" ]; then
               cp "$zram_path" "$target"
