@@ -250,10 +250,10 @@ jobs:
         run: |
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          mkdir -p .repo/manifests_fallback_Numbersf
+          mkdir -p .repo/manifests_fallback
           echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
           curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
-          mv "$feil.xml" ".repo/manifests_fallback_Numbersf/${feil}.xml"
+          mv "$feil.xml" ".repo/manifests_fallback/${feil}.xml"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
@@ -299,7 +299,7 @@ jobs:
           feil="${{ github.event.inputs.FEIL }}"
           TRUSTY_EXISTS="false"
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback_Numbersf/${feil}.xml"; then
+            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${feil}.xml"; then
               TRUSTY_EXISTS="true"
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
@@ -613,7 +613,7 @@ jobs:
         run: |
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          xml=".repo/manifests_fallback_Numbersf/${feil}.xml"
+          xml=".repo/manifests_fallback/${feil}.xml"
           cd $GITHUB_WORKSPACE
           # 去掉末尾的 _x（只删一个）
           feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
