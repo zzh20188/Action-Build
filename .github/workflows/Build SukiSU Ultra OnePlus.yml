@@ -213,6 +213,10 @@ jobs:
                 sed -i "s/^res=.*/res=\"-${ANDROID_VERSION}-${SUFFIX}\"/" "$path"
               else
                 echo "Standard build: injecting suffix via cut/echo"
+                  if [[ -f ./kernel_platform/build_with_bazel.py ]]; then
+                  echo "使用官方脚本编译且当使用 build_with_bazel 时，可能受特殊符号数量限制，编译失败请修改"
+                  echo "When using the official script and building with build_with_bazel, the build may fail due to a limit on the number of special characters. Please modify the configuration if that happens."
+                  fi
                 tac "$path" | sed "0,/echo \"\\\$res\"/s//res=\\\$(echo \\\$res | cut -d- -f1-2)-${SUFFIX}; echo \"\\\$res\";/" | tac > "$path.tmp" && mv "$path.tmp" "$path"
               fi
             else
@@ -224,7 +228,7 @@ jobs:
           done
 
           git add -A
-          git commit -m "Fix setlocalversion for custom suffix: ${SUFFIX}"
+          git commit -m "Custom suffix & removed -dirty"
 
       # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Generate random kernel suffix if SUFFIX is empty
@@ -276,32 +280,6 @@ jobs:
 
           git add -A
           git commit -m "Fix: inject random kernel suffix & remove -dirty"
-
-      - name: Find and save all setlocalversion files
-        run: |
-          mkdir -p saved_setlocalversion
-
-          echo "::group::Searching for all setlocalversion files..."
-          find . -type f -name setlocalversion | while read -r path; do
-            echo "Found: $path"
-            sanitized_name=$(echo "$path" | sed 's|^\./||; s|/|_|g')
-            cp "$path" "saved_setlocalversion/${sanitized_name}"
-          done
-          echo "::endgroup::"
-
-          echo "::group::Preview saved setlocalversion content"
-          for f in saved_setlocalversion/*; do
-            echo "====== $f ======"
-            head -n 10 "$f"
-            echo "..."
-          done
-          echo "::endgroup::"
-
-      - name: Upload setlocalversion files
-        uses: actions/upload-artifact@v4
-        with:
-          name: setlocalversion-debug
-          path: saved_setlocalversion
 
       - name: Download kernel-manifest
         id: fetch_manifest
