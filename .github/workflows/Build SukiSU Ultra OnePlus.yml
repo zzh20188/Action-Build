@@ -100,9 +100,12 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
-      CCACHE_DIR: /home/runner/.ccache
+      CCACHE_DIR: /home/runner/.ccache  
       CCACHE_MAXSIZE: 8G
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
@@ -148,29 +151,13 @@ jobs:
           sudo apt update && sudo apt upgrade -y
           sudo apt install -y python3 git curl ccache
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download kernel-manifest Fetch hash
-        id: fetch_manifest_and_hash
-        run: |
-          set -e
-          feil="${{ github.event.inputs.FEIL }}"
-          cpu="${{ needs.get-config.outputs.CPU }}"
-          mkdir -p .repo/manifests_fallback
-          echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
-          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
-          mv "$feil.xml" ".repo/manifests_fallback/${feil}.xml"
-          hash=$(sha256sum ".repo/manifests_fallback/${feil}.xml" | awk '{print $1}')
-          echo "hash=$hash" >> $GITHUB_OUTPUT
-
       - name: Restore ccache
         uses: actions/cache@v3
         with:
           path: /home/runner/.ccache
-          key: ccache-${{ runner.os }}-${{ needs.get-config.outputs.CPU }}-${{ github.event.inputs.FEIL }}-${{ needs.get-config.outputs.KERNEL_VERSION }}-${{ steps.fetch_manifest_and_hash.outputs.hash }}
+          key: ccache-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
-            ccache-${{ runner.os }}-${{ needs.get-config.outputs.CPU }}-
+            ccache-${{ runner.os }}-
 
       - name: Install repo tool
         run: |
@@ -291,6 +278,16 @@ jobs:
 
           git add -A
           git commit -m "Random suffix & remove -dirty"
+
+      - name: Download kernel-manifest
+        id: fetch_manifest
+        run: |
+          feil="${{ github.event.inputs.FEIL }}"
+          cpu="${{ needs.get-config.outputs.CPU }}"
+          mkdir -p .repo/manifests_fallback
+          echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
+          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
+          mv "$feil.xml" ".repo/manifests_fallback/${feil}.xml"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
@@ -493,24 +490,22 @@ jobs:
 
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
-            export PATH="/usr/lib/ccache:$PATH"
           elif [[ "$KERNEL_VERSION" == "6.1" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
-            export PATH="/usr/lib/ccache:$PATH"
           elif [[ "$KERNEL_VERSION" == "5.15" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
-            export PATH="/usr/lib/ccache:$PATH"
           elif [[ "$KERNEL_VERSION" == "5.10" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts-master/clang/host/linux-x86/clang-r416183b/bin:$PATH"
-            export PATH="/usr/lib/ccache:$PATH"
           else
             echo "fallback=true" >> "$GITHUB_OUTPUT"
             echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本"
             echo "请考虑关闭 FAST_BUILD 或补充该版本 clang 路径"
             exit 0
           fi
+          ccache clang -v
           sudo apt install -y libelf-dev
           cd kernel_workspace/kernel_platform/common
+
           MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
