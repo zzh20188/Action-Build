@@ -6,12 +6,15 @@
 **```Build OnePlus SukiSU Ultra KPM Kernel```**
 <details>
 <summary><strong>Click to view how to fork</strong></summary>
-<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fmake.gif" width="500"/>
+<img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/make.gif" width="500"/>
 </details>
 <details>
 <summary><strong>Click to view how to synchronize the forked project to the latest</strong></summary>
-<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fsyncfork.png" width="150"/>
-<summary>Please sync in time! Some updates may cause old versions to become invalid!</summary>
+<p>
+  <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork.png" width="150"/>
+  <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork(2).png" width="150"/>
+</p>
+<summary>Please synchronize in time! Some updates may cause the old version to become invalid! If it still does not work after synchronization, please delete and re-fork! If there are still problems, please submit issues.</summary>
 </details>
 
 # Announcements
@@ -95,7 +98,7 @@
 >| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h1min ~ 1h28min`  |`1h32min`|
 >
 ></details>
->If your build time exceeds the maximum duration listed for your model, please try rebuilding and check the steps to ensure it's not an issue with the official environment.
+>In other words, if your runtime exceeds the maximum expected duration for the target device, please pause and rerun the workflow while checking each step. Pay special attention to the “Initialize repo and sync” step — for all non-A15 devices (except for certain special cases), this step should complete within 10 minutes. If it takes longer, it may indicate an issue on GitHub's end. In that case, try rerunning the job. If the issue persists, please wait and try again later.
 
 ------
 > [!CAUTION]
@@ -103,9 +106,9 @@
 >
 > Remember to press **Volume Down** when installing the module!
 >
-> If your device is **`sm8750`**, and you previously used the official script to build,
-> but now want to use **`Fast Build`**, please **restore** the following images first:
-> `dtbo.img`, `system_dlkm.erofs.img`, `vendor_dlkm.img`, and `vendor_boot.img`,
+> If your device is `sm8750`, and you previously used the official script to build,
+> but now want to use `Fast Build`, please **restore** the following images first:
+> `dtbo.img`, `system_dlkm(.erofs).img`, `vendor_dlkm.img`, and `vendor_boot.img`,
 > **otherwise the device may fail to boot!**
 >
 > If you have enabled the `ZRAM` algorithm, make sure to install the `ZRAM` module
@@ -129,7 +132,7 @@
 2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-[custom content]”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
 3. When using clang make (Fast Build), add the missing kernel android version number to the new source kernel information x.xx.xxx-o-g3b1e97b8b29f, and then perform operations in 1 or 2.
 ```  
--- Support ultra-fast builds for some models `(currently supports 5.10, 5.15, 6.1, 6.6)`  
+-- Support fast-build `(5.10[Debut], 5.15[Debut], 6.1, 6.6)`  
 -- Fixed OnePlus Ace5Pro and OnePlus 13 boot issues after build failure; using official dtbo now allows booting directly. [@reigadegr](https://github.com/reigadegr)  
 -- Support displaying user-defined inputs during `Show selected inputs debug` step; workflow name will also reflect some values.  
 -- Removed potential version codes from the suffix of `Anykernel3.zip` config file, replaced with exact `Android` version numbers `XX.X.X`.
