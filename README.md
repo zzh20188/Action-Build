@@ -16,7 +16,7 @@
   <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork.png" width="150"/>
   <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork(2).png" width="150"/>
 </p>
-<summary>请及时同步!某些更新可能会导致旧版本失效!如果同步后依旧跑不出来请删除并重新fork!仍然有问题再反馈</summary>
+<summary>请及时同步!某些更新可能会导致旧版本失效!如果同步后依旧跑不出来请删除并重新fork!完成以上步骤后仍有问题再反馈提交issues</summary>
 </details>
  
 # 公告
@@ -101,7 +101,7 @@
 >| `特殊机型eg:一加11-A14;一加11-A13`| `1h1min ~ 1h28min`| `1h32min` |
 >
 ></details>
->也就是说,如果你跑的时长超过了对应机型的最高时间,请暂停重新跑并查看step,特别注意的是Initialize repo and sync这一步除了特殊机型非A15都应该在10min以内,超过可能是GitHub官方出了问题,可以重新尝试,依旧失败请等待
+>也就是说,如果你跑的时长超过了对应机型的最高时间,请暂停重新跑并查看step,特别注意Initialize repo and sync这一步,除了一些非A15的特殊机型外,都应该在10min以内.超过可能是GitHub官方出了问题,可以重新尝试一次,依旧失败请等待修复
  
  
 ------
