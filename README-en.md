@@ -98,6 +98,7 @@
 >| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h1min ~ 1h28min`  |`1h32min`|
 >
 ></details>
+>
 >In other words, if your runtime exceeds the maximum expected duration for the target device, please pause and rerun the workflow while checking each step. Pay special attention to the “Initialize repo and sync” step — for all non-A15 devices (except for certain special cases), this step should complete within 10 minutes. If it takes longer, it may indicate an issue on GitHub's end. In that case, try rerunning the job. If the issue persists, please wait and try again later.
 
 ------
