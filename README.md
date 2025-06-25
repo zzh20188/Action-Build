@@ -7,13 +7,16 @@
  
 <details>
 <summary><strong>点击查看如何fork项目</strong></summary>
-<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fmake.gif" width="500"/>
+<img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/make.gif" width="500"/>
 </details>
  
 <details>
 <summary><strong>点击查看如何同步fork后的项目到最新</strong></summary>
-<img src="https://github.com/Numbersf/Action-Build/blob/main/pic%2Fsyncfork.png" width="150"/>
-<summary>请及时同步!某些更新可能会导致旧版本失效!</summary>
+<p>
+  <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork.png" width="150"/>
+  <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork(2).png" width="150"/>
+</p>
+<summary>请及时同步!某些更新可能会导致旧版本失效!如果同步后依旧跑不出来请删除并重新fork!仍然有问题再反馈</summary>
 </details>
  
 # 公告
@@ -98,7 +101,7 @@
 >| `特殊机型eg:一加11-A14;一加11-A13`| `1h1min ~ 1h28min`| `1h32min` |
 >
 ></details>
->也就是说,如果你跑的时长超过了对应机型的最高时间,请尝试重新跑并查看step确保不是官方自己的问题
+>也就是说,如果你跑的时长超过了对应机型的最高时间,请暂停重新跑并查看step,特别注意的是Initialize repo and sync这一步除了特殊机型非A15都应该在10min以内,超过可能是GitHub官方出了问题,可以重新尝试,依旧失败请等待
  
  
 ------
@@ -107,7 +110,7 @@
 >
 >记得**音量下**安装模块!  
 >
->如果你的机型是``sm8750``,并且曾经使用了官方脚本构建,而现在需要使用``Fast Build(极速构建)``,请先还原``dtbo.img、system_dlkm.erofs.img、vendor_dlkm.img、vendor_boot.img``**否则会无法开机!**  
+>如果你的机型是``sm8750``,并且曾经使用了官方脚本构建,而现在需要使用``Fast Build(极速构建)``,请先还原``dtbo.img、system_dlkm(.erofs).img、vendor_dlkm.img、vendor_boot.img``**否则会无法开机!**  
 >
 >如果你开启了``ZRAM``算法,请在刷入``Anykernel3``重启**前**安装``ZRAM``模块,部分参数请自行调整。另外``5.10``内核暂不支持开启``ZRAM``算法,因为没有找到``zram.ko``路径  
 >
@@ -129,8 +132,8 @@
 2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
 3.当使用Fast Build(极速构建)时,为新的源内核信息x.xx.xxx-o-g3b1e97b8b29f添加缺失的内核android版本号,再进行1或2中的操作
 ```  
---支持部分机型极速编译`(支持5.10[首发]、5.15[首发]、6.1、6.6)`  
---修复`OnePlus Ace5Pro、OnePlus 13`跑不出来无法开机问题,直接使用官方`dtbo`就可以直接开机[@reigadegr](https://github.com/reigadegr)  
+--支持极速编译`(5.10[首发]、5.15[首发]、6.1、6.6)`  
+--修复`OnePlus Ace5Pro、OnePlus 13`跑不出来或者无法开机问题,直接使用官方`dtbo`就可以直接开机[@reigadegr](https://github.com/reigadegr)  
 --支持显示自己填入的内容在`Show selected inputs debug`这一步,同时工作流名称也可以看到一些东西  
 --从写入 `Anykernel3.zip` 的配置文件后缀中删除潜在的版本代码,替换成精确的 `Android` 版本号`XX.X.X`
 ```
