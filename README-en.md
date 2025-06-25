@@ -94,7 +94,7 @@
 >|--------------------------|-----------------------------|------------------|
 >| `sm8450, sm8475, sm8550` | `29min ~ 35min`             | `45min`
 >| `sm7675, sm7550, sm8650` |`59min ~ 1h12min`| `1h28min`        |
->| `sm8750`|`1h55min ~ 2h22min`| `2h27min`       |
+>| `sm8750`|`1h1min ~ 1h8min`| `1h24min`       |
 >| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h1min ~ 1h28min`  |`1h32min`|
 >
 ></details>
