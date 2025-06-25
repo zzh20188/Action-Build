@@ -293,7 +293,7 @@ jobs:
       - name: Add KernelSU-SukiSU Ultra
         run: |
           cd kernel_workspace/kernel_platform
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-1.5.8
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
           cd ./KernelSU
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -303,7 +303,7 @@ jobs:
       - name: Apply Patches SukiSU Ultra
         run: |
           cd kernel_workspace
-          git clone https://github.com/ShirkNeko/susfs4ksu.git -b gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
           cd kernel_platform
           echo "正在拉取susfs补丁"
@@ -412,7 +412,11 @@ jobs:
           if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
             echo "CONFIG_KSU_SUSFS=y" >> "$CONFIG_FILE"
             echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> "$CONFIG_FILE"
+            if [[ "$KERNEL_VERSION" == "6.6" ]]; then
+            echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> "$CONFIG_FILE"
+            else
             echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> "$CONFIG_FILE"
+            fi
             echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> "$CONFIG_FILE"
             echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> "$CONFIG_FILE"
             echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> "$CONFIG_FILE"
