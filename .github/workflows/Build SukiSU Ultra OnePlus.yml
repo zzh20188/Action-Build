@@ -17,6 +17,8 @@ on:
           - oneplus_ace2_v
           - oneplus_ace_pro_v
           - oneplus_11_v
+          - oneplus_11_u
+          - oneplus_11_t
           - oneplus_12r_v
           - oneplus_ace2_pro_v
           - oneplus_ace3_v
@@ -105,8 +107,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check disk space
+      - name: Check Disk Space
         run: df -h
+
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 2048
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+
+      - name: Create and Enable 3G Swap
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 3G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
 
       - name: Set cache environment
         run: |
@@ -130,7 +151,7 @@ jobs:
           echo "Acquire::Languages \"none\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
           sudo chown -R $USER:$USER "$APT_CACHE_DIR"
 
-      - name: Set Cache
+      - name: Set APT Cache
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/apt-cache
@@ -170,7 +191,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FEIL }}-${{ github.event.inputs.BUILD_METHOD }}-2
+          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FEIL }}-${{ github.event.inputs.BUILD_METHOD }}-3
 
       - name: Initialize Ccache
         run: |
