@@ -108,25 +108,6 @@ jobs:
       - name: Check disk space
         run: df -h
 
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 8192
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
-      - name: Create and enable 6G swap
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 6G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          free -h
-
       - name: Set cache environment
         run: |
           echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}" >> $GITHUB_ENV
@@ -539,36 +520,59 @@ jobs:
         id: fast_build
         run: |
           KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
-          export PATH="/usr/lib/ccache:$PATH"
 
+          # 判断内核版本并设置对应 clang 路径
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+            CLANG_PATH="clang-r510928"
+            CLANG_DIR="prebuilts"
           elif [[ "$KERNEL_VERSION" == "6.1" ]]; then
-            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
+            CLANG_PATH="clang-r487747c"
+            CLANG_DIR="prebuilts"
           elif [[ "$KERNEL_VERSION" == "5.15" ]]; then
-            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
+            CLANG_PATH="clang-r450784e"
+            CLANG_DIR="prebuilts"
           elif [[ "$KERNEL_VERSION" == "5.10" ]]; then
-            export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts-master/clang/host/linux-x86/clang-r416183b/bin:$PATH"
+            CLANG_PATH="clang-r416183b"
+            CLANG_DIR="prebuilts-master"
+            USE_LLVM_IAS=true
           else
             echo "fallback=true" >> "$GITHUB_OUTPUT"
             echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本"
             echo "请考虑关闭 FAST_BUILD 或补充该版本 clang 路径"
             exit 0
           fi
-          ccache clang -v
-          sudo apt install -y libelf-dev
+
+          export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/$CLANG_DIR/clang/host/linux-x86/$CLANG_PATH/bin:$PATH"
+          export PATH="/usr/lib/ccache:$PATH"
+          export CC="ccache clang"
+
+          # 安装依赖工具
+          sudo apt install -y libelf-dev ccache
+
           cd kernel_workspace/kernel_platform/common
 
-          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+          # 拼接构建参数
+          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
+
           # 如果是 5.10，添加 LLVM_IAS=1
-          if [[ "$KERNEL_VERSION" == "5.10" ]]; then
+          if [[ "$USE_LLVM_IAS" == "true" ]]; then
             MAKE_ARGS="LLVM_IAS=1 $MAKE_ARGS"
           fi
+
+          # 可选清理 ccache 缓存（不清理可注释）
+          # ccache -C
+
+          # 配置内核
           make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
+
+          # 构建内核
           make -j$(nproc --all) O=out $MAKE_ARGS
+
+          # 显示 ccache 统计信息
+          ccache -s
 
       - name: Fallback to Build Kernel
         if: ${{ github.event.inputs.FAST_BUILD == 'false' || steps.fast_build.outputs.fallback == 'true' }}
