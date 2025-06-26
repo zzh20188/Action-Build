@@ -100,11 +100,13 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
-      CCACHE_DIR: /home/runner/.ccache  
       CCACHE_MAXSIZE: 8G
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check disk space
+        run: df -h
 
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -125,12 +127,37 @@ jobs:
           sudo swapon /swapfile
           free -h
 
+      - name: Set cache environment
+        run: |
+          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}" >> $GITHUB_ENV
+          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}"
+          echo "set: $HOME/.ccache_${{ github.event.inputs.FEIL }}"
+
       - name: Configure Git
         run: |
           git config --global user.name "Numbersf"
           git config --global user.email "263623064@qq.com"
 
-      - name: Show selected inputs debug
+      - name: Configure APTC
+        run: |
+          APT_CACHE_DIR="$HOME/apt-cache"
+          mkdir -p "$APT_CACHE_DIR"/{archives,lists/partial}
+          echo "Dir::Cache \"$APT_CACHE_DIR\";" | sudo tee /etc/apt/apt.conf.d/90user-cache
+          echo "Dir::Cache::archives \"$APT_CACHE_DIR/archives\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
+          echo "Dir::State::lists \"$APT_CACHE_DIR/lists\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
+          echo "Acquire::Check-Valid-Until \"false\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
+          echo "Acquire::Languages \"none\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
+          sudo chown -R $USER:$USER "$APT_CACHE_DIR"
+
+      - name: Set Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.HOME }}/apt-cache
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/Build SukiSU Ultra OnePlus.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Debug Show Selected Inputs
         run: |
           echo "Selected CPU: ${{ needs.get-config.outputs.CPU }}"
           echo "Selected FEIL: ${{ github.event.inputs.FEIL }}"
@@ -146,26 +173,52 @@ jobs:
           echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
           echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          sudo apt update && sudo apt upgrade -y
-          sudo apt install -y python3 git curl ccache
+          sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock
+          APT_CACHE_DIR="$HOME/apt-cache"
+          mkdir -p "$APT_CACHE_DIR/lists/partial"
+          sudo apt -o Dir::Cache="$APT_CACHE_DIR" update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt -o Dir::Cache="$APT_CACHE_DIR" install -yq --no-install-recommends \
+            python3 git curl ccache libelf-dev \
+            build-essential flex bison libssl-dev \
+            libncurses-dev liblz4-tool zlib1g-dev \
+            libxml2-utils rsync unzip
 
-      - name: Restore ccache
+      - name: Restore Ccache
         uses: actions/cache@v3
         with:
-          path: /home/runner/.ccache
-          key: ccache-${{ runner.os }}-${{ github.ref }}
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}
           restore-keys: |
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-
             ccache-${{ runner.os }}-
 
-      - name: Install repo tool
+      - name: Initialize Ccache
+        run: |
+          INIT_FLAG="${{ env.CCACHE_DIR }}/.ccache_initialized"
+          if command -v ccache >/dev/null 2>&1; then
+            if [ ! -f "$INIT_FLAG" ]; then
+              echo "初始化 ccache (${{ env.CCACHE_DIR }})..."
+              mkdir -p "${{ env.CCACHE_DIR }}"
+              ccache -M ${{ env.CCACHE_MAXSIZE }}
+              touch "$INIT_FLAG"
+              echo "ccache 初始化完成"
+            else
+              echo "ccache 已初始化，跳过"
+            fi
+          else
+            echo "未安装 ccache，跳过"
+          fi
+          ccache -s
+
+      - name: Install Repo Tool
         run: |
           curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
           chmod a+x ~/repo
           sudo mv ~/repo /usr/local/bin/repo
 
-      - name: Initialize repo and sync
+      - name: Initialize Repo and Sync
         run: |
           mkdir kernel_workspace && cd kernel_workspace
           repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
@@ -180,7 +233,7 @@ jobs:
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
       # 自定义内核后缀
-      - name: Modify setlocalversion suffix if SUFFIX is set
+      - name: Custom Kernel Suffix if set
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
           cd kernel_workspace
@@ -230,7 +283,7 @@ jobs:
           git commit -m "Custom suffix & removed -dirty"
 
       # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
-      - name: Generate random kernel suffix if SUFFIX is empty
+      - name: Custom Kernel Random Suffix if empty
         if: ${{ github.event.inputs.SUFFIX == '' }}
         run: |
           cd kernel_workspace
@@ -289,8 +342,7 @@ jobs:
           curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
           mv "$feil.xml" ".repo/manifests_fallback/${feil}.xml"
 
-      # 添加 SukiSU Ultra
-      - name: Add KernelSU-SukiSU Ultra
+      - name: Add SukiSU Ultra
         run: |
           cd kernel_workspace/kernel_platform
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
@@ -487,6 +539,7 @@ jobs:
         id: fast_build
         run: |
           KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
+          export PATH="/usr/lib/ccache:$PATH"
 
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
@@ -517,7 +570,7 @@ jobs:
           make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
           make -j$(nproc --all) O=out $MAKE_ARGS
 
-      - name: Fallback Build Kernel
+      - name: Fallback to Build Kernel
         if: ${{ github.event.inputs.FAST_BUILD == 'false' || steps.fast_build.outputs.fallback == 'true' }}
         run: |
           cd kernel_workspace
@@ -629,16 +682,16 @@ jobs:
             --jq '.workflow_runs[0].id' || echo "")
 
           if [[ -z "$run_id" ]]; then
-            echo "⚠️ No successful workflow run found. Skipping artifact download."
+            echo "No successful workflow run found. Skipping artifact download."
           else
             artifact_url=$(gh api \
               "repos/SukiSU-Ultra/SukiSU-Ultra/actions/runs/$run_id/artifacts" | \
               jq -r '.artifacts[] | select(.name == "manager") | .archive_download_url' | head -n1)
 
             if [[ -z "$artifact_url" ]]; then
-              echo "⚠️ No 'manager' artifact found in run $run_id. Skipping download."
+              echo "No 'manager' artifact found in run $run_id. Skipping download."
             else
-              echo "✅ Downloading from: $artifact_url"
+              echo "Downloading from: $artifact_url"
               curl -fL -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
               unzip -j manager.zip "*.apk" -d ./AnyKernel3/
             fi
@@ -682,7 +735,7 @@ jobs:
           name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.feil_clean.outputs.value }}${{ steps.suffix.outputs.value }}
           path: ./AnyKernel3/*
 
-      - name: Download And Unzip ZRAM
+      - name: Download and Unzip ZRAM
         if: ${{ github.event.inputs.ZRAM == 'true' }}
         run: |
           set -e
@@ -730,3 +783,6 @@ jobs:
         with:
           name: ZRAM-Module_${{ needs.get-config.outputs.KERNEL_VERSION }}_${{ steps.feil_clean.outputs.value }}
           path: ZRAM-Module/*
+
+      - name: Post-build disk check
+        run: df -h
