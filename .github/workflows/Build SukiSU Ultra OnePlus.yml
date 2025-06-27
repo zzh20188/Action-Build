@@ -55,6 +55,11 @@ on:
         description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
         default: ""
+      BUILD_TIME:
+        type: string
+        description: "自定义构建时间 (留空则使用当前时间)"
+        required: false
+        default: "Fri May 30 04:01:05 UTC 2025"
       FAST_BUILD:
         type: boolean
         description: "是否启用极速构建？"
@@ -127,7 +132,7 @@ jobs:
           sudo swapon /swapfile
           free -h
 
-      - name: Set cache environment
+      - name: Set Cache Environment
         run: |
           echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}" >> $GITHUB_ENV
           mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}"
@@ -507,6 +512,12 @@ jobs:
          cp -r ./sched_ext/* ./common/kernel/sched
          rm -rf ./sched_ext/.git
          cd common/kernel/sched
+
+      - name: Set KBUILD_BUILD_TIMESTAMP
+        run: |
+          if [ -n "${{ github.event.inputs.BUILD_TIME }}" ]; then
+            echo "KBUILD_BUILD_TIMESTAMP=${{ github.event.inputs.BUILD_TIME }}" >> $GITHUB_ENV
+          fi
 
       - name: Enable lto=thin For FAST
         if: ${{ (needs.get-config.outputs.KERNEL_VERSION == '5.10' || needs.get-config.outputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
