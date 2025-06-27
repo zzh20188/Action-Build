@@ -81,21 +81,23 @@
 > <details>
 > <summary><strong>Click to view build time using ultra-fast clang + make</strong></summary>
 >
->|Device Type                | Average Duration Range            | Maximum Duration     |
->|-------------------------------------|--------------------------|------------------|
->| `All other models`                  | `19min ~ 29min`         | `35min`         |
->| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13`    | `55min ~ 1h17min`     | `1h23min` |
+>|Device Type| Average Duration Range               | Maximum Duration|
+>|--------------------------|-----------------------------|------------------|
+>| `All` | `1st:19min ~ 35min 2nd:9min ~ 19min`| `42min` |
+>|`OnePlus 11-A13、A14`|`1st:1h8min ~ 1h17min 2nd:50min ~ 1h10min`| `1h23min` |
+>
+>Using ccache may slow down the first build.
 > </details>
-> 
+>
 > <details>
 > <summary><strong>Click to view build time using official build.sh</strong></summary>
 >
->|Device Type        | Average Duration Range               | Maximum Duration |
+>|Device Type| Average Duration Range               | Maximum Duration|
 >|--------------------------|-----------------------------|------------------|
 >| `sm8450, sm8475, sm8550` | `29min ~ 35min`             | `45min`
 >| `sm7675, sm7550, sm8650` |`59min ~ 1h12min`| `1h28min`        |
 >| `sm8750`|`1h1min ~ 1h8min`| `1h24min`       |
->| `Special models e.g.: OnePlus 11-A14; OnePlus 11-A13` | `1h1min ~ 1h28min`  |`1h32min`|
+>|`OnePlus 11-A13、A14`| `1h1min ~ 1h28min`  |`1h32min`|
 >
 ></details>
 >
@@ -119,6 +121,7 @@
 ------
  
 # Changelog
+-- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed.  
 -- Initial support for the sm8750's new setlocalversion format using echo, fixing the issue where custom and randomly-generated pseudo-official suffixes were not applied. Now, this feature is fully supported across all device models and build methods.  
 -- Add `TRUSTY_EXISTS` to automatically detect whether the `6.6` kernel has defects in the kernel source code and determine whether `sed` is needed.  
 -- Support enabling fongchi driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
