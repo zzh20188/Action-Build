@@ -194,7 +194,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FEIL }}-${{ github.event.inputs.BUILD_METHOD }}-${{ github.event.inputs.FAST_BUILD == 'true' && 'alpha' || 'beta' }}-6
+          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FEIL }}-${{ github.event.inputs.BUILD_METHOD }}-${{ github.event.inputs.FAST_BUILD == 'true' && 'alpha' || 'beta' }}-7
 
       - name: Initialize Ccache
         run: |
@@ -510,27 +510,6 @@ jobs:
             echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
             echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
           fi
-
-          # Remove useless debug*
-          echo "CONFIG_DEBUG_KERNEL=n" >> "$CONFIG_FILE"
-          echo "CONFIG_DYNAMIC_DEBUG=n" >> "$CONFIG_FILE"
-          echo "CONFIG_DEBUG_INFO=n" >> "$CONFIG_FILE"
-          echo "CONFIG_DEBUG_PREEMPT=n" >> "$CONFIG_FILE"
-          echo "CONFIG_TRACING=n" >> "$CONFIG_FILE"
-          echo "CONFIG_DEBUG_FS=n" >> "$CONFIG_FILE"
-
-          # Power Management*
-          echo "CONFIG_PM=y" >> "$CONFIG_FILE"
-          echo "CONFIG_PM_QOS=y" >> "$CONFIG_FILE"
-          echo "CONFIG_SUSPEND=y" >> "$CONFIG_FILE"
-          echo "CONFIG_PM_SLEEP=y" >> "$CONFIG_FILE"
-          echo "CONFIG_PM_AUTOSLEEP=y" >> "$CONFIG_FILE"
-          echo "CONFIG_WAKELOCK=n" >> "$CONFIG_FILE"
-          echo "CONFIG_CPU_IDLE=y" >> "$CONFIG_FILE"
-          echo "CONFIG_CPU_IDLE_GOV_LADDER=y" >> "$CONFIG_FILE"
-          echo "CONFIG_CPU_IDLE_GOV_MENU=y" >> "$CONFIG_FILE"
-          echo "CONFIG_SCHED_EAS=y" >> "$CONFIG_FILE"
-          echo "CONFIG_WLAN_POWER_SAVE=y" >> "$CONFIG_FILE"
 
           # remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
