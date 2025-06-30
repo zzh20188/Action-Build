@@ -120,6 +120,13 @@
  
 ------
  
+# Features in Development
+
+- [ ] Non-fast builds support custom build time  
+- [ ] `ccache` supports AB update mode  
+- [ ] Switching between different branches  
+- Toothpaste should be squeezed bit by bit, GPUs should be cut slice by slice, PPTs should be shown slide by slide, and code should be written line by line — more features and optimizations... stay tuned!
+ 
 # Changelog
 -- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed.  
 -- Initial support for the sm8750's new setlocalversion format using echo, fixing the issue where custom and randomly-generated pseudo-official suffixes were not applied. Now, this feature is fully supported across all device models and build methods.  
