@@ -524,11 +524,14 @@ jobs:
          rm -rf ./sched_ext/.git
          cd common/kernel/sched
 
-      - name: Set KBUILD_BUILD_TIMESTAMP
+      - name: Patch UTS_VERSION with Custom Time
+        shell: bash
         run: |
-          if [ -n "${{ github.event.inputs.BUILD_TIME }}" ]; then
-            echo "KBUILD_BUILD_TIMESTAMP=${{ github.event.inputs.BUILD_TIME }}" >> $GITHUB_ENV
-          fi
+          cd kernel_workspace/kernel_platform/
+          DATESTR="${{ github.event.inputs.BUILD_TIME }}"
+          echo "Patching mkcompile_h with BUILD_TIME=$DATESTR"
+          perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" ./common/scripts/mkcompile_h || true
+          perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" ./msm-kernel/scripts/mkcompile_h || true
 
       - name: Enable lto=thin For FAST
         if: ${{ (needs.get-config.outputs.KERNEL_VERSION == '5.10' || needs.get-config.outputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
