@@ -171,6 +171,7 @@ jobs:
           echo "Selected KERNEL_VERSION: ${{ needs.get-config.outputs.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
           echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
+          echo "Custom BUILD_TIME: ${{ github.event.inputs.BUILD_TIME }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected KPM: ${{ github.event.inputs.KPM }}"
@@ -524,6 +525,7 @@ jobs:
          rm -rf ./sched_ext/.git
          cd common/kernel/sched
 
+      # 自定义内核构建时间，无需加入多余的时间前缀
       - name: Patch UTS_VERSION with Custom Time
         shell: bash
         run: |
