@@ -1,9 +1,9 @@
-name: Feil Map Workflow
+name: File Map Workflow
 
 on:
   workflow_call:
     inputs:
-      FEIL:
+      FILE:
         required: true
         type: string
     outputs:
@@ -30,12 +30,12 @@ jobs:
       KERNEL_VERSION: ${{ steps.set.outputs.KERNEL_VERSION }}
 
     steps:
-      - name: Map FEIL to Config
+      - name: Map FILE to Config
         id: set
         run: |
-          FEIL="${{ inputs.FEIL }}"
+          FILE="${{ inputs.FILE }}"
 
-          case "$FEIL" in
+          case "$FILE" in
             oneplus_nord_ce4_v)
               CPU="sm7550"
               CPUD="crow"
@@ -223,7 +223,7 @@ jobs:
               KERNEL_VERSION="6.6"
               ;;
             *)
-              echo "Unknown FEIL: $FEIL"
+              echo "Unknown FILE: $FILE"
               exit 1
               ;;
           esac
