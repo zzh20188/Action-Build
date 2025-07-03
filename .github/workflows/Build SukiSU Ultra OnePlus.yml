@@ -2,7 +2,7 @@ name: Build OnePlus_SukiSU Ultra All
 on:
   workflow_dispatch:
     inputs:
-      FEIL:
+      FILE:
         type: choice
         description: "配置文件"
         required: true
@@ -88,14 +88,14 @@ on:
 
 jobs:
   get-config:
-    uses: ./.github/workflows/feil-map.yml
+    uses: ./.github/workflows/file-map.yml
     with:
-      FEIL: ${{ inputs.FEIL }}
+      FILE: ${{ inputs.FILE }}
     secrets: inherit
 
   build:
     needs: get-config
-    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}For ${{ github.event.inputs.FEIL }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
+    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
     env:
       CPU: ${{ needs.get-config.outputs.CPU }}
@@ -134,9 +134,9 @@ jobs:
 
       - name: Set Cache Environment
         run: |
-          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}" >> $GITHUB_ENV
-          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}"
-          echo "set: $HOME/.ccache_${{ github.event.inputs.FEIL }}"
+          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FILE }}" >> $GITHUB_ENV
+          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FILE }}"
+          echo "set: $HOME/.ccache_${{ github.event.inputs.FILE }}"
 
       - name: Configure Git
         run: |
@@ -165,7 +165,7 @@ jobs:
       - name: Debug Show Selected Inputs
         run: |
           echo "Selected CPU: ${{ needs.get-config.outputs.CPU }}"
-          echo "Selected FEIL: ${{ github.event.inputs.FEIL }}"
+          echo "Selected FILE: ${{ github.event.inputs.FILE }}"
           echo "Selected CPUD: ${{ needs.get-config.outputs.CPUD }}"
           echo "Selected ANDROID_VERSION: ${{ needs.get-config.outputs.ANDROID_VERSION }}"
           echo "Selected KERNEL_VERSION: ${{ needs.get-config.outputs.KERNEL_VERSION }}"
@@ -195,7 +195,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FEIL }}-${{ github.event.inputs.BUILD_METHOD }}-${{ github.event.inputs.FAST_BUILD == 'true' && 'alpha' || 'beta' }}-11
+          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FILE }}-${{ github.event.inputs.BUILD_METHOD }}-${{ github.event.inputs.FAST_BUILD == 'true' && 'alpha' || 'beta' }}-11
 
       - name: Initialize Ccache
         run: |
@@ -224,7 +224,7 @@ jobs:
       - name: Initialize Repo and Sync
         run: |
           mkdir kernel_workspace && cd kernel_workspace
-          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
+          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           if [  -e kernel_platform/common/BUILD.bazel ]; then
           sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
@@ -338,12 +338,12 @@ jobs:
       - name: Download kernel-manifest
         id: fetch_manifest
         run: |
-          feil="${{ github.event.inputs.FEIL }}"
+          file="${{ github.event.inputs.FILE }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
           mkdir -p .repo/manifests_fallback
-          echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
-          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
-          mv "$feil.xml" ".repo/manifests_fallback/${feil}.xml"
+          echo "Downloading manifest $file.xml from branch oneplus/$cpu..."
+          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$file.xml"
+          mv "$file.xml" ".repo/manifests_fallback/${file}.xml"
 
       - name: Add SukiSU Ultra
         run: |
@@ -385,10 +385,10 @@ jobs:
             echo "fix_5.15_patch完成"
           fi
           KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
-          feil="${{ github.event.inputs.FEIL }}"
+          file="${{ github.event.inputs.FILE }}"
           TRUSTY_EXISTS="false"
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${feil}.xml"; then
+            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${file}.xml"; then
               TRUSTY_EXISTS="true"
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
@@ -747,15 +747,15 @@ jobs:
           echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
 
       # 从一加源码中获取适用的 Android 版本信息，注意是系统 Android 版本而非你填写的内核 Android 版本，非一加官方源码可能需要修改或删除这一步
-      - name: Auto map FEIL to Android version by manifest
-        id: feil_clean
+      - name: Auto map FILE to Android version by manifest
+        id: file_clean
         run: |
-          feil="${{ github.event.inputs.FEIL }}"
+          file="${{ github.event.inputs.FILE }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          xml=".repo/manifests_fallback/${feil}.xml"
+          xml=".repo/manifests_fallback/${file}.xml"
           cd $GITHUB_WORKSPACE
           # 去掉末尾的 _x（只删一个）
-          feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
+          file_base=$(echo "$file" | sed -E 's/_[a-z]$//')
 
           # 提取 revision 并解析 Android 版本
           revision_full=$(grep -oP '<project[^>]*name="android_kernel[^"]*"[^>]*revision="\K[^"]+' "$xml" | head -n1 || true)
@@ -763,20 +763,20 @@ jobs:
           if [ -n "$revision_full" ]; then
             android_ver=$(echo "$revision_full" | grep -oP '_v?_?\K([0-9]+\.[0-9]+(?:\.[0-9]+)?)' || true)
             if [ -n "$android_ver" ]; then
-              clean_feil="${feil_base}_Android${android_ver}"
+              clean_file="${file_base}_Android${android_ver}"
             else
-              clean_feil="${feil_base}_AndroidUnknown"
+              clean_file="${file_base}_AndroidUnknown"
             fi
           else
-            clean_feil="${feil_base}_AndroidUnknown"
+            clean_file="${file_base}_AndroidUnknown"
           fi
 
-          echo "value=$clean_feil" >> "$GITHUB_OUTPUT"
+          echo "value=$clean_file" >> "$GITHUB_OUTPUT"
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.feil_clean.outputs.value }}${{ steps.suffix.outputs.value }}
+          name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.file_clean.outputs.value }}${{ steps.suffix.outputs.value }}
           path: ./AnyKernel3/*
 
       - name: Download and Unzip ZRAM
@@ -825,7 +825,7 @@ jobs:
         if: ${{ github.event.inputs.ZRAM == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ZRAM-Module_${{ needs.get-config.outputs.KERNEL_VERSION }}_${{ steps.feil_clean.outputs.value }}
+          name: ZRAM-Module_${{ needs.get-config.outputs.KERNEL_VERSION }}_${{ steps.file_clean.outputs.value }}
           path: ZRAM-Module/*
 
       - name: Post-build Disk Check
