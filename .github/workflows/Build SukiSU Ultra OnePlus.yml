@@ -528,11 +528,17 @@ jobs:
         run: |
           if [ -n "${{ github.event.inputs.BUILD_TIME }}" ]; then
             DATESTR="${{ github.event.inputs.BUILD_TIME }}"
-            echo "KBUILD_BUILD_TIMESTAMP=$DATESTR" >> $GITHUB_ENV
-            cd kernel_workspace/kernel_platform/
-            echo "Patching mkcompile_h with BUILD_TIME=$DATESTR"
-            perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" ./common/scripts/mkcompile_h || true
-            perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" ./msm-kernel/scripts/mkcompile_h || true
+            for f in kernel_workspace/kernel_platform/{common/scripts,msm-kernel/scripts}/mkcompile_h; do
+              [ ! -f "$f" ] && continue
+              echo "Patching $f with BUILD_TIME=$DATESTR"
+              if grep -q 'UTS_VERSION=' "$f"; then
+                # v1: 直接替换 UTS_VERSION 行
+                perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" "$f" || true
+              else
+                # v2: 向 here-doc 中插入 UTS_VERSION 宏
+                perl -0777 -pi -e "s{cat <<EOF}{cat <<EOF\\n#define UTS_VERSION \\\"#1 SMP PREEMPT $DATESTR\\\"} unless /UTS_VERSION/" "$f"
+              fi
+            done
           fi
 
       - name: Enable lto=thin For FAST
