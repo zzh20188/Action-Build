@@ -523,12 +523,13 @@ jobs:
          cd common/kernel/sched
 
       # 自定义内核构建时间，无需加入多余的时间前缀
-      - name: Patch UTS_VERSION with Custom Time
+      - name: Custom BUILD_TIME
         shell: bash
         run: |
           if [ -n "${{ github.event.inputs.BUILD_TIME }}" ]; then
-            cd kernel_workspace/kernel_platform/
             DATESTR="${{ github.event.inputs.BUILD_TIME }}"
+            echo "KBUILD_BUILD_TIMESTAMP=$DATESTR" >> $GITHUB_ENV
+            cd kernel_workspace/kernel_platform/
             echo "Patching mkcompile_h with BUILD_TIME=$DATESTR"
             perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" ./common/scripts/mkcompile_h || true
             perl -pi -e "s{UTS_VERSION=\"\\\$\\(.*?\\)\"}{UTS_VERSION=\"#1 SMP PREEMPT $DATESTR\"}" ./msm-kernel/scripts/mkcompile_h || true
