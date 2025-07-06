@@ -4,7 +4,7 @@
  
 # Action-Build
 **```Build All OnePlus Devices SukiSU Ultra Kernel```**
->>更高效 更全面 更快速 更稳定
+>更高效 更全面 更快速 更稳定
  
 <details>
 <summary><strong>点击查看如何fork项目</strong></summary>
@@ -89,7 +89,7 @@
 >| `大部分机型` | `1st:19min ~ 35min 2nd:9min ~ 19min` | `42min`|
 >| `OnePlus 11-A13、A14`| `1st:1h8min ~ 1h17min 2nd:50min ~ 1h10min` | `1h23min` |
 >
->使用ccache第一次会减速
+> >使用ccache第一次会减速
 > </details>
 >
 > <details>
@@ -129,7 +129,7 @@
 - 牙膏要一点一点挤，显卡要一刀一刀切，PPT要一张一张放，代码要一行一行写，更多功能及优化...敬请期待....
  
 # 更新日志
->>小的更新内容将被忽略 更多内容请参看提交
+>小的更新内容将被忽略 更多内容请参看提交
  
 --首发支持全机型、全编译方式自定义内核构建时间`UTS_VERSION`  
 --使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新、换`key`要重新生成`cache`,可能会降低速度  

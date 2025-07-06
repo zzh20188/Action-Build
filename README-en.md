@@ -4,7 +4,7 @@
 
 # Action-Build
 **```Build All OnePlus Devices SukiSU Ultra Kernel```**
->> More efficient · More comprehensive · More Faster · More stable  
+> More efficient · More comprehensive · More Faster · More stable  
  
 <details>
 <summary><strong>Click to view how to fork</strong></summary>
@@ -88,7 +88,7 @@
 >| `All` | `1st:19min ~ 35min 2nd:9min ~ 19min`| `42min` |
 >|`OnePlus 11-A13、A14`|`1st:1h8min ~ 1h17min 2nd:50min ~ 1h10min`| `1h23min` |
 >
->Using ccache may slow down the first build.
+> >Using ccache may slow down the first build.
 > </details>
 >
 > <details>
@@ -130,7 +130,7 @@
 - Toothpaste should be squeezed bit by bit, GPUs should be cut slice by slice, PPTs should be shown slide by slide, and code should be written line by line — more features and optimizations... stay tuned!
  
 # Changelog
->> Minor updates will be ignored. For more details, please refer to the commit.
+> Minor updates will be ignored. For more details, please refer to the commit.
  
 -- First to support custom kernel build time `UTS_VERSION` for all device models and all build methods.  
 -- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed.  
