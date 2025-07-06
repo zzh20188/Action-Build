@@ -119,7 +119,7 @@
 > If you have enabled the `ZRAM` algorithm, make sure to install the `ZRAM` module
 > **before rebooting** after flashing with `Anykernel3`. You may need to adjust some parameters manually.The 5.10 kernel is not supported `ZRAM` , as the `zram.ko` module path could not be found.However, the generated ``Anykernel3`` is still usable.
 >
-> OnePlus ``ace5`` does not support enabling FengChi. Older models cannot use it even if the kernel includes it — do not force it.
+> ``OnePlus ace5`` does not support enabling FengChi. Older models cannot use it even if the kernel includes it — do not force it.
 >
  
 ------
@@ -137,7 +137,7 @@
 -- First to support for the sm8750's new setlocalversion format using echo, fixing the issue where custom and randomly-generated pseudo-official suffixes were not applied. Now, this feature is fully supported across all device models and build methods.  
 -- Add `TRUSTY_EXISTS` to automatically detect whether the `6.6` kernel has defects in the kernel source code and determine whether `sed` is needed.  
 -- Support enabling fongchi driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
--- Remove all device-related parameters from `input` except the device config file `FEIL`, and propagate to `feil-map` to support more options.  
+-- Remove all device-related parameters from `input` except the device config file `FILE`, and propagate to `file-map` to support more options.  
 -- When `ZRAM` is enabled, automatically download and modify the ZRAM additional module, module from [@FURLC](https://github.com/FURLC).  
 -- Fix issues where `ZRAM` is unusable or unable to launch non-system apps.  
 -- Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
