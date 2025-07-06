@@ -3,7 +3,8 @@
 [![Build](https://img.shields.io/badge/GitHub%20Actions-Build-181717?logo=github&logoColor=white&style=flat-square)](https://github.com/Numbersf/Action-Build/actions/workflows/Build%20SukiSU%20Ultra%20OnePlus.yml) [![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/taichi91) [![OnePlus Kernel Manifest](https://img.shields.io/badge/OnePlus%20Kernel%20Manifest-EB0029?logo=oneplus&logoColor=white&style=flat-square)](https://github.com/OnePlusOSS/kernel_manifest) [![Coolapk](https://img.shields.io/badge/Follow-Coolapk-3DDC84?style=flat-square&logo=android&logoColor=white)](http://www.coolapk.com/u/28259173)
  
 # Action-Build
-**```Build OnePlus SukiSU Ultra KPM Kernel```**
+**```Build All OnePlus Devices SukiSU Ultra Kernel```**
+>>更高效 更全面 更快速 更稳定
  
 <details>
 <summary><strong>点击查看如何fork项目</strong></summary>
@@ -115,9 +116,11 @@
 >
 >如果你的机型是``sm8750``,并且曾经使用了官方脚本构建,而现在需要使用``Fast Build(极速构建)``,请先还原``dtbo.img、system_dlkm(.erofs).img、vendor_dlkm.img、vendor_boot.img``**否则会无法开机!**  
 >
->如果你开启了``ZRAM``算法,请在刷入``Anykernel3``重启**前**安装``ZRAM``模块,部分参数请自行调整。另外``5.10``内核暂不支持开启``ZRAM``算法,因为没有找到``zram.ko``路径  
+>如果你开启了``ZRAM``算法,请在刷入``Anykernel3``重启**前**安装``ZRAM``模块,部分参数请自行调整。另外``5.10``内核暂不支持开启``ZRAM``算法,因为没有找到``zram.ko``路径,但是生成的``Anykernel3``依旧可用  
 >
-
+>``OnePlus ace5``不支持开启风驰,较老的机型即使内核加入也无法使用,不要勉强  
+>
+ 
 ------
  
 # 开发中的功能
@@ -126,6 +129,8 @@
 - 牙膏要一点一点挤，显卡要一刀一刀切，PPT要一张一张放，代码要一行一行写，更多功能及优化...敬请期待....
  
 # 更新日志
+>>小的更新内容将被忽略 更多内容请参看提交
+ 
 --首发支持全机型、全编译方式自定义内核构建时间`UTS_VERSION`  
 --使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新、换`key`要重新生成`cache`,可能会降低速度  
 --首发适配`sm8750`的`setlocalversion`文件中`echo`新格式,修复自定义&随机伪官方后缀失效。现在,全机型、全编译方式完美支持此功能  
