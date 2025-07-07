@@ -524,7 +524,7 @@ jobs:
 
       # 自定义内核构建时间，无需加入多余的时间前缀
       - name: Custom BUILD_TIME
-        if: ${{ github.event.inputs.BUILD_TIME != 'F' && github.event.inputs.BUILD_TIME != 'f' && github.event.inputs.BUILD_TIME != '' }}
+        if: ${{ github.event.inputs.BUILD_TIME != '' && !contains('Ff', github.event.inputs.BUILD_TIME) }}
         shell: bash
         run: |
             DATESTR="${{ github.event.inputs.BUILD_TIME }}"
@@ -541,7 +541,6 @@ jobs:
                 fi
               fi
             done
-          fi
 
       - name: Enable lto=thin For FAST
         if: ${{ (needs.get-config.outputs.KERNEL_VERSION == '5.10' || needs.get-config.outputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
