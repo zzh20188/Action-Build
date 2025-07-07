@@ -6,7 +6,7 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_13r
+        default: oneplus_ace2_pro_v
         options:
           - oneplus_9          # OP9
           - oneplus_9_pro      # OP9pro
