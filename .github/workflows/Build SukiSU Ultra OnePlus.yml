@@ -788,6 +788,7 @@ jobs:
 
       - name: Download and Unzip ZRAM
         if: ${{ github.event.inputs.ZRAM == 'true' }}
+        id: zram_find
         run: |
           set -e
           sudo apt install -y unzip
@@ -825,11 +826,12 @@ jobs:
             fi
           else
             echo "未找到 zram.ko 文件，可能是未支持的内核版本或者未成功构建"
+            echo "upload=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
       - name: Upload ZRAM Module
-        if: ${{ github.event.inputs.ZRAM == 'true' }}
+        if: ${{ github.event.inputs.ZRAM == 'true' && steps.zram_find.outputs.upload != 'false' }}
         uses: actions/upload-artifact@v4
         with:
           name: ZRAM-Module_${{ needs.get-config.outputs.KERNEL_VERSION }}_${{ steps.file_clean.outputs.value }}
