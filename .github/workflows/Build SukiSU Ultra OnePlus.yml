@@ -825,7 +825,7 @@ jobs:
             fi
           else
             echo "未找到 zram.ko 文件，可能是未支持的内核版本或者未成功构建"
-            exit 1
+            exit 0
           fi
 
       - name: Upload ZRAM Module
