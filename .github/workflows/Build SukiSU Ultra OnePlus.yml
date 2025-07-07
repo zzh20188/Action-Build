@@ -6,34 +6,56 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_ace2_pro_v
+        default: oneplus_13r
         options:
           - oneplus_9          # OP9
           - oneplus_9_pro      # OP9pro
           - oneplus_10_pro     # OP10pro
+          - oneplus_10_pro_v   # OP10pro variant
+          - oneplus_10_pro_s   # OP10pro variant
           - oneplus_10t        # OP10t
+          - oneplus_10t_v      # OP10t variant
           - oneplus_11         # OP11
+          - oneplus_11_v       # OP11 variant
+          - oneplus_11_u       # OP11 variant
+          - oneplus_11_t       # OP11 variant
           - oneplus_11r        # OP11r
+          - oneplus_11r_v      # OP11r variant
+          - oneplus_11r_u      # OP11r variant
           - oneplus_open       # OP-OPEN
+          - oneplus_open_v     # OP-OPEN variant
           - oneplus_ace2       # OP-ACE-2
+          - oneplus_ace2_v     # OP-ACE-2 variant
           - oneplus_ace_pro    # OP-ACE-PRO
-          - oneplus_ace2_pro_v # OP-ACE-2-PRO
+          - oneplus_ace_pro_v  # OP-ACE-PRO variant
+          - oneplus_ace2_pro   # OP-ACE-2-PRO
+          - oneplus_ace2_pro_v # OP-ACE-2-PRO variant
           - oneplus_12         # OP12
+          - oneplus_12_v       # OP12 variant
+          - oneplus_12_u       # OP12 variant
           - oneplus_12r        # OP12r
+          - oneplus_12r_v      # OP12r variant
           - oneplus_13         # OP13
           - oneplus_13r        # OP13r
           - oneplus_13s        # OP13S
           - oneplus_13t        # OP13T
           - oneplus_ace3       # OP-ACE3
+          - oneplus_ace3_v     # OP-ACE3 variant
           - oneplus_ace3_pro   # OP-ACE3-PRO
+          - oneplus_ace3_pro_v # OP-ACE3-PRO variant
           - oneplus_ace5       # OP-ACE-5
           - oneplus_ace5_pro   # OP-ACE5Pro
           - oneplus_ace_3v     # OP-ACE-3V
+          - oneplus_ace_3v_v   # OP-ACE-3V variant
           - oneplus_nord_3     # OP-NORD-3
           - oneplus_nord_4     # OP-NORD-4
+          - oneplus_nord_4_v   # OP-NORD-4 variant
           - oneplus_nord_ce4   # OP-NORD-CE4
+          - oneplus_nord_ce4_v # OP-NORD-CE4 variant
           - oneplus_pad_pro    # OP-PAD-PRO
+          - oneplus_pad_pro_v  # OP-PAD-PRO variant
           - oneplus_pad2       # OP-PAD-2
+          - oneplus_pad2_v     # OP-PAD-2 variant
           - oneplus_pad_2_pro  # OP-PAD-2-PRO
           - oneplus_pad_3      # OP-PAD-3
       SUSFS_CI:
@@ -83,7 +105,7 @@ on:
 
 jobs:
   build:
-    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}For ${{ github.event.inputs.FILE }} ${{ env.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
+    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -101,29 +123,51 @@ jobs:
             ["oneplus_9"]="sm8350 lahaina android11 5.4"
             ["oneplus_9_pro"]="sm8350 lahaina android11 5.4"
             ["oneplus_10_pro"]="sm8450 waipio android12 5.10"
+            ["oneplus_10_pro_v"]="sm8450 waipio android12 5.10"
+            ["oneplus_10_pro_s"]="sm8450 waipio android12 5.10"
             ["oneplus_10t"]="sm8475 waipio android12 5.10"
+            ["oneplus_10t_v"]="sm8475 waipio android12 5.10"
             ["oneplus_11"]="sm8550 kalama android13 5.15"
+            ["oneplus_11_v"]="sm8550 kalama android13 5.15"
+            ["oneplus_11_u"]="sm8550 kalama android13 5.15"
+            ["oneplus_11_t"]="sm8550 kalama android13 5.15"
             ["oneplus_11r"]="sm8475 waipio android12 5.10"
+            ["oneplus_11r_v"]="sm8475 waipio android12 5.10"
+            ["oneplus_11r_u"]="sm8475 waipio android12 5.10"
             ["oneplus_open"]="sm8550 kalama android13 5.15"
+            ["oneplus_open_v"]="sm8550 kalama android13 5.15"
             ["oneplus_ace2"]="sm8475 waipio android12 5.10"
+            ["oneplus_ace2_v"]="sm8475 waipio android12 5.10"
             ["oneplus_ace_pro"]="sm8475 waipio android12 5.10"
+            ["oneplus_ace_pro_v"]="sm8475 waipio android12 5.10"
             ["oneplus_ace2_pro"]="sm8550 kalama android13 5.15"
+            ["oneplus_ace2_pro_v"]="sm8550 kalama android13 5.15"
             ["oneplus_12"]="sm8650 pineapple android14 6.1"
+            ["oneplus_12_v"]="sm8650 pineapple android14 6.1"
+            ["oneplus_12_u"]="sm8650 pineapple android14 6.1"
             ["oneplus_12r"]="sm8550 kalama android13 5.15"
+            ["oneplus_12r_v"]="sm8550 kalama android13 5.15"
             ["oneplus_13"]="sm8750 sun android15 6.6"
             ["oneplus_13r"]="sm8650 pineapple android14 6.1"
             ["oneplus_13s"]="sm8750 sun android15 6.6"
             ["oneplus_13t"]="sm8750 sun android15 6.6"
             ["oneplus_ace3"]="sm8550 kalama android13 5.15"
+            ["oneplus_ace3_v"]="sm8550 kalama android13 5.15"
             ["oneplus_ace3_pro"]="sm8650 pineapple android14 6.1"
+            ["oneplus_ace3_pro_v"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5_pro"]="sm8750 sun android15 6.6"
             ["oneplus_ace_3v"]="sm7675 pineapple android14 6.1"
+            ["oneplus_ace_3v_v"]="sm7675 pineapple android14 6.1"
             ["oneplus_nord_3"]="sm8475 waipio android12 5.10"
             ["oneplus_nord_4"]="sm7675 pineapple android14 6.1"
+            ["oneplus_nord_4_v"]="sm7675 pineapple android14 6.1"
             ["oneplus_nord_ce4"]="sm7675 pineapple android14 6.1"
+            ["oneplus_nord_ce4_v"]="sm7550 crow android14 5.15"
             ["oneplus_pad_pro"]="sm8550 kalama android13 5.15"
+            ["oneplus_pad_pro_v"]="sm8650 pineapple android14 6.1"
             ["oneplus_pad2"]="sm8650 pineapple android14 6.1"
+            ["oneplus_pad2_v"]="sm8650 pineapple android14 6.1"
             ["oneplus_pad_2_pro"]="sm8750 sun android15 6.6"
             ["oneplus_pad_3"]="sm8750 sun android15 6.6"
           )
@@ -267,8 +311,8 @@ jobs:
       - name: Initialize Repo and Sync
         run: |
           mkdir kernel_workspace && cd kernel_workspace
-          # Use oneplus_11_t.xml for oneplus_11, otherwise use FILE.xml
-          if [ "${{ github.event.inputs.FILE }}" = "oneplus_11" ]; then
+          # Use oneplus_11_t.xml for oneplus_11_t, otherwise use FILE.xml
+          if [ "${{ github.event.inputs.FILE }}" = "oneplus_11_t" ]; then
             manifest_file="oneplus_11_t.xml"
           else
             manifest_file="${{ github.event.inputs.FILE }}.xml"
@@ -387,8 +431,8 @@ jobs:
         run: |
           file="${{ github.event.inputs.FILE }}"
           cpu="${{ env.CPU }}"
-          # Use oneplus_11_t.xml for oneplus_11, otherwise use FILE.xml
-          if [ "$file" = "oneplus_11" ]; then
+          # Use oneplus_11_t.xml for oneplus_11_t, otherwise use FILE.xml
+          if [ "$file" = "oneplus_11_t" ]; then
             manifest_file="oneplus_11_t.xml"
           else
             manifest_file="$file.xml"
