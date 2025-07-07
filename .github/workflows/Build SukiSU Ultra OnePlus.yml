@@ -52,12 +52,12 @@ on:
           - NoN
       SUFFIX:
         type: string
-        description: "自定义内核后缀 (留空则使用随机字符串)"
+        description: "自定义内核后缀 (不输入则使用随机字符串)"
         required: false
         default: ""
       BUILD_TIME:
         type: string
-        description: "自定义构建时间 (留空则使用当前时间)"
+        description: "自定义构建时间 (输入F则使用当前时间)"
         required: false
         default: "Fri May 30 04:01:05 UTC 2025"
       FAST_BUILD:
@@ -526,7 +526,7 @@ jobs:
       - name: Custom BUILD_TIME
         shell: bash
         run: |
-          if [ -n "${{ github.event.inputs.BUILD_TIME }}" ]; then
+          if [ "${{ github.event.inputs.BUILD_TIME }}" != "F" ]; then
             DATESTR="${{ github.event.inputs.BUILD_TIME }}"
             echo "KBUILD_BUILD_TIMESTAMP=${DATESTR}" >> "$GITHUB_ENV"
             echo "KBUILD_BUILD_VERSION=1" >> "$GITHUB_ENV"
