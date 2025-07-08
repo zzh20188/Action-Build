@@ -8,56 +8,31 @@ on:
         required: true
         default: oneplus_ace2_pro_v
         options:
-          - oneplus_9          # OP9
-          - oneplus_9_pro      # OP9pro
-          - oneplus_10_pro     # OP10pro
-          - oneplus_10_pro_v   # OP10pro variant
-          - oneplus_10_pro_s   # OP10pro variant
-          - oneplus_10t        # OP10t
-          - oneplus_10t_v      # OP10t variant
-          - oneplus_11         # OP11
-          - oneplus_11_v       # OP11 variant
-          - oneplus_11_u       # OP11 variant
-          - oneplus_11_t       # OP11 variant
-          - oneplus_11r        # OP11r
-          - oneplus_11r_v      # OP11r variant
-          - oneplus_11r_u      # OP11r variant
-          - oneplus_open       # OP-OPEN
-          - oneplus_open_v     # OP-OPEN variant
-          - oneplus_ace2       # OP-ACE-2
-          - oneplus_ace2_v     # OP-ACE-2 variant
-          - oneplus_ace_pro    # OP-ACE-PRO
-          - oneplus_ace_pro_v  # OP-ACE-PRO variant
-          - oneplus_ace2_pro   # OP-ACE-2-PRO
-          - oneplus_ace2_pro_v # OP-ACE-2-PRO variant
-          - oneplus_12         # OP12
-          - oneplus_12_v       # OP12 variant
-          - oneplus_12_u       # OP12 variant
-          - oneplus_12r        # OP12r
-          - oneplus_12r_v      # OP12r variant
-          - oneplus_13         # OP13
-          - oneplus_13r        # OP13r
-          - oneplus_13s        # OP13S
-          - oneplus_13t        # OP13T
-          - oneplus_ace3       # OP-ACE3
-          - oneplus_ace3_v     # OP-ACE3 variant
-          - oneplus_ace3_pro   # OP-ACE3-PRO
-          - oneplus_ace3_pro_v # OP-ACE3-PRO variant
-          - oneplus_ace5       # OP-ACE-5
-          - oneplus_ace5_pro   # OP-ACE5Pro
-          - oneplus_ace_3v     # OP-ACE-3V
-          - oneplus_ace_3v_v   # OP-ACE-3V variant
-          - oneplus_nord_3     # OP-NORD-3
-          - oneplus_nord_4     # OP-NORD-4
-          - oneplus_nord_4_v   # OP-NORD-4 variant
-          - oneplus_nord_ce4   # OP-NORD-CE4
-          - oneplus_nord_ce4_v # OP-NORD-CE4 variant
-          - oneplus_pad_pro    # OP-PAD-PRO
-          - oneplus_pad_pro_v  # OP-PAD-PRO variant
-          - oneplus_pad2       # OP-PAD-2
-          - oneplus_pad2_v     # OP-PAD-2 variant
-          - oneplus_pad_2_pro  # OP-PAD-2-PRO
-          - oneplus_pad_3      # OP-PAD-3
+          - oneplus_nord_ce4_v
+          - oneplus_ace_3v_v
+          - oneplus_nord_4_v
+          - oneplus_10_pro_v
+          - oneplus_10t_v
+          - oneplus_11r_v
+          - oneplus_ace2_v
+          - oneplus_ace_pro_v
+          - oneplus_11_v
+          - oneplus_12r_v
+          - oneplus_ace2_pro_v
+          - oneplus_ace3_v
+          - oneplus_open_v
+          - oneplus12_v
+          - oneplus_13r
+          - oneplus_ace3_pro_v
+          - oneplus_ace5
+          - oneplus_pad2_v
+          - oneplus_pad_pro_v
+          - oneplus_13
+          - oneplus_ace5_pro
+          - oneplus_13t
+          - oneplus_13s
+          - oneplus_pad_2_pro
+          - oneplus_pad_3
       SUSFS_CI:
         type: choice
         description: "下载SUSFS模块调用方式"
@@ -140,7 +115,6 @@ jobs:
             ["oneplus_ace2_v"]="sm8475 waipio android12 5.10"
             ["oneplus_ace_pro"]="sm8475 waipio android12 5.10"
             ["oneplus_ace_pro_v"]="sm8475 waipio android12 5.10"
-            ["oneplus_ace2_pro"]="sm8550 kalama android13 5.15"
             ["oneplus_ace2_pro_v"]="sm8550 kalama android13 5.15"
             ["oneplus_12"]="sm8650 pineapple android14 6.1"
             ["oneplus_12_v"]="sm8650 pineapple android14 6.1"
@@ -328,6 +302,7 @@ jobs:
           rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
+      # 自定义内核后缀
       - name: Custom Kernel Suffix if set
         if: ${{ github.event.inputs.SUFFIX != '' }}
         run: |
@@ -377,6 +352,7 @@ jobs:
           git add -A
           git commit -m "Custom suffix & removed -dirty"
 
+      # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Custom Kernel Random Suffix if empty
         if: ${{ github.event.inputs.SUFFIX == '' }}
         run: |
@@ -508,6 +484,7 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch
           echo "隐藏应用_patch完成"
 
+      # OGKI转换GKI，无需修改 dtbo 开机
       - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
         if: ${{ env.KERNEL_VERSION == '6.6' }}
         run: |
@@ -576,11 +553,11 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> "$CONFIG_FILE"
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> "$CONFIG_FILE"
 
-          # TMPFS配置
+          # TMPFS配置*
           echo "CONFIG_TMPFS_XATTR=y" >> "$CONFIG_FILE"
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> "$CONFIG_FILE"
 
-          # BBR配置
+          # BBR配置*
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BBR=y" >> "$CONFIG_FILE"
           echo "CONFIG_NET_SCH_FQ=y" >> "$CONFIG_FILE"
@@ -588,13 +565,13 @@ jobs:
           echo "CONFIG_TCP_CONG_WESTWOOD=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_HTCP=n" >> "$CONFIG_FILE"
 
-          # ECN配置
+          # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_ECN=y" >> "$CONFIG_FILE"
           echo "CONFIG_IPV6_ECN=y" >> "$CONFIG_FILE"
           echo "CONFIG_IP_NF_TARGET_ECN=y" >> "$CONFIG_FILE"
 
-          # ZRAM配置
+          # ZRAM配置*
           if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
             echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
             echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
@@ -607,6 +584,7 @@ jobs:
           # 移除构建审查
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
+      # 风驰内核，以 sm8750 为主体，其他 CPU 可能无效或者无法跑出
       - name: Add sched_ext
         if: ${{ github.event.inputs.SCHED == 'true' }}
         run: |
@@ -806,6 +784,7 @@ jobs:
         run: |
           echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
 
+      # 从一加源码中获取适用的 Android 版本信息，注意是系统 Android 版本而非你填写的内核 Android 版本，非一加官方源码可能需要修改或删除这一步
       - name: Auto map FILE to Android version by manifest
         id: file_clean
         run: |
