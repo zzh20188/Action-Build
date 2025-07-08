@@ -88,87 +88,89 @@ jobs:
       CCACHE_HARDLINK: "true"
       CCACHE_MAXSIZE: 8G
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Validate Input Combinations
         run: |
           echo "🔧 Validating input combinations..."
           FILE="${{ github.event.inputs.FILE }}"
           
-          # Define valid combinations as an associative array
+          # Define valid combinations with base model only (no _v/_t/_u...)
           declare -A VALID_COMBINATIONS=(
             ["oneplus_9"]="sm8350 lahaina android11 5.4"
             ["oneplus_9_pro"]="sm8350 lahaina android11 5.4"
             ["oneplus_10_pro"]="sm8450 waipio android12 5.10"
-            ["oneplus_10_pro_v"]="sm8450 waipio android12 5.10"
-            ["oneplus_10_pro_s"]="sm8450 waipio android12 5.10"
             ["oneplus_10t"]="sm8475 waipio android12 5.10"
-            ["oneplus_10t_v"]="sm8475 waipio android12 5.10"
             ["oneplus_11"]="sm8550 kalama android13 5.15"
-            ["oneplus_11_v"]="sm8550 kalama android13 5.15"
-            ["oneplus_11_u"]="sm8550 kalama android13 5.15"
-            ["oneplus_11_t"]="sm8550 kalama android13 5.15"
             ["oneplus_11r"]="sm8475 waipio android12 5.10"
-            ["oneplus_11r_v"]="sm8475 waipio android12 5.10"
-            ["oneplus_11r_u"]="sm8475 waipio android12 5.10"
             ["oneplus_open"]="sm8550 kalama android13 5.15"
-            ["oneplus_open_v"]="sm8550 kalama android13 5.15"
             ["oneplus_ace2"]="sm8475 waipio android12 5.10"
-            ["oneplus_ace2_v"]="sm8475 waipio android12 5.10"
             ["oneplus_ace_pro"]="sm8475 waipio android12 5.10"
-            ["oneplus_ace_pro_v"]="sm8475 waipio android12 5.10"
-            ["oneplus_ace2_pro_v"]="sm8550 kalama android13 5.15"
+            ["oneplus_ace2_pro"]="sm8550 kalama android13 5.15"
             ["oneplus_12"]="sm8650 pineapple android14 6.1"
-            ["oneplus_12_v"]="sm8650 pineapple android14 6.1"
-            ["oneplus_12_u"]="sm8650 pineapple android14 6.1"
             ["oneplus_12r"]="sm8550 kalama android13 5.15"
-            ["oneplus_12r_v"]="sm8550 kalama android13 5.15"
             ["oneplus_13"]="sm8750 sun android15 6.6"
             ["oneplus_13r"]="sm8650 pineapple android14 6.1"
             ["oneplus_13s"]="sm8750 sun android15 6.6"
             ["oneplus_13t"]="sm8750 sun android15 6.6"
             ["oneplus_ace3"]="sm8550 kalama android13 5.15"
-            ["oneplus_ace3_v"]="sm8550 kalama android13 5.15"
             ["oneplus_ace3_pro"]="sm8650 pineapple android14 6.1"
-            ["oneplus_ace3_pro_v"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5_pro"]="sm8750 sun android15 6.6"
             ["oneplus_ace_3v"]="sm7675 pineapple android14 6.1"
-            ["oneplus_ace_3v_v"]="sm7675 pineapple android14 6.1"
             ["oneplus_nord_3"]="sm8475 waipio android12 5.10"
             ["oneplus_nord_4"]="sm7675 pineapple android14 6.1"
-            ["oneplus_nord_4_v"]="sm7675 pineapple android14 6.1"
             ["oneplus_nord_ce4"]="sm7675 pineapple android14 6.1"
             ["oneplus_nord_ce4_v"]="sm7550 crow android14 5.15"
             ["oneplus_pad_pro"]="sm8550 kalama android13 5.15"
-            ["oneplus_pad_pro_v"]="sm8650 pineapple android14 6.1"
             ["oneplus_pad2"]="sm8650 pineapple android14 6.1"
-            ["oneplus_pad2_v"]="sm8650 pineapple android14 6.1"
             ["oneplus_pad_2_pro"]="sm8750 sun android15 6.6"
             ["oneplus_pad_3"]="sm8750 sun android15 6.6"
           )
-          
-          # Check if FILE exists in valid combinations
-          if [[ -n "${VALID_COMBINATIONS[$FILE]}" ]]; then
-            # Get valid CPU, CPUD, ANDROID_VERSION, KERNEL_VERSION for the selected FILE
-            read CPU CPUD ANDROID_VERSION KERNEL_VERSION <<< "${VALID_COMBINATIONS[$FILE]}"
-            echo "✅ Valid combination: FILE=$FILE, CPU=$CPU, CPUD=$CPUD, ANDROID_VERSION=$ANDROID_VERSION, KERNEL_VERSION=$KERNEL_VERSION"
-            # Set environment variables for use in subsequent steps
-            echo "CPU=$CPU" >> $GITHUB_ENV
-            echo "CPUD=$CPUD" >> $GITHUB_ENV
-            echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
-            echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
-            # Set BUILD_METHOD based on ANDROID_VERSION and KERNEL_VERSION
-            if [ "$ANDROID_VERSION" = "android15" ] && [ "$KERNEL_VERSION" = "6.6" ]; then
-              echo "BUILD_METHOD=perf" >> $GITHUB_ENV
-            else
-              echo "BUILD_METHOD=gki" >> $GITHUB_ENV
-            fi
-          else
+
+          # Recursively strip "_[a-z]+" suffixes to match base key
+          get_combination() {
+            local key="$1"
+            while true; do
+              if [[ -n "${VALID_COMBINATIONS[$key]+_}" ]]; then
+                echo "${VALID_COMBINATIONS[$key]}"
+                return 0
+              fi
+              if [[ "$key" =~ ^(.+)_([a-z]+)$ ]]; then
+                key="${BASH_REMATCH[1]}"
+              else
+                return 1
+              fi
+            done
+          }
+
+          # Try to resolve FILE to a valid combination
+          COMBINATION="$(get_combination "$FILE")" || {
             echo "❌ Unknown FILE: $FILE"
-            echo "Valid models:"
+            echo "Valid base models:"
             for model in "${!VALID_COMBINATIONS[@]}"; do
               echo "- $model: ${VALID_COMBINATIONS[$model]}"
             done
             exit 1
+          }
+
+          # Split the combination into fields
+          read CPU CPUD ANDROID_VERSION KERNEL_VERSION <<< "$COMBINATION"
+
+          echo "✅ Valid combination: FILE=$FILE, CPU=$CPU, CPUD=$CPUD, ANDROID_VERSION=$ANDROID_VERSION, KERNEL_VERSION=$KERNEL_VERSION"
+          
+          # Export to environment
+          echo "CPU=$CPU" >> $GITHUB_ENV
+          echo "CPUD=$CPUD" >> $GITHUB_ENV
+          echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
+          echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
+          
+          # Set BUILD_METHOD based on ANDROID_VERSION and KERNEL_VERSION
+          if [[ "$ANDROID_VERSION" == "android15" && "$KERNEL_VERSION" == "6.6" ]]; then
+            echo "BUILD_METHOD=perf" >> $GITHUB_ENV
+          else
+            echo "BUILD_METHOD=gki" >> $GITHUB_ENV
           fi
 
       - name: Check Disk Space
