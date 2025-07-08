@@ -227,11 +227,11 @@ jobs:
       - name: Debug Show Selected Inputs
         run: |
           echo "Selected CPU: ${{ env.CPU }}"
-          echo "Selected FILE: ${{ github.event.inputs.FILE }}"
           echo "Selected CPUD: ${{ env.CPUD }}"
           echo "Selected ANDROID_VERSION: ${{ env.ANDROID_VERSION }}"
           echo "Selected KERNEL_VERSION: ${{ env.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ env.BUILD_METHOD }}"
+          echo "Selected FILE: ${{ github.event.inputs.FILE }}"
           echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
           echo "Custom BUILD_TIME: ${{ github.event.inputs.BUILD_TIME }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
