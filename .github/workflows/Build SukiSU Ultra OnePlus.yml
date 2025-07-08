@@ -9,8 +9,8 @@ on:
         default: oneplus_ace2_pro_v
         options:
           - oneplus_nord_ce4_v
-          - oneplus_ace_3v_v
           - oneplus_nord_4_v
+          - oneplus_ace_3v_v
           - oneplus_10_pro_v
           - oneplus_10t_v
           - oneplus_11r_v
@@ -27,8 +27,8 @@ on:
           - oneplus_ace5
           - oneplus_pad2_v
           - oneplus_pad_pro_v
-          - oneplus_13
           - oneplus_ace5_pro
+          - oneplus_13
           - oneplus_13t
           - oneplus_13s
           - oneplus_pad_2_pro
@@ -98,32 +98,29 @@ jobs:
           
           # Define valid combinations with base model only (no _v/_t/_u...)
           declare -A VALID_COMBINATIONS=(
-            ["oneplus_9"]="sm8350 lahaina android11 5.4"
-            ["oneplus_9_pro"]="sm8350 lahaina android11 5.4"
+            ["oneplus_nord_ce4"]="sm7550 crow android14 5.15"
+            ["oneplus_nord_4"]="sm7675 pineapple android14 6.1"
+            ["oneplus_ace_3v"]="sm7675 pineapple android14 6.1"
             ["oneplus_10_pro"]="sm8450 waipio android12 5.10"
             ["oneplus_10t"]="sm8475 waipio android12 5.10"
-            ["oneplus_11"]="sm8550 kalama android13 5.15"
             ["oneplus_11r"]="sm8475 waipio android12 5.10"
-            ["oneplus_open"]="sm8550 kalama android13 5.15"
             ["oneplus_ace2"]="sm8475 waipio android12 5.10"
             ["oneplus_ace_pro"]="sm8475 waipio android12 5.10"
-            ["oneplus_ace2_pro"]="sm8550 kalama android13 5.15"
-            ["oneplus12"]="sm8650 pineapple android14 6.1"
+            ["oneplus_11"]="sm8550 kalama android13 5.15"
             ["oneplus_12r"]="sm8550 kalama android13 5.15"
-            ["oneplus_13"]="sm8750 sun android15 6.6"
-            ["oneplus_13r"]="sm8650 pineapple android14 6.1"
-            ["oneplus_13s"]="sm8750 sun android15 6.6"
-            ["oneplus_13t"]="sm8750 sun android15 6.6"
+            ["oneplus_ace2_pro"]="sm8550 kalama android13 5.15"
             ["oneplus_ace3"]="sm8550 kalama android13 5.15"
+            ["oneplus_open"]="sm8550 kalama android13 5.15"
+            ["oneplus12"]="sm8650 pineapple android14 6.1"
+            ["oneplus_13r"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace3_pro"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5"]="sm8650 pineapple android14 6.1"
-            ["oneplus_ace5_pro"]="sm8750 sun android15 6.6"
-            ["oneplus_ace_3v"]="sm7675 pineapple android14 6.1"
-            ["oneplus_nord_3"]="sm8475 waipio android12 5.10"
-            ["oneplus_nord_4"]="sm7675 pineapple android14 6.1"
-            ["oneplus_nord_ce4"]="sm7550 crow android14 5.15"
-            ["oneplus_pad_pro"]="sm8550 kalama android13 5.15"
             ["oneplus_pad2"]="sm8650 pineapple android14 6.1"
+            ["oneplus_pad_pro"]="sm8650 pineapple android14 6.1"
+            ["oneplus_ace5_pro"]="sm8750 sun android15 6.6"
+            ["oneplus_13"]="sm8750 sun android15 6.6"
+            ["oneplus_13t"]="sm8750 sun android15 6.6"
+            ["oneplus_13s"]="sm8750 sun android15 6.6"
             ["oneplus_pad_2_pro"]="sm8750 sun android15 6.6"
             ["oneplus_pad_3"]="sm8750 sun android15 6.6"
           )
