@@ -21,7 +21,7 @@ on:
           - oneplus_ace2_pro_v
           - oneplus_ace3_v
           - oneplus_open_v
-          - oneplus_12_v
+          - oneplus12_v
           - oneplus_13r
           - oneplus_ace3_pro_v
           - oneplus_ace5
@@ -108,7 +108,7 @@ jobs:
             ["oneplus_ace2"]="sm8475 waipio android12 5.10"
             ["oneplus_ace_pro"]="sm8475 waipio android12 5.10"
             ["oneplus_ace2_pro"]="sm8550 kalama android13 5.15"
-            ["oneplus_12"]="sm8650 pineapple android14 6.1"
+            ["oneplus12"]="sm8650 pineapple android14 6.1"
             ["oneplus_12r"]="sm8550 kalama android13 5.15"
             ["oneplus_13"]="sm8750 sun android15 6.6"
             ["oneplus_13r"]="sm8650 pineapple android14 6.1"
