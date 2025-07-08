@@ -286,13 +286,7 @@ jobs:
       - name: Initialize Repo and Sync
         run: |
           mkdir kernel_workspace && cd kernel_workspace
-          # Use oneplus_11_t.xml for oneplus_11_t, otherwise use FILE.xml
-          if [ "${{ github.event.inputs.FILE }}" = "oneplus_11_t" ]; then
-            manifest_file="oneplus_11_t.xml"
-          else
-            manifest_file="${{ github.event.inputs.FILE }}.xml"
-          fi
-          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ env.CPU }} -m $manifest_file --depth=1
+          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ env.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           if [ -e kernel_platform/common/BUILD.bazel ]; then
             sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
@@ -353,7 +347,7 @@ jobs:
           git add -A
           git commit -m "Custom suffix & removed -dirty"
 
-      # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
+      # 伪官方格式的随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Custom Kernel Random Suffix if empty
         if: ${{ github.event.inputs.SUFFIX == '' }}
         run: |
@@ -361,7 +355,7 @@ jobs:
           ANDROID_VERSION="${{ env.ANDROID_VERSION }}"
           FAST_BUILD="${{ github.event.inputs.FAST_BUILD }}"
 
-          # 生成随机数字和随机hash后缀
+          # 生成随机数字和随机hash
           RANDOM_DIGIT=$(od -An -N1 -tu1 < /dev/urandom | tr -d '[:space:]' | awk '{print $1 % 11}')
           RANDOM_HASH=$(od -An -N7 -tx1 /dev/urandom | tr -d ' \n')
           RANDOM_SUFFIX="${RANDOM_DIGIT}-o-g${RANDOM_HASH}"
@@ -408,16 +402,10 @@ jobs:
         run: |
           file="${{ github.event.inputs.FILE }}"
           cpu="${{ env.CPU }}"
-          # Use oneplus_11_t.xml for oneplus_11_t, otherwise use FILE.xml
-          if [ "$file" = "oneplus_11_t" ]; then
-            manifest_file="oneplus_11_t.xml"
-          else
-            manifest_file="$file.xml"
-          fi
           mkdir -p .repo/manifests_fallback
-          echo "Downloading manifest $manifest_file from branch oneplus/$cpu..."
-          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$manifest_file"
-          mv "$manifest_file" ".repo/manifests_fallback/$manifest_file"
+          echo "Downloading manifest $file.xml from branch oneplus/$cpu..."
+          curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$file.xml"
+          mv "$file.xml" ".repo/manifests_fallback/${file}.xml"
 
       - name: Add SukiSU Ultra
         run: |
@@ -518,6 +506,7 @@ jobs:
           patch -p1 -F 3 < lz4k_oplus.patch || true
           echo 'lz4k_oplus_patch完成'
 
+      # 配置信息,带*为附加项目,具有一定危险性和不确定性
       - name: Add Configuration Settings
         run: |
           cd kernel_workspace/kernel_platform
@@ -595,6 +584,7 @@ jobs:
           rm -rf ./sched_ext/.git
           cd common/kernel/sched
 
+      # 自定义内核构建时间，不要加入#1 SMP PREEMPT
       - name: Custom BUILD_TIME
         if: ${{ github.event.inputs.BUILD_TIME != '' && !contains('Ff', github.event.inputs.BUILD_TIME) }}
         shell: bash
