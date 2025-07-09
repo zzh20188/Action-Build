@@ -42,11 +42,6 @@ on:
           - CI
           - Release
           - NoN
-      SUFFIX:
-        type: string
-        description: "自定义内核后缀 (不输入则使用随机字符串)"
-        required: false
-        default: ""
       KSU_META:
         type: string
         description: "分支名/自定义版本标识"
@@ -54,9 +49,14 @@ on:
         default: "susfs-main/Numbersf"
       BUILD_TIME:
         type: string
-        description: "自定义构建时间 (输入F则使用当前时间)"
+        description: "自定义构建时间 (输入F使用当前时间)"
         required: false
         default: "Fri May 30 04:01:05 UTC 2025"
+      SUFFIX:
+        type: string
+        description: "自定义内核后缀 (不输入使用随机字符串)"
+        required: false
+        default: ""
       FAST_BUILD:
         type: boolean
         description: "是否启用极速构建？"
@@ -79,7 +79,7 @@ on:
         default: false
       ZRAM:
         type: boolean
-        description: "是否添加更多的ZRAM算法？"
+        description: "是否添加更多ZRAM算法？"
         required: true
         default: false
 
@@ -234,9 +234,9 @@ jobs:
           echo "Selected KERNEL_VERSION: ${{ env.KERNEL_VERSION }}"
           echo "Selected BUILD_METHOD: ${{ env.BUILD_METHOD }}"
           echo "Selected FILE: ${{ github.event.inputs.FILE }}"
-          echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
           echo "Custom KSU_META: ${{ github.event.inputs.KSU_META }}"
           echo "Custom BUILD_TIME: ${{ github.event.inputs.BUILD_TIME }}"
+          echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected KPM: ${{ github.event.inputs.KPM }}"
