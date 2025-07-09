@@ -126,18 +126,26 @@
  
 # Features in Development
 - [ ] ccache supports AB update mode  
-- [ ] Switching between different branches  
 - Toothpaste should be squeezed bit by bit, GPUs should be cut slice by slice, PPTs should be shown slide by slide, and code should be written line by line — more features and optimizations... stay tuned!
  
 # Changelog
 > Minor updates will be ignored. For more details, please refer to the commit.
  
+--Support setting branches and custom version identifiers.  
+```
+Set branches: You can change susfs-main to other susfs-* branches. Please modify according to the SukiSU Ultra repository channel name. Generally speaking, you don’t need to change this.
+Custom version identifier:
+Change the original submission hash to custom content, not too long
+v3.1.7-f5541e21@susfs-main
+↓
+v3.1.7-Numbersf@susfs-main
+Set branches and custom version identifiers are separated by / (U+002F), which cannot be deleted
+```  
 -- First to support custom kernel build time `UTS_VERSION` for all device models and all build methods.  
 -- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed.  
 -- First to support for the sm8750's new setlocalversion format using echo, fixing the issue where custom and randomly-generated pseudo-official suffixes were not applied. Now, this feature is fully supported across all device models and build methods.  
 -- Add `TRUSTY_EXISTS` to automatically detect whether the `6.6` kernel has defects in the kernel source code and determine whether `sed` is needed.  
 -- Support enabling fongchi driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
--- Remove all device-related parameters from `input` except the device config file `FILE`, and propagate to `file-map` to support more options.  
 -- When `ZRAM` is enabled, automatically download and modify the ZRAM additional module, module from [@FURLC](https://github.com/FURLC).  
 -- Fix issues where `ZRAM` is unusable or unable to launch non-system apps.  
 -- Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
