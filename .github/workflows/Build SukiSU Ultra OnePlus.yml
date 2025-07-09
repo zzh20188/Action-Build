@@ -47,6 +47,11 @@ on:
         description: "自定义内核后缀 (不输入则使用随机字符串)"
         required: false
         default: ""
+      KSU_META:
+        type: string
+        description: "分支名/自定义版本标识"
+        required: false
+        default: "susfs-main/Numbersf"
       BUILD_TIME:
         type: string
         description: "自定义构建时间 (输入F则使用当前时间)"
@@ -230,6 +235,7 @@ jobs:
           echo "Selected BUILD_METHOD: ${{ env.BUILD_METHOD }}"
           echo "Selected FILE: ${{ github.event.inputs.FILE }}"
           echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
+          echo "Custom KSU_META: ${{ github.event.inputs.KSU_META }}"
           echo "Custom BUILD_TIME: ${{ github.event.inputs.BUILD_TIME }}"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
@@ -407,12 +413,56 @@ jobs:
       - name: Add SukiSU Ultra
         run: |
           cd kernel_workspace/kernel_platform
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
+
+          META="${{ github.event.inputs.KSU_META }}"
+          BRANCH_NAME="${META%%/*}"
+          CUSTOM_TAG="${META#*/}"
+          echo "分支名: $BRANCH_NAME"
+          echo "自定义版本标识: $CUSTOM_TAG"
+
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s "$BRANCH_NAME"
+
           cd ./KernelSU
-          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
+
+          KSU_API_VERSION=$(curl -s "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/$BRANCH_NAME/kernel/Makefile" | \
+            grep -m1 "KSU_VERSION_API :=" | \
+            awk -F'= ' '{print $2}' | tr -d '[:space:]')
+
+          if [[ -z "$KSU_API_VERSION" || "$(printf '%s\n' "$KSU_API_VERSION" "3.1.7" | sort -V | head -n1)" != "3.1.7" ]]; then
+            KSU_API_VERSION="3.1.7"
+          fi
+
+          echo "KSU_API_VERSION=$KSU_API_VERSION" >> $GITHUB_ENV
+
+          VERSION_DEFINITIONS=$(cat << 'EOF'
+          define get_ksu_version_full
+          v$1-CUSTOM_TAG@BRANCH_NAME
+          endef
+
+          KSU_VERSION_API := KSU_API_VERSION
+          KSU_VERSION_FULL := vKSU_API_VERSION-CUSTOM_TAG@BRANCH_NAME
+          EOF
+          )
+          VERSION_DEFINITIONS=$(echo "$VERSION_DEFINITIONS" | sed \
+            -e "s/CUSTOM_TAG/$CUSTOM_TAG/g" \
+            -e "s/BRANCH_NAME/$BRANCH_NAME/g" \
+            -e "s/KSU_API_VERSION/$KSU_API_VERSION/g")
+
+          sed -i '/define get_ksu_version_full/,/endef/d' kernel/Makefile
+          sed -i '/KSU_VERSION_API :=/d' kernel/Makefile
+          sed -i '/KSU_VERSION_FULL :=/d' kernel/Makefile
+
+          awk -v def="$VERSION_DEFINITIONS" '
+            /REPO_OWNER :=/ {print; print def; inserted=1; next}
+            1
+            END {if (!inserted) print def}
+          ' kernel/Makefile > kernel/Makefile.tmp && mv kernel/Makefile.tmp kernel/Makefile
+
+          KSU_VERSION=$(expr $(git rev-list --count main) + 10700 2>/dev/null || echo 13000)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-          export KSU_VERSION=$KSU_VERSION
-          sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
+
+          grep -A10 "REPO_OWNER" kernel/Makefile
+          grep "KSU_VERSION_FULL" kernel/Makefile
 
       - name: Apply Patches SukiSU Ultra
         run: |
