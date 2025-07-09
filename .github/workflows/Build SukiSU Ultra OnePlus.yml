@@ -25,8 +25,8 @@ on:
           - oneplus_13r
           - oneplus_ace3_pro_v
           - oneplus_ace5
-          - oneplus_pad2_v
           - oneplus_pad_pro_v
+          - oneplus_pad2_v
           - oneplus_ace5_pro
           - oneplus_13
           - oneplus_13t
@@ -115,8 +115,8 @@ jobs:
             ["oneplus_13r"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace3_pro"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5"]="sm8650 pineapple android14 6.1"
-            ["oneplus_pad2"]="sm8650 pineapple android14 6.1"
             ["oneplus_pad_pro"]="sm8650 pineapple android14 6.1"
+            ["oneplus_pad2"]="sm8650 pineapple android14 6.1"
             ["oneplus_ace5_pro"]="sm8750 sun android15 6.6"
             ["oneplus_13"]="sm8750 sun android15 6.6"
             ["oneplus_13t"]="sm8750 sun android15 6.6"
