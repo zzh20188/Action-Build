@@ -137,9 +137,10 @@
 将原先的提交hash改成自定义内容,不要太长
 v3.1.7-f5541e21@susfs-main
 ↓
-v3.1.7-Numbersf@susfs-main
+v3.1.7-自定义内容@susfs-main
 设置分支和自定义版本标识中间用/(U+002F)隔开,不可删除
-```
+```  
+--删除file-map及编译方式并由主工作流自行选择[@Bouteillepleine](https://github.com/Bouteillepleine)  
 --首发支持全机型、全编译方式自定义内核构建时间`UTS_VERSION`  
 --使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新、换`key`要重新生成`cache`,可能会降低速度  
 --首发适配`sm8750`的`setlocalversion`文件中`echo`新格式,修复自定义&随机伪官方后缀失效。现在,全机型、全编译方式完美支持此功能  
