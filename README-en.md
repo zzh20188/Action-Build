@@ -131,16 +131,17 @@
 # Changelog
 > Minor updates will be ignored. For more details, please refer to the commit.
  
---Support setting branches and custom version identifiers.  
+-- Support setting branches and custom version identifiers.  
 ```
 Set branches: You can change susfs-main to other susfs-* branches. Please modify according to the SukiSU Ultra repository channel name. Generally speaking, you don’t need to change this.
 Custom version identifier:
 Change the original submission hash to custom content, not too long
 v3.1.7-f5541e21@susfs-main
 ↓
-v3.1.7-Numbersf@susfs-main
+v3.1.7-custom content@susfs-main
 Set branches and custom version identifiers are separated by / (U+002F), which cannot be deleted
 ```  
+-- Remove file-map and build method selection; let the main workflow decide automatically [@Bouteillepleine](https://github.com/Bouteillepleine).  
 -- First to support custom kernel build time `UTS_VERSION` for all device models and all build methods.  
 -- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed.  
 -- First to support for the sm8750's new setlocalversion format using echo, fixing the issue where custom and randomly-generated pseudo-official suffixes were not applied. Now, this feature is fully supported across all device models and build methods.  
@@ -153,7 +154,7 @@ Set branches and custom version identifiers are separated by / (U+002F), which c
 -- Allow custom kernel suffix.  <- **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
-2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-[custom content]”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
+2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-custom content”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
 3. When using clang make (Fast Build), add the missing kernel android version number to the new source kernel information x.xx.xxx-o-g3b1e97b8b29f, and then perform operations in 1 or 2.
 ```  
 -- Support fast-build `(5.10[Debut], 5.15[Debut], 6.1, 6.6)`  
