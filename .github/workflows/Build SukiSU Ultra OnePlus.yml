@@ -410,7 +410,7 @@ jobs:
           curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$file.xml"
           mv "$file.xml" ".repo/manifests_fallback/${file}.xml"
 
-            - name: Add SukiSU Ultra
+      - name: Add SukiSU Ultra
         run: |
           cd kernel_workspace/kernel_platform
 
