@@ -118,7 +118,7 @@
 >
 >如果你开启了``ZRAM``算法,请在刷入``Anykernel3``重启**前**安装``ZRAM``模块,部分参数请自行调整。另外``5.10``内核暂不支持开启``ZRAM``算法,因为没有找到``zram.ko``路径,但是生成的``Anykernel3``依旧可用  
 >
->``OnePlus ace5``不支持开启风驰,较老的机型即使内核加入也无法使用,不要勉强  
+>``OnePlus Ace5``不支持开启风驰,较老的机型即使内核加入也无法使用,不要勉强  
 >
  
 ------
@@ -132,17 +132,23 @@
  
 --支持设置分支、自定义版本标识  
 ```
-设置分支:你可以把susfs-main改成其他susfs-*分支,请按照SukiSU Ultra仓库频道名进行修改,一般来说你并不需要改这个
+设置分支:原susfs-main改成其他susfs-*分支,请按照SukiSU Ultra仓库频道名进行修改,非开发者禁止修改
 自定义版本标识:
-将原先的提交hash改成自定义内容,不要太长
-v3.1.7-f5541e21@susfs-main
+将原先的提交hash改成自定义内容,这个可以随意改,不要太长
+v3.1.7-f5541e21@susfs-*
 ↓
-v3.1.7-自定义内容@susfs-main
+v3.1.7-自定义内容@susfs-*
 设置分支和自定义版本标识中间用/(U+002F)隔开,不可删除
 ```  
 --删除`file-map`及编译方式并由主工作流自行选择[@Bouteillepleine](https://github.com/Bouteillepleine)  
 --首发支持全机型、全编译方式自定义内核构建时间`UTS_VERSION`  
 --使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新、换`key`要重新生成`cache`,可能会降低速度  
+```
+你可以通过换key的方式使用新的ccache,当然更推荐去
+https://github.com/你的用户名(username)/你的仓库名/actions/caches
+直接删除对应的key
+当内核级别更新、GitHub上游工具链改变导致的速度明显变慢时,就需要进行以上操作
+```  
 --首发适配`sm8750`的`setlocalversion`文件中`echo`新格式,修复自定义&随机伪官方后缀失效。现在,全机型、全编译方式完美支持此功能  
 --添加`TRUSTY_EXISTS`用于自动检测`6.6`内核是否内核源码存在缺陷,判断是否`sed`处理  
 --支持**部分机型**开启风驰驱动(自选是否开启),驱动来自[@HanKuCha](https://github.com/HanKuCha)  
