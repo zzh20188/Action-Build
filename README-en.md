@@ -119,7 +119,7 @@
 > If you have enabled the `ZRAM` algorithm, make sure to install the `ZRAM` module
 > **before rebooting** after flashing with `Anykernel3`. You may need to adjust some parameters manually.The 5.10 kernel is not supported `ZRAM` , as the `zram.ko` module path could not be found.However, the generated ``Anykernel3`` is still usable.
 >
-> ``OnePlus ace5`` does not support enabling FengChi. Older models cannot use it even if the kernel includes it — do not force it.
+> ``OnePlus Ace5`` does not support enabling FengChi. Older models cannot use it even if the kernel includes it — do not force it.
 >
  
 ------
@@ -133,17 +133,22 @@
  
 -- Support setting branches and custom version identifiers.  
 ```
-Set branches: You can change susfs-main to other susfs-* branches. Please modify according to the SukiSU Ultra repository channel name. Generally speaking, you don’t need to change this.
+Set Branch:Change the original susfs-main to another susfs-* branch. Please modify it according to the channel name in the SukiSU Ultra repository. Do not change this unless you are a developer.
 Custom version identifier:
-Change the original submission hash to custom content, not too long
-v3.1.7-f5541e21@susfs-main
+Replace the original commit hash with your custom content. You can change this freely, but keep it reasonably short.
+v3.1.7-f5541e21@susfs-*
 ↓
-v3.1.7-custom content@susfs-main
+v3.1.7-custom content@susfs-*
 Set branches and custom version identifiers are separated by / (U+002F), which cannot be deleted
 ```  
 -- Remove file-map and build method selection; let the main workflow decide automatically [@Bouteillepleine](https://github.com/Bouteillepleine).  
 -- First to support custom kernel build time `UTS_VERSION` for all device models and all build methods.  
--- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed.  
+-- Use `ccache` to speed up the workflow. It is only effective when `fast build` is enabled. The cache will need to be regenerated on first use, major updates, or when the key is changed, which may reduce the speed. 
+```
+You can use a new ccache by changing the key, but it's more recommended to directly delete the corresponding key at:
+https://github.com/your-username/your-repository-name/actions/caches
+You should do this when a kernel version update or a change in the upstream GitHub toolchain causes a noticeable slowdown.
+```  
 -- First to support for the sm8750's new setlocalversion format using echo, fixing the issue where custom and randomly-generated pseudo-official suffixes were not applied. Now, this feature is fully supported across all device models and build methods.  
 -- Add `TRUSTY_EXISTS` to automatically detect whether the `6.6` kernel has defects in the kernel source code and determine whether `sed` is needed.  
 -- Support enabling fongchi driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha).  
