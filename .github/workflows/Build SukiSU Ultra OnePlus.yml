@@ -8,6 +8,7 @@ on:
         required: true
         default: oneplus_ace2_pro_v
         options:
+          - oneplus_nord_ce4_lite_5g_v
           - oneplus_nord_ce4_v
           - oneplus_nord_4_v
           - oneplus_ace_3v_v
@@ -103,6 +104,7 @@ jobs:
           
           # Define valid combinations with base model only (no _v/_t/_u...)
           declare -A VALID_COMBINATIONS=(
+            ["oneplus_nord_ce4_lite_5g"]="sm6375 blair android14 6.1"
             ["oneplus_nord_ce4"]="sm7550 crow android14 5.15"
             ["oneplus_nord_4"]="sm7675 pineapple android14 6.1"
             ["oneplus_ace_3v"]="sm7675 pineapple android14 6.1"
