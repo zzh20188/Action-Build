@@ -45,7 +45,7 @@ on:
           - NoN
       KSU_META:
         type: string
-        description: "分支名/自定义版本标识"
+        description: "分支名(不可留空)/自定义版本标识(留空不修改)"
         required: false
         default: "susfs-main/Numbersf"
       BUILD_TIME:
@@ -430,23 +430,28 @@ jobs:
 
           echo "KSU_API_VERSION=$KSU_API_VERSION" >> $GITHUB_ENV
 
-          VERSION_DEFINITIONS=$(cat << 'EOF'
-          define get_ksu_version_full
-          v$1-CUSTOM_TAG@BRANCH_NAME
-          endef
+          GIT_HASH=$(git rev-parse --short HEAD)
+          echo "GIT_HASH=$GIT_HASH"
 
-          KSU_VERSION_API := KSU_API_VERSION
-          KSU_VERSION_FULL := vKSU_API_VERSION-CUSTOM_TAG@BRANCH_NAME
-          EOF
-          )
-          VERSION_DEFINITIONS=$(echo "$VERSION_DEFINITIONS" | sed \
-            -e "s/CUSTOM_TAG/$CUSTOM_TAG/g" \
-            -e "s/BRANCH_NAME/$BRANCH_NAME/g" \
-            -e "s/KSU_API_VERSION/$KSU_API_VERSION/g")
+          if [[ -z "$CUSTOM_TAG" || "$CUSTOM_TAG" == "$BRANCH_NAME" ]]; then
+            VERSION_FULL="v$KSU_API_VERSION-$GIT_HASH@$BRANCH_NAME"
+          else
+            VERSION_FULL="v$KSU_API_VERSION-$CUSTOM_TAG@$BRANCH_NAME[$GIT_HASH]"
+          fi
 
           sed -i '/define get_ksu_version_full/,/endef/d' kernel/Makefile
           sed -i '/KSU_VERSION_API :=/d' kernel/Makefile
           sed -i '/KSU_VERSION_FULL :=/d' kernel/Makefile
+
+          VERSION_DEFINITIONS=$(cat <<EOF
+            define get_ksu_version_full
+            $VERSION_FULL
+            endef
+
+            KSU_VERSION_API := $KSU_API_VERSION
+            KSU_VERSION_FULL := $VERSION_FULL
+          EOF
+          )
 
           awk -v def="$VERSION_DEFINITIONS" '
             /REPO_OWNER :=/ {print; print def; inserted=1; next}
@@ -457,7 +462,7 @@ jobs:
           KSU_VERSION=$(expr $(git rev-list --count main 2>/dev/null || echo 13000) + 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
 
-          echo "::group:: 最终 Makefile 中版本信息及部分调试结果预览"
+          echo "::group::最终 Makefile 中版本信息及部分调试结果预览"
           grep -A10 "REPO_OWNER" kernel/Makefile
           grep "KSU_VERSION_FULL" kernel/Makefile
           echo "::endgroup::"
