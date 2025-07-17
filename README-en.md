@@ -133,13 +133,18 @@
  
 -- Support setting branches and custom version identifiers.  
 ```
-Set Branch:Change the original susfs-main to another susfs-* branch. Please modify it according to the channel name in the SukiSU Ultra repository. Do not change this unless you are a developer.
-Custom version identifier:
-Replace the original commit hash with your custom content. You can change this freely, but keep it reasonably short.
-v3.1.7-f5541e21@susfs-*
-↓
-v3.1.7-custom content@susfs-*
-Set branches and custom version identifiers are separated by / (U+002F), which cannot be deleted
+Set Branch: Change the original `susfs-main` to another `susfs-*` branch. Please modify according to the channel name in the SukiSU Ultra repository. Do not modify unless you are a developer. Do not leave it empty or remove it.
+
+Custom Version Tag:  
+Replace the original commit hash with your custom content, and move the commit hash to the end. This can be modified freely, but keep it reasonably short.  
+Example:  
+v3.1.7-f5541e21@susfs-*  
+↓  
+v3.1.7-CustomContent@susfs-* [f5541e21]
+
+If you don’t want to use a custom version tag, just leave it empty (e.g. `susfs-main/`).
+
+Whether or not you use a custom version tag, the branch and the custom tag **must** be separated by a slash (`/`, U+002F). Do not remove it.
 ```  
 -- Remove file-map and build method selection; let the main workflow decide automatically [@Bouteillepleine](https://github.com/Bouteillepleine).  
 -- First to support custom kernel build time `UTS_VERSION` for all device models and all build methods.  
