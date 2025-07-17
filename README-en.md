@@ -134,17 +134,14 @@
 -- Support setting branches and custom version identifiers.  
 ```
 Set Branch: Change the original `susfs-main` to another `susfs-*` branch. Please modify according to the channel name in the SukiSU Ultra repository. Do not modify unless you are a developer. Do not leave it empty or remove it.
-
 Custom Version Tag:  
 Replace the original commit hash with your custom content, and move the commit hash to the end. This can be modified freely, but keep it reasonably short.  
 Example:  
 v3.1.7-f5541e21@susfs-*  
 ↓  
 v3.1.7-CustomContent@susfs-* [f5541e21]
-
-If you don’t want to use a custom version tag, just leave it empty (e.g. `susfs-main/`).
-
-Whether or not you use a custom version tag, the branch and the custom tag **must** be separated by a slash (`/`, U+002F). Do not remove it.
+If you don’t want to use a custom version tag, just leave it empty (e.g. susfs-main/).
+Whether or not you use a custom version tag, the branch and the custom tag must be separated by a slash ("/", U+002F). Do not remove it.
 ```  
 -- Remove file-map and build method selection; let the main workflow decide automatically [@Bouteillepleine](https://github.com/Bouteillepleine).  
 -- First to support custom kernel build time `UTS_VERSION` for all device models and all build methods.  
@@ -164,7 +161,7 @@ You should do this when a kernel version update or a change in the upstream GitH
 -- Allow custom kernel suffix.  <- **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
-2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-custom content”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
+2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-CustomContent”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
 3. When using clang make (Fast Build), add the missing kernel android version number to the new source kernel information x.xx.xxx-o-g3b1e97b8b29f, and then perform operations in 1 or 2.
 ```  
 -- Support fast-build `(5.10[Debut], 5.15[Debut], 6.1, 6.6)`  
