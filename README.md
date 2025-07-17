@@ -138,7 +138,7 @@
 v3.1.7-f5541e21@susfs-*
 ↓
 v3.1.7-自定义内容@susfs-*[f5541e21]
-当你不想起用自定义版本标识时,就留空(susfs-main／)
+当你不想起用自定义版本标识时,就留空(susfs-main/)
 无论是否自定义版本标识,设置分支和自定义版本标识中间必须用/(U+002F)隔开,不可删除
 ```  
 --删除`file-map`及编译方式并由主工作流自行选择[@Bouteillepleine](https://github.com/Bouteillepleine)  
