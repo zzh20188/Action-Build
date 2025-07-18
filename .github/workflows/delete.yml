@@ -89,8 +89,12 @@ jobs:
                   ID=$(echo "$run" | jq -r '.id')
                   STATE=$(echo "$run" | jq -r '.status')
                   if [[ "$STATE" == "in_progress" || "$STATE" == "queued" ]]; then
-                    echo "取消运行 ID: $ID (状态: $STATE)"
-                    gh api -X POST "repos/$REPO/actions/runs/$ID/cancel" || echo "取消失败"
+                    if [[ "$ID" == "$CURRENT_RUN_ID" ]]; then
+                      echo "跳过当前运行 ID: $ID，避免取消自身"
+                    else
+                      echo "取消运行 ID: $ID (状态: $STATE)"
+                      gh api -X POST "repos/$REPO/actions/runs/$ID/cancel" || echo "取消失败"
+                    fi
                   fi
                 done
 
