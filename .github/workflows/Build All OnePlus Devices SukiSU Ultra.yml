@@ -82,17 +82,69 @@ jobs:
               "ZRAM": "false"
             }
 
+      - name: Clean ccache after build
+        run: |
+          echo "Cleaning ccache for $HOME/.ccache_${{ matrix.file }} ..."
+          rm -rf "$HOME/.ccache_${{ matrix.file }}"
+
   wait-and-download:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: all_artifacts
+      - name: Setup gh CLI
+        run: |
+          sudo apt update && sudo apt install -y gh zip
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Download all artifacts by file name
+        run: |
+          mkdir -p all_artifacts
+          FILE_LIST=(
+            "oneplus_nord_ce4_lite_5g_v"
+            "oneplus_nord_ce4_v"
+            "oneplus_nord_4_v"
+            "oneplus_ace_3v_v"
+            "oneplus_10_pro_v"
+            "oneplus_10t_v"
+            "oneplus_11r_v"
+            "oneplus_ace2_v"
+            "oneplus_ace_pro_v"
+            "oneplus_11_v"
+            "oneplus_12r_v"
+            "oneplus_ace2_pro_v"
+            "oneplus_ace3_v"
+            "oneplus_open_v"
+            "oneplus12_v"
+            "oneplus_13r"
+            "oneplus_ace3_pro_v"
+            "oneplus_ace5"
+            "oneplus_pad_pro_v"
+            "oneplus_pad2_v"
+            "oneplus_ace5_pro"
+            "oneplus_13"
+            "oneplus_13t"
+            "oneplus_13s"
+            "oneplus_pad_2_pro"
+            "oneplus_pad_3"
+          )
+
+          for FILE in "${FILE_LIST[@]}"; do
+            echo "🔍 查找 $FILE 对应产物..."
+            ARTIFACT_NAME=$(gh api \
+              repos/${{ github.repository }}/actions/artifacts \
+              --jq '.artifacts[] | select(.name | contains("'$FILE'")) | .name' | head -n 1)
+
+            if [[ -n "$ARTIFACT_NAME" ]]; then
+              echo "⬇️ 下载 $ARTIFACT_NAME"
+              gh run download --name "$ARTIFACT_NAME" --dir "all_artifacts/$FILE" || echo "下载失败，跳过"
+            else
+              echo "未找到 $FILE 的 artifact"
+            fi
+          done
 
       - name: Zip all artifacts
         run: |
+          echo "打包所有产物为 zip..."
           zip -r All-OnePlus-SukiSUUltra.zip all_artifacts
 
       - name: Upload final combined zip
