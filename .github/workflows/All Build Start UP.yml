@@ -104,7 +104,7 @@ jobs:
       - name: Wait for Builds to Finish
         run: |
           echo "等待35分钟以确保构建完成..."
-          sleep 1140
+          sleep 2100
 
       - name: Clean ccache After Build
         run: |
