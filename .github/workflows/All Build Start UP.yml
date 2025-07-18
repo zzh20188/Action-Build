@@ -14,8 +14,6 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
 
       - name: Set Matrix from FILE List
         id: set-matrix
@@ -103,53 +101,65 @@ jobs:
               "ZRAM": "false"
             }
 
-  wait-and-download:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - name: Wait for Builds to Finish
         run: |
           echo "等待35分钟以确保构建完成..."
           sleep 2100
+
+      - name: Clean ccache After Build
+        run: |
+          echo "Cleaning ccache for $HOME/.ccache_${{ matrix.file }} ..."
+          rm -rf "$HOME/.ccache_${{ matrix.file }}"
+
+
+  wait-and-download:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup gh CLI
         run: |
           sudo apt update && sudo apt install -y gh zip
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
-      - name: Download Artifacts from Current Batch
+      - name: List Matching Artifacts for Current Batch
+        id: list-artifacts
         run: |
+          echo "查找当前 Batch 的 Artifacts..."
           mkdir -p all_artifacts
 
           BATCH="${{ github.event.inputs.BATCH }}"
           if [[ "$BATCH" == "1" ]]; then
             FILE_LIST=(
-              "oneplus_nord_ce4_lite_5g_v"
-              "oneplus_nord_ce4_v"
-              "oneplus_nord_4_v"
-              "oneplus_ace_3v_v"
-              "oneplus_10_pro_v"
-              "oneplus_10t_v"
-              "oneplus_11r_v"
-              "oneplus_ace2_v"
-              "oneplus_ace_pro_v"
+              "oneplus_nord_ce4_lite_5g"
+              "oneplus_nord_ce4"
+              "oneplus_nord_4"
+              "oneplus_ace_3v"
+              "oneplus_10_pro"
+              "oneplus_10t"
+              "oneplus_11r"
+              "oneplus_ace2"
+              "oneplus_ace_pro"
             )
           elif [[ "$BATCH" == "2" ]]; then
             FILE_LIST=(
-              "oneplus_11_v"
-              "oneplus_12r_v"
-              "oneplus_ace2_pro_v"
-              "oneplus_ace3_v"
-              "oneplus_open_v"
-              "oneplus12_v"
+              "oneplus_11"
+              "oneplus_12r"
+              "oneplus_ace2_pro"
+              "oneplus_ace3"
+              "oneplus_open"
+              "oneplus12"
               "oneplus_13r"
-              "oneplus_ace3_pro_v"
+              "oneplus_ace3_pro"
               "oneplus_ace5"
             )
           elif [[ "$BATCH" == "3" ]]; then
             FILE_LIST=(
-              "oneplus_pad_pro_v"
-              "oneplus_pad2_v"
+              "oneplus_pad_pro"
+              "oneplus_pad2"
               "oneplus_ace5_pro"
               "oneplus_13"
               "oneplus_13t"
@@ -162,19 +172,24 @@ jobs:
             exit 1
           fi
 
-      - name: Clean ccache After Build
-        run: |
-          echo "Cleaning ccache for $HOME/.ccache_${{ matrix.file }} ..."
-          rm -rf "$HOME/.ccache_${{ matrix.file }}"
+          ALL_ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
 
-      - name: List Matching Artifacts
-        id: list-artifacts
-        run: |
-          echo "查找所有包含 'AnyKernel3_SukiSUUltra' 的 artifact 名称..."
-          ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[] | select(.name | contains("AnyKernel3_SukiSUUltra")) | .name')
-          echo "找到以下 artifact 名称："
-          echo "$ARTIFACTS"
-          echo "ARTIFACT_NAMES=$(echo "$ARTIFACTS" | tr '\n' ';')" >> $GITHUB_OUTPUT
+          MATCHED_ARTIFACTS=()
+          for FILE in "${FILE_LIST[@]}"; do
+            for ART in $ALL_ARTIFACTS; do
+              if [[ "$ART" == *"${FILE}"* ]]; then
+                MATCHED_ARTIFACTS+=("$ART")
+              fi
+            done
+          done
+
+          if [[ "${#MATCHED_ARTIFACTS[@]}" -eq 0 ]]; then
+            echo "没有匹配的 Artifact，终止"
+            exit 1
+          fi
+
+          ARTIFACT_NAMES=$(IFS=";"; echo "${MATCHED_ARTIFACTS[*]}")
+          echo "ARTIFACT_NAMES=$ARTIFACT_NAMES" >> "$GITHUB_OUTPUT"
 
       - name: Download All Matched Artifacts
         run: |
