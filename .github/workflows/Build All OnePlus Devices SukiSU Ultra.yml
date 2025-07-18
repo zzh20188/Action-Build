@@ -1,0 +1,102 @@
+name: Build All OnePlus Devices SukiSU Ultra
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix from FILE list
+        id: set-matrix
+        run: |
+          FILE_LIST=(
+            "oneplus_nord_ce4_lite_5g_v"
+            "oneplus_nord_ce4_v"
+            "oneplus_nord_4_v"
+            "oneplus_ace_3v_v"
+            "oneplus_10_pro_v"
+            "oneplus_10t_v"
+            "oneplus_11r_v"
+            "oneplus_ace2_v"
+            "oneplus_ace_pro_v"
+            "oneplus_11_v"
+            "oneplus_12r_v"
+            "oneplus_ace2_pro_v"
+            "oneplus_ace3_v"
+            "oneplus_open_v"
+            "oneplus12_v"
+            "oneplus_13r"
+            "oneplus_ace3_pro_v"
+            "oneplus_ace5"
+            "oneplus_pad_pro_v"
+            "oneplus_pad2_v"
+            "oneplus_ace5_pro"
+            "oneplus_13"
+            "oneplus_13t"
+            "oneplus_13s"
+            "oneplus_pad_2_pro"
+            "oneplus_pad_3"
+          )
+          MATRIX_JSON=$(printf '%s\n' "${FILE_LIST[@]}" | jq -R -s -c '
+            split("\n")[:-1] |
+            map({
+              file: .,
+              enable_sched: (
+                . == "oneplus_pad_3" or
+                . == "oneplus_pad_2_pro" or
+                . == "oneplus_13" or
+                . == "oneplus_13t" or
+                . == "oneplus_ace5_pro"
+              )
+            })
+          ')
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  build:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Call Original Workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build OnePlus_SukiSU Ultra All
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            {
+              "FILE": "${{ matrix.file }}",
+              "SUSFS_CI": "CI",
+              "KSU_META": "susfs-main/Batch",
+              "BUILD_TIME": "F",
+              "SUFFIX": "",
+              "FAST_BUILD": "true",
+              "VFS": "true",
+              "KPM": "true",
+              "SCHED": "${{ matrix.enable_sched }}",
+              "ZRAM": "false"
+            }
+
+  wait-and-download:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all_artifacts
+
+      - name: Zip all artifacts
+        run: |
+          zip -r All-OnePlus-SukiSUUltra.zip all_artifacts
+
+      - name: Upload final combined zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: All-OnePlus-SukiSUUltra
+          path: All-OnePlus-SukiSUUltra.zip
