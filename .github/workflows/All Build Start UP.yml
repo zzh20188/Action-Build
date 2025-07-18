@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       BATCH:
-        description: "9个一批分批并行,请选择分支(1-3)"
+        description: "[危险]九个一批分批并行,请选择分支(1-3)"
         required: true
         default: "1"
 
@@ -14,7 +14,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout code (required for gh run download)
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set Matrix from FILE List
@@ -103,11 +103,6 @@ jobs:
               "ZRAM": "false"
             }
 
-      - name: Clean ccache After Build
-        run: |
-          echo "Cleaning ccache for $HOME/.ccache_${{ matrix.file }} ..."
-          rm -rf "$HOME/.ccache_${{ matrix.file }}"
-
   wait-and-download:
     needs: build
     runs-on: ubuntu-latest
@@ -167,6 +162,11 @@ jobs:
             exit 1
           fi
 
+      - name: Clean ccache After Build
+        run: |
+          echo "Cleaning ccache for $HOME/.ccache_${{ matrix.file }} ..."
+          rm -rf "$HOME/.ccache_${{ matrix.file }}"
+
       - name: List Matching Artifacts
         id: list-artifacts
         run: |
@@ -176,7 +176,7 @@ jobs:
           echo "$ARTIFACTS"
           echo "ARTIFACT_NAMES=$(echo "$ARTIFACTS" | tr '\n' ';')" >> $GITHUB_OUTPUT
 
-      - name: Download all matched artifacts
+      - name: Download All Matched Artifacts
         run: |
           mkdir -p all_artifacts
           IFS=';' read -ra NAMES <<< "${{ steps.list-artifacts.outputs.ARTIFACT_NAMES }}"
@@ -187,7 +187,7 @@ jobs:
             fi
           done
 
-      - name: Zip all downloaded artifacts
+      - name: Zip All Downloaded Artifacts
         run: |
           zip -r All-AnyKernel3-SukiSUUltra.zip all_artifacts
 
