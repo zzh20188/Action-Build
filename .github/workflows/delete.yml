@@ -10,6 +10,7 @@ on:
         default: 'Build OnePlus_SukiSU Ultra All'
         options:
           - Build OnePlus_SukiSU Ultra All
+          - Build All OnePlus Devices SukiSU Ultra
           - Build TEST
           - Build TEST2
       count:
@@ -33,6 +34,11 @@ on:
         default: false
       reverse_order:
         description: '从旧到新开始清理？'
+        required: false
+        type: boolean
+        default: false
+      cancel_all:
+        description: '是否一键取消所有工作流运行？'
         required: false
         type: boolean
         default: false
@@ -61,10 +67,39 @@ jobs:
           DELETE_SUCCESS: ${{ inputs.delete_success }}
           DELETE_CANCELLED: ${{ inputs.delete_cancelled }}
           REVERSE_ORDER: ${{ inputs.reverse_order }}
+          CANCEL_ALL: ${{ inputs.cancel_all }}
           WORKFLOW_NAME: ${{ inputs.workflow_name }}
           CURRENT_RUN_ID: ${{ github.run_id }}
         run: |
           set -e
+
+          if [[ "$CANCEL_ALL" == "true" ]]; then
+            echo "⚠️ 开始取消所有正在进行或排队中的工作流运行..."
+
+            ALL_WORKFLOWS=$(gh api repos/$REPO/actions/workflows | jq -r '.workflows[].id')
+            for WID in $ALL_WORKFLOWS; do
+              PAGE=1
+              while true; do
+                RESP=$(gh api "repos/$REPO/actions/workflows/$WID/runs?per_page=100&page=$PAGE")
+                RUNS=$(echo "$RESP" | jq '.workflow_runs')
+                COUNT_THIS_PAGE=$(echo "$RUNS" | jq 'length')
+                if [ "$COUNT_THIS_PAGE" -eq 0 ]; then break; fi
+
+                echo "$RUNS" | jq -c '.[]' | while read run; do
+                  ID=$(echo "$run" | jq -r '.id')
+                  STATE=$(echo "$run" | jq -r '.status')
+                  if [[ "$STATE" == "in_progress" || "$STATE" == "queued" ]]; then
+                    echo "取消运行 ID: $ID (状态: $STATE)"
+                    gh api -X POST "repos/$REPO/actions/runs/$ID/cancel" || echo "取消失败"
+                  fi
+                done
+
+                PAGE=$((PAGE + 1))
+              done
+            done
+
+            echo "✅ 所有进行中/排队中的工作流已尝试取消完成。"
+          fi
 
           echo "查找工作流 \"$WORKFLOW_NAME\" 的 ID..."
           WORKFLOW_ID=$(gh api repos/$REPO/actions/workflows | jq -r ".workflows[] | select(.name == \"$WORKFLOW_NAME\") | .id")
