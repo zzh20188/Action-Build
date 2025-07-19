@@ -14,11 +14,11 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-
       - name: Set Matrix from FILE List
         id: set-matrix
         run: |
           BATCH="${{ github.event.inputs.BATCH }}"
+
           if [[ "$BATCH" == "1" ]]; then
             FILE_LIST=(
               "oneplus_nord_ce4_lite_5g_v"
@@ -63,8 +63,8 @@ jobs:
             split("\n")[:-1] |
             map({
               file: .,
+              file_short: (sub("_[a-z]$"; "") | sub("_v$"; "")),
               enable_sched: (
-                . == "oneplus_pad_3" or
                 . == "oneplus_pad_2_pro" or
                 . == "oneplus_13" or
                 . == "oneplus_13t" or
@@ -101,22 +101,53 @@ jobs:
               "ZRAM": "false"
             }
 
-      - name: Wait for Builds to Finish
+      - name: Wait for Builds to Finish or Exit Early
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "等待35分钟以确保构建完成..."
-          sleep 2100
+          FILE="${{ matrix.file_short }}"
+          echo "等待目标构建 $FILE 上传对应 Artifact..."
+
+          SECONDS=0
+          MAX_TIME=$((35 * 60))  # 最大等待35分钟
+          echo "优先等待生成...休息10min"
+          sleep 600
+
+          while (( SECONDS < MAX_TIME )); do
+            echo "查询已上传的 Artifact（已等待 $SECONDS 秒）..."
+
+            # 获取所有 Artifact 名称（字符串，每个名称一行）
+            ALL_ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+
+            MATCHED=0
+            for ART in $ALL_ARTIFACTS; do
+              if [[ "$ART" == *"$FILE"* ]]; then
+                echo "✅ 找到匹配的 Artifact: $ART，构建成功！"
+                MATCHED=1
+                break
+              fi
+            done
+
+            if [[ $MATCHED -eq 1 ]]; then
+              exit 0
+            fi
+
+            echo "未找到匹配的 Artifact，休眠5min继续..."
+            sleep 300
+          done
+
+          echo "❌ 超时未检测到 $FILE 的构建成功 Artifact。"
+          exit 1
 
       - name: Clean ccache After Build
         run: |
           echo "Cleaning ccache for $HOME/.ccache_${{ matrix.file }} ..."
           rm -rf "$HOME/.ccache_${{ matrix.file }}"
 
-
   wait-and-download:
     needs: build
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -127,6 +158,8 @@ jobs:
 
       - name: List Matching Artifacts for Current Batch
         id: list-artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "查找当前 Batch 的 Artifacts..."
           mkdir -p all_artifacts
@@ -134,32 +167,32 @@ jobs:
           BATCH="${{ github.event.inputs.BATCH }}"
           if [[ "$BATCH" == "1" ]]; then
             FILE_LIST=(
-              "oneplus_nord_ce4_lite_5g"
-              "oneplus_nord_ce4"
-              "oneplus_nord_4"
-              "oneplus_ace_3v"
-              "oneplus_10_pro"
-              "oneplus_10t"
-              "oneplus_11r"
-              "oneplus_ace2"
-              "oneplus_ace_pro"
+              "oneplus_nord_ce4_lite_5g_v"
+              "oneplus_nord_ce4_v"
+              "oneplus_nord_4_v"
+              "oneplus_ace_3v_v"
+              "oneplus_10_pro_v"
+              "oneplus_10t_v"
+              "oneplus_11r_v"
+              "oneplus_ace2_v"
+              "oneplus_ace_pro_v"
             )
           elif [[ "$BATCH" == "2" ]]; then
             FILE_LIST=(
-              "oneplus_11"
-              "oneplus_12r"
-              "oneplus_ace2_pro"
-              "oneplus_ace3"
-              "oneplus_open"
-              "oneplus12"
+              "oneplus_11_v"
+              "oneplus_12r_v"
+              "oneplus_ace2_pro_v"
+              "oneplus_ace3_v"
+              "oneplus_open_v"
+              "oneplus12_v"
               "oneplus_13r"
-              "oneplus_ace3_pro"
+              "oneplus_ace3_pro_v"
               "oneplus_ace5"
             )
           elif [[ "$BATCH" == "3" ]]; then
             FILE_LIST=(
-              "oneplus_pad_pro"
-              "oneplus_pad2"
+              "oneplus_pad_pro_v"
+              "oneplus_pad2_v"
               "oneplus_ace5_pro"
               "oneplus_13"
               "oneplus_13t"
@@ -172,12 +205,19 @@ jobs:
             exit 1
           fi
 
+          # 生成 short 名称
+          SHORT_LIST=()
+          for FILE in "${FILE_LIST[@]}"; do
+            SHORT=$(echo "$FILE" | sed -E 's/_[a-z]$//' | sed -E 's/_v$//')
+            SHORT_LIST+=("$SHORT")
+          done
+
           ALL_ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
 
           MATCHED_ARTIFACTS=()
-          for FILE in "${FILE_LIST[@]}"; do
+          for FILE in "${SHORT_LIST[@]}"; do
             for ART in $ALL_ARTIFACTS; do
-              if [[ "$ART" == *"${FILE}"* ]]; then
+              if [[ "$ART" == *"$FILE"* ]]; then
                 MATCHED_ARTIFACTS+=("$ART")
               fi
             done
@@ -191,7 +231,9 @@ jobs:
           ARTIFACT_NAMES=$(IFS=";"; echo "${MATCHED_ARTIFACTS[*]}")
           echo "ARTIFACT_NAMES=$ARTIFACT_NAMES" >> "$GITHUB_OUTPUT"
 
-      - name: Download All Matched Artifacts as zip
+      - name: Download All Matched Artifacts as ZIP
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p all_artifacts
           IFS=';' read -ra NAMES <<< "${{ steps.list-artifacts.outputs.ARTIFACT_NAMES }}"
@@ -208,13 +250,13 @@ jobs:
             fi
           done
 
-      - name: Create Final ZIP from All Artifact Zips
+      - name: Create Final ZIP from Extracted ZIPS
         run: |
           cd all_artifacts
-          zip -r ../All-AnyKernel3-SukiSUUltra.zip ./*.zip
+          zip -r ../All-AnyKernel3-SukiSUUltra-${{ github.event.inputs.BATCH }}.zip ./*
 
       - name: Upload Combined ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: All-AnyKernel3-SukiSUUltra
-          path: All-AnyKernel3-SukiSUUltra.zip
+          name: All-AnyKernel3-SukiSUUltra-${{ github.event.inputs.BATCH }}
+          path: All-AnyKernel3-SukiSUUltra-${{ github.event.inputs.BATCH }}.zip
