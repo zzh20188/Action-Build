@@ -130,6 +130,8 @@
 # 更新日志
 >小的更新内容将被忽略 更多内容请参看提交
  
+--允许分批次每次9个运行多个工作流,`All Build Start UP`是一个极其危险的新工作流,**它没有新功能且一切保持默认不可自定义**,新工作流**禁止**普通用户使用!普通用户请使用`Build OnePlus_SukiSU Ultra All`!如果一定要用,请确保你有清除`ccache`产生的`cache`的能力,且每跑出9个**必须立即**清理掉所有机型的`cache`,否则会影响速度  
+ 
 --支持设置分支、自定义版本标识  
 ```
 设置分支:原susfs-main改成其他susfs-*分支,请按照SukiSU Ultra仓库频道名进行修改,非开发者禁止修改,不可留空删除
@@ -141,8 +143,11 @@ v3.1.7-自定义内容@susfs-*[f5541e21]
 当你不想起用自定义版本标识时,就留空(susfs-main/)
 无论是否自定义版本标识,设置分支和自定义版本标识中间必须用/(U+002F)隔开,不可删除
 ```  
+ 
 --删除`file-map`及编译方式并由主工作流自行选择[@Bouteillepleine](https://github.com/Bouteillepleine)  
+ 
 --首发支持全机型、全编译方式自定义内核构建时间`UTS_VERSION`  
+ 
 --使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新、换`key`要重新生成`cache`,可能会降低速度  
 ```
 你可以通过换key的方式使用新的ccache,当然更推荐去
@@ -150,30 +155,41 @@ https://github.com/你的用户名(username)/你的仓库名/actions/caches
 直接删除对应的key
 当内核级别更新、GitHub上游工具链改变导致的速度明显变慢时,就需要进行以上操作
 ```  
+ 
 --首发适配`sm8750`的`setlocalversion`文件中`echo`新格式,修复自定义&随机伪官方后缀失效。现在,全机型、全编译方式完美支持此功能  
+ 
 --添加`TRUSTY_EXISTS`用于自动检测`6.6`内核是否内核源码存在缺陷,判断是否`sed`处理  
+ 
 --支持**部分机型**开启风驰驱动(自选是否开启),驱动来自[@HanKuCha](https://github.com/HanKuCha)  
+ 
 --当`ZRAM`开启时,自动下载并修改`ZRAM附加模块`,附加模块来自[@FURLC](https://github.com/FURLC)  
+ 
 --修复`ZRAM`无法使用或者打不开非系统应用的问题  
+ 
 --修复内核版本介于`5.15.0-5.15.123`之间官方脚本跑不出,极速编译结果有问题[@zzh20188](https://github.com/zzh20188)  
---支持`TCP拥塞控制算法(BBR)`  
+ 
 --允许自定义内核后缀  <- **`beta`**  
 ```
 1.当自定义内核后缀为空时,使用随机字符串,不再是默认的“x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
 2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
 3.当使用Fast Build(极速构建)时,为新的源内核信息x.xx.xxx-o-g3b1e97b8b29f添加缺失的内核android版本号,再进行1或2中的操作
 ```  
+ 
 --支持极速编译`(5.10[首发]、5.15[首发]、6.1、6.6)`  
+  
 --修复`OnePlus Ace5Pro、OnePlus 13`跑不出来或者无法开机问题,直接使用官方`dtbo`就可以直接开机[@reigadegr](https://github.com/reigadegr)  
+ 
 --支持显示自己填入的内容在`Show selected inputs debug`这一步,同时工作流名称也可以看到一些东西  
+ 
 --从写入 `Anykernel3.zip` 的配置文件后缀中删除潜在的版本代码,替换成精确的 `Android` 版本号`XX.X.X`
 ```
 AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
-``` 
+```  
+ 
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
---同步 `susfs` 模块上游下载频道的变化，解决无法下载的问题  
---优化 `sm8750`、`sm7675` 的 `build` 方案    
+ 
 --支持自动下载最新 `CI/Release` 的 `susfs` 模块并调用 `ksud` 安装、自动获取管理器`CI-APK`解压到`Anykernel3`但不安装  
+ 
 --支持 `KPM`（无需任何修改复制;自选是否开启）、`VFS HOOK`（自选是否开启）  
