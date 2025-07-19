@@ -7,6 +7,10 @@ on:
         description: "9个一组分批并行-选择分支(1-3)"
         required: true
         default: "1"
+      CONFIRMATION:
+        description: "我已看完更新日志,了解此工作流的风险和作用,有能力取消卡住的工作流运行和删除缓存,并执意继续运行"
+        required: true
+        default: "请输入完整标题"
 
 jobs:
   generate-matrix:
@@ -14,6 +18,16 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - name: Check User Confirmation
+        run: |
+          CONFIRM="${{ github.event.inputs.CONFIRMATION }}"
+          EXPECT="我已看完更新日志,了解此工作流的风险和作用,有能力取消卡住的工作流运行和删除缓存,并执意继续运行"
+
+          if [[ "$CONFIRM" != "$EXPECT" ]]; then
+            echo "❌ 输入无效，您未正确确认工作流风险。请阅读更新日志并正确输入确认内容。如果你仅仅只是想运行单个机型，这不是你该来的地方，请使用另外一个工作流"
+            exit 1
+          fi
+
       - name: Set Matrix from FILE List
         id: set-matrix
         run: |
