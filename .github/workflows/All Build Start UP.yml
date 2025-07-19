@@ -1,4 +1,4 @@
-name: All Build Start UP
+name: CAll Build Start UP
 
 on:
   workflow_dispatch:

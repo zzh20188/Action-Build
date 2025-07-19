@@ -10,7 +10,7 @@ on:
         default: 'Build OnePlus_SukiSU Ultra All'
         options:
           - Build OnePlus_SukiSU Ultra All
-          - All Build Start UP
+          - CAll Build Start UP
           - Build TEST
           - Build TEST2
       count:
