@@ -150,11 +150,12 @@ v3.1.7-自定义内容@susfs-*[f5541e21]
  
 --首发支持全机型、全编译方式自定义内核构建时间`UTS_VERSION`  
  
---使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新、换`key`要重新生成`cache`,可能会降低速度  
+--使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新需要换`key`要重新生成`cache`,可能会降低速度  
 ```
-你可以通过换key的方式使用新的ccache,当然更推荐去
+你可以通过使用delete.yml(name: 清理工作流运行记录和缓存)工作流开启“是否删除所有ccache缓存”的选项来删除所有的key
+也可以去
 https://github.com/你的用户名(username)/你的仓库名/actions/caches
-直接删除对应的key
+直接手动删除对应的key
 当内核级别更新、GitHub上游工具链改变导致的速度明显变慢时,就需要进行以上操作
 ```  
  
