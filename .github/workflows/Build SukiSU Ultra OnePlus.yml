@@ -869,8 +869,29 @@ jobs:
         run: |
           set -e
           sudo apt install -y unzip
-          curl -s https://api.github.com/repos/FurLC/ZRAM-Module/releases/latest | \
-            grep "browser_download_url" | grep "ZRAM-Module-.*\.zip" | cut -d '"' -f 4 | xargs wget -N
+          echo "尝试获取 ZRAM 模块 zip 下载链接..."
+          retries=3
+          success=0
+          for i in $(seq 1 $retries); do
+            echo "第 $i 次尝试下载..."
+            download_url=$(curl -s https://api.github.com/repos/FurLC/ZRAM-Module/releases/latest | \
+              grep "browser_download_url" | grep "ZRAM-Module-.*\.zip" | cut -d '"' -f 4 | head -n 1)
+
+            if [ -n "$download_url" ]; then
+              echo "✅ 成功获取下载链接: $download_url"
+              wget -N "$download_url" && success=1 && break
+            else
+              echo "⚠️ 获取下载链接失败，等待 3 秒后重试..."
+              sleep 3
+            fi
+          done
+
+          if [ "$success" -ne 1 ]; then
+            echo "❌ 连续 $retries 次尝试后仍然无法获取 ZRAM 模块下载链接"
+            echo "upload=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           unzip "$(ls -t ZRAM-Module-*.zip | head -1)" -d ZRAM-Module
           target="./ZRAM-Module/zram/zram.ko"
           echo "查找 zram.ko 模块文件..."
@@ -887,7 +908,7 @@ jobs:
             zram_path=$(find "./kernel_workspace" -type f -name "zram.ko" | head -n 1)
           fi
           if [ -n "$zram_path" ] && [ -f "$zram_path" ]; then
-            echo " ZRAM module file finally located at: $zram_path "
+            echo "✅ ZRAM module file finally located at: $zram_path"
             mkdir -p "$(dirname "$target")"
             if [ "$(realpath "$zram_path")" != "$(realpath "$target")" ]; then
               cp "$zram_path" "$target"
