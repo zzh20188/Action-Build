@@ -908,7 +908,7 @@ jobs:
             zram_path=$(find "./kernel_workspace" -type f -name "zram.ko" | head -n 1)
           fi
           if [ -n "$zram_path" ] && [ -f "$zram_path" ]; then
-            echo "✅ ZRAM module file finally located at: $zram_path"
+            echo "ZRAM module file finally located at: $zram_path"
             mkdir -p "$(dirname "$target")"
             if [ "$(realpath "$zram_path")" != "$(realpath "$target")" ]; then
               cp "$zram_path" "$target"
