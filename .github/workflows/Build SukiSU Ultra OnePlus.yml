@@ -158,7 +158,7 @@ jobs:
             XML_URL="https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/$BRANCH/${FILE}.xml"
             README_URL="https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/$BRANCH/README.md"
             if curl -sf --head "$XML_URL" > /dev/null; then
-              echo "✅ 找到 XML: $BRANCH"
+              echo "✅ XML: $BRANCH"
               curl -s -o "$XML_PATH" "$XML_URL"
               curl -s -o "$README_PATH" "$README_URL"
               FOUND="$BRANCH"
