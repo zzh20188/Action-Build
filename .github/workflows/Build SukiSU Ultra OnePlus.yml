@@ -197,7 +197,7 @@ jobs:
           else
             echo "❌ KVERSION_MAP 中没有找到 $FILE_BASE 对应的版本信息"
           fi
-          echo "解析 README.md 获取 BUILD_METHOD 和 CPUD..."
+          echo "解析 README.md 获取 CPUD 和 BUILD_METHOD..."
           if [[ -s "$README_PATH" ]]; then
             BUILD_LINE=$(grep -m1 'oplus_build_kernel.sh' "$README_PATH" || true)
             if [[ -n "$BUILD_LINE" ]]; then
