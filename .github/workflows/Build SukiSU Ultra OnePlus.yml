@@ -101,7 +101,7 @@ jobs:
         id: extract_info
         run: |
           set -e
-
+          cd "$GITHUB_WORKSPACE"
           declare -A KVERSION_MAP=(
             ["oneplus_nord_ce4_lite_5g"]="android14 6.1"
             ["oneplus_nord_ce4"]="android14 5.15"
@@ -136,9 +136,9 @@ jobs:
           else
             FILE_BASE="$FILE"
           fi
-          mkdir -p .repo/manifests_fallback
-          XML_PATH=".repo/manifests_fallback/${FILE}.xml"
-          README_PATH=".repo/manifests_fallback/README.md"
+          mkdir -p "$GITHUB_WORKSPACE/.repo/manifests_fallback"
+          XML_PATH="$GITHUB_WORKSPACE/.repo/manifests_fallback/${FILE}.xml"
+          README_PATH="$GITHUB_WORKSPACE/.repo/manifests_fallback/README.md"
           echo "处理 FILE=$FILE, BASE=$FILE_BASE"
           echo "🌐 拉取 OnePlus manifest 分支列表..."
           BRANCHES=$(curl -s https://api.github.com/repos/OnePlusOSS/kernel_manifest/branches | jq -r '.[].name')
