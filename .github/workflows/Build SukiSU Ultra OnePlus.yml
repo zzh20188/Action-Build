@@ -191,7 +191,7 @@ jobs:
           echo "解析 KVERSION_MAP 获取 KANDROID_VERSION 和 KERNEL_VERSION..."
           if [[ -n "${KVERSION_MAP[$FILE_BASE]}" ]]; then
             read -r KANDROID_VERSION KERNEL_VERSION <<< "${KVERSION_MAP[$FILE_BASE]}"
-            echo "✅ 找到 KVERSION_MAP[$FILE_BASE] = $KANDROID_VERSION $KERNEL_VERSION"
+            echo "✅ KVERSION_MAP[$FILE_BASE] = $KANDROID_VERSION $KERNEL_VERSION"
             echo "KANDROID_VERSION=$KANDROID_VERSION" >> $GITHUB_ENV
             echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
           else
