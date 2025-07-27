@@ -97,6 +97,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 2048
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+
       - name: Auto Extract
         id: extract_info
         run: |
@@ -136,9 +146,9 @@ jobs:
           else
             FILE_BASE="$FILE"
           fi
-          mkdir -p "$GITHUB_WORKSPACE/.repo/manifests_fallback"
-          XML_PATH="$GITHUB_WORKSPACE/.repo/manifests_fallback/${FILE}.xml"
-          README_PATH="$GITHUB_WORKSPACE/.repo/manifests_fallback/README.md"
+          mkdir -p ".repo/manifests_fallback"
+          XML_PATH=".repo/manifests_fallback/${FILE}.xml"
+          README_PATH=".repo/manifests_fallback/README.md"
           echo "处理 FILE=$FILE, BASE=$FILE_BASE"
           echo "🌐 拉取 OnePlus manifest 分支列表..."
           BRANCHES=$(curl -s https://api.github.com/repos/OnePlusOSS/kernel_manifest/branches | jq -r '.[].name')
@@ -233,15 +243,6 @@ jobs:
       - name: Check Disk Space
         run: df -h
 
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 8192
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
 
       - name: Create and Enable 3G Swap
         run: |
@@ -526,7 +527,21 @@ jobs:
             patch -p1 < fix_5.15.legacy.patch
             echo "fix_5.15_patch完成"
           fi
+          KERNEL_VERSION="${{ env.KERNEL_VERSION }}"
+          file="${{ github.event.inputs.FILE }}"
+          TRUSTY_EXISTS="false"
+          if [[ "$KERNEL_VERSION" == "6.6" ]]; then
+            if grep -q 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${file}.xml"; then
+              TRUSTY_EXISTS="true"
+            fi
+            echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
 
+            if [[ "$TRUSTY_EXISTS" == "false" ]]; then
+              echo "修复内核版本6.6部分机型缺失Trusty OS导致的susfs的报错"
+              sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ env.KANDROID_VERSION }}-${KERNEL_VERSION}.patch
+              sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ env.KANDROID_VERSION }}-${KERNEL_VERSION}.patch
+            fi
+          fi
           echo "正在打susfs补丁"
           patch -p1 < 50_add_susfs_in_gki-${{ env.KANDROID_VERSION }}-${{ env.KERNEL_VERSION }}.patch || true
           echo "susfs_patch完成"
