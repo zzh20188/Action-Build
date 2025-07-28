@@ -28,6 +28,7 @@ on:
           - oneplus_ace5
           - oneplus_pad_pro_v
           - oneplus_pad2_v
+          - oneplus_nord_5
           - oneplus_ace5_pro
           - oneplus_13
           - oneplus_13t
@@ -133,6 +134,7 @@ jobs:
             ["oneplus_ace5"]="android14 6.1"
             ["oneplus_pad_pro"]="android14 6.1"
             ["oneplus_pad2"]="android14 6.1"
+            ["oneplus_nord_5"]="android15 6.1"
             ["oneplus_ace5_pro"]="android15 6.6"
             ["oneplus_13"]="android15 6.6"
             ["oneplus_13t"]="android15 6.6"
