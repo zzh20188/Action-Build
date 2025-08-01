@@ -787,9 +787,9 @@ jobs:
             cp "$image_path" kernel_workspace/kernel_platform/out/Final-Image-Find/Image
           fi
           if [ -n "$dir2" ] && [ "${{ env.CPU }}" = "sm8750" ] && [ "${{ github.event.inputs.FAST_BUILD }}" = "false" ]; then
-            echo "当前正在使用官方脚本构建 sm8750，需额外复制一些其它镜像文件：dtbo.img、system_dlkm.img、vendor_dlkm.img、vendor_boot.img。请注意，如果你在刷完官方脚本构建后想换成极速构建，请还原这些分区！"
-            echo "You are currently building sm8750 with the official script. Additional image files will be copied: dtbo.img, system_dlkm.img, vendor_dlkm.img, vendor_boot.img. Please note: If you switch to fast build after flashing this build, make sure to restore these partitions!"
-            for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
+            echo "当前正在使用官方脚本构建 sm8750，需额外复制一些其它镜像文件：dtbo.img、system_dlkm.img。请注意，如果你在刷完官方脚本构建后想换成极速构建，请还原这些分区！"
+            echo "You are currently building sm8750 with the official script. Additional image files will be copied: dtbo.img, system_dlkm.img. Please note: If you switch to fast build after flashing this build, make sure to restore these partitions!"
+            for file in dtbo.img system_dlkm.erofs.img; do
               if [ -f "$dir2$file" ]; then
                 target_name="$file"
                 if [ "$file" = "system_dlkm.erofs.img" ]; then
