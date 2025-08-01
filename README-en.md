@@ -115,7 +115,7 @@
 >
 > If your device is `sm8750`, and you previously used the official script to build,
 > but now want to use `Fast Build`, please **restore** the following images first:
-> `dtbo.img`, `system_dlkm(.erofs).img`, `vendor_dlkm.img`, and `vendor_boot.img`,
+> `dtbo.img`, `system_dlkm(.erofs).img`,
 > **otherwise the device may fail to boot!**
 >
 > If you have enabled the `ZRAM` algorithm, make sure to install the `ZRAM` module
