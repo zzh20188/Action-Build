@@ -144,14 +144,15 @@ jobs:
           )
           FILE="${{ github.event.inputs.FILE }}"
           if [[ "$FILE" =~ ^(.+)_([a-zA-Z])$ ]]; then
-            FILE_BASE="${BASH_REMATCH[1]}"
+            FILE_CONF="${BASH_REMATCH[1]}"
           else
-            FILE_BASE="$FILE"
+            FILE_CONF="$FILE"
           fi
+          FILE_BASE=$(echo "$FILE_CONF" | sed -E 's/_([a-zA-Z0-9])/\U\1/g; s/^oneplus/OnePlus/')
           mkdir -p ".repo/manifests_fallback"
           XML_PATH=".repo/manifests_fallback/${FILE}.xml"
           README_PATH=".repo/manifests_fallback/README.md"
-          echo "处理 FILE=$FILE, BASE=$FILE_BASE"
+          echo "处理 FILE=$FILE, CONF=$FILE_CONF, BASE=$FILE_BASE"
           echo "🌐 拉取 OnePlus manifest 分支列表..."
           BRANCHES=$(curl -s https://api.github.com/repos/OnePlusOSS/kernel_manifest/branches | jq -r '.[].name')
 
@@ -191,13 +192,13 @@ jobs:
             exit 1
           fi
           echo "解析 KVERSION_MAP 获取 KANDROID_VERSION 和 KERNEL_VERSION..."
-          if [[ -n "${KVERSION_MAP[$FILE_BASE]}" ]]; then
-            read -r KANDROID_VERSION KERNEL_VERSION <<< "${KVERSION_MAP[$FILE_BASE]}"
-            echo "✅ KVERSION_MAP[$FILE_BASE] = $KANDROID_VERSION $KERNEL_VERSION"
+          if [[ -n "${KVERSION_MAP[$FILE_CONF]}" ]]; then
+            read -r KANDROID_VERSION KERNEL_VERSION <<< "${KVERSION_MAP[$FILE_CONF]}"
+            echo "✅ KVERSION_MAP[$FILE_CONF] = $KANDROID_VERSION $KERNEL_VERSION"
             echo "KANDROID_VERSION=$KANDROID_VERSION" >> $GITHUB_ENV
             echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
           else
-            echo "❌ KVERSION_MAP 中没有找到 $FILE_BASE 对应的版本信息"
+            echo "❌ KVERSION_MAP 中没有找到 $FILE_CONF 对应的版本信息"
           fi
           echo "解析 README.md 获取 CPUD 和 BUILD_METHOD..."
           if [[ -s "$README_PATH" ]]; then
