@@ -143,7 +143,10 @@ jobs:
           XML_PATH=".repo/manifests_fallback/${FILE}.xml"
           README_PATH=".repo/manifests_fallback/README.md"
           echo "处理 FILE=$FILE, CONF=$FILE_CONF, BASE=$FILE_BASE"
-          echo "🌐 拉取 OnePlus manifest 分支列表..."
+          echo "FILE_CONF=$FILE_CONF" >> $GITHUB_ENV
+          echo "FILE_BASE=$FILE_BASE" >> $GITHUB_ENV
+
+          echo "🌐 拉取 OnePlus Manifest 分支列表..."
           BRANCHES=$(curl -s https://api.github.com/repos/OnePlusOSS/kernel_manifest/branches | jq -r '.[].name')
 
           FOUND=""
@@ -177,11 +180,13 @@ jobs:
             echo "✅ CPU=$CPU, ANDROID_VERSION=$ANDROID_VERSION"
             echo "CPU=$CPU" >> $GITHUB_ENV
             echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
+            # 短位Android版本号
             echo "ANDROID_SHORT_VERSION=${ANDROID_VERSION%%.*}" >> $GITHUB_ENV
           else
             echo "❌ 无法从 revision 中提取 CPU 或 ANDROID_VERSION"
             exit 1
           fi
+
           echo "解析 KVERSION_MAP 获取 KANDROID_VERSION 和 KERNEL_VERSION..."
           if [[ -n "${KVERSION_MAP[$FILE_CONF]}" ]]; then
             read -r KANDROID_VERSION KERNEL_VERSION <<< "${KVERSION_MAP[$FILE_CONF]}"
@@ -191,6 +196,7 @@ jobs:
           else
             echo "❌ KVERSION_MAP 中没有找到 $FILE_CONF 对应的版本信息"
           fi
+
           echo "解析 README.md 获取 CPUD 和 BUILD_METHOD..."
           if [[ -s "$README_PATH" ]]; then
             BUILD_LINE=$(grep -m1 'oplus_build_kernel.sh' "$README_PATH" || true)
@@ -206,7 +212,7 @@ jobs:
           else
             echo "❌ README.md 下载失败或为空"
           fi
-          # 传递clean后的文件信息
+          # 传递组合信息
           echo "value=${FILE_BASE}_Android${ANDROID_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Backup Fallback
@@ -262,7 +268,6 @@ jobs:
 
       - name: Check Disk Space
         run: df -h
-
 
       - name: Create and Enable 3G Swap
         run: |
