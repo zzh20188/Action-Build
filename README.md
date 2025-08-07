@@ -19,14 +19,14 @@
   <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork.png" width="150"/>
   <img src="https://github.com/Numbersf/Action-Build/blob/SukiSU-Ultra/pic/syncfork(2).png" width="150"/>
 </p>
-<summary>请及时同步!某些更新可能会导致旧版本失效!如果同步后依旧跑不出来请删除并重新fork!完成以上步骤后仍有问题再反馈提交issues</summary>
+<summary>请及时同步!某些更新可能会导致旧版失效报错!如果同步后依旧运行失败请删除并重新fork!完成以上步骤后仍有问题再反馈提交issue</summary>
 </details>
  
 # 公告
  
 ------
 > [!NOTE]
->配置文件中的``_x``后缀是你正在使用系统版本的代号。**倒序字母小写**。而无后缀的一般是一个机型的出厂``Android``版本。目前我只在预选中添加了``Android15``的机型也就是``_v``后缀,如果你在使用其他的安卓版本,请手动将``_v``改成其他代号
+>配置文件中的``_x``后缀是你正在使用系统版本的代号。**倒序字母小写递增**。而无后缀的大部分是出厂``Android``版本(并不绝对请注意清单内部信息)。目前我只在预选中添加了``Android15``的机型也就是``_v``后缀,如果你在使用其他的安卓版本,请手动将``_v``改成其他代号,前提是它们确实存在
 > <details>
 > <summary><strong>点击查看详细的版本代号(部分未来可能会有改变)</strong></summary>
 >
@@ -82,16 +82,18 @@
  
 ------
 > [!IMPORTANT]
->关于要跑多久的问题 一般来说越往前的机型跑的速度越快
+>关于要跑多久的问题的数据参考
 > <details>
 > <summary><strong>点击查看使用极速编译clang make的用时</strong></summary>
 >
 >| 机型类型                     | 平均耗时范围        | 最大耗时   |
 >|------------------------|---------------------|------------|
->| `大部分机型` | `1st:19min ~ 35min 2nd:9min ~ 19min` | `42min`|
->| `OnePlus 11-A13、A14`| `1st:1h8min ~ 1h17min 2nd:50min ~ 1h10min` | `1h23min` |
+>| `≥Android15` | `1st:19min ~ 35min 2nd:9min ~ 19min` | `42min`|
+>| `<Android15`| `1st:27min ~ 40min 2nd:18min ~ 30min`| `50min` |
 >
 > >使用ccache第一次会减速
+>
+> >repo工具版本差异可能会影响耗时
 > </details>
 >
 > <details>
@@ -103,20 +105,18 @@
 >| `sm8450,sm8475,sm8550` | `29min ~ 35min`| `45min`    |
 >| `sm7675,sm7550,sm8650` | `59min ~ 1h12min`| `1h28min` |
 >| `sm8750+`| `1h1min ~ 1h8min`| `1h24min`     |
->|`OnePlus 11-A13、A14`| `1h1min ~ 1h28min`| `1h32min` |
+>|`<Android15`| `39min ~ 49min`| `59min` |
 >
+> >repo工具版本差异可能会影响耗时
 ></details>
 >
->也就是说,如果你跑的时长超过了对应机型的最高时间,请暂停重新跑并查看step,特别注意Initialize Repo and Sync这一步,除了一些非A15的特殊机型外,都应该在10min以内.超过可能是GitHub官方出了问题,可以重新尝试一次,依旧失败请等待修复
- 
+>也就是说,如果你运行的时长超过了对应机型的最高时间,请暂停重新运行并查看step,看看有没有占用时间过长的步骤,特别注意Initialize Repo and Sync这一步,受到上游REPO工具链的影响会经常出问题.这一步超过15min可以重新尝试一次,如果依旧失败请等待修复
  
 ------
 > [!CAUTION]
->请不要在**保``root``更新**时安装模块!  
+>请不要在**保``root``更新**时音量下安装模块请使用音量上跳过!现在也基本上不需要安装了,使用``SukiSU Ultra附加模块``即可  
 >
->记得**音量下**安装模块!  
->
->如果你的机型是``sm8750``,并且曾经使用了官方脚本构建,而现在需要使用``Fast Build(极速构建)``,请先还原``dtbo.img、system_dlkm(.erofs).img``**否则会无法开机!**  
+>如果你的内核版本是``6.6``,并且曾经使用了官方脚本构建,而现在需要使用``Fast Build(极速构建)``,请先还原``dtbo.img、system_dlkm(.erofs).img``**否则会无法开机!**  
 >
 >如果你开启了``ZRAM``算法,请在刷入``Anykernel3``重启**前**安装``ZRAM``模块,部分参数请自行调整。另外``5.10``内核暂不支持开启``ZRAM``算法,因为没有找到``zram.ko``路径,但是生成的``Anykernel3``依旧可用  
 >
@@ -171,7 +171,7 @@ https://github.com/你的用户名(username)/你的仓库名/actions/caches
  
 --修复内核版本介于`5.15.0-5.15.123`之间官方脚本跑不出,极速编译结果有问题[@zzh20188](https://github.com/zzh20188)  
  
---允许自定义内核后缀  <- **`beta`**  
+--允许自定义内核后缀  <- **`beta`**
 ```
 1.当自定义内核后缀为空时,使用随机字符串,不再是默认的“x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
 2.当自定义启用时,修改内核为“x.xx.xxx-androidxx-自定义内容”,同时也不再保留androidxx-8-o-g3b1e97b8b29f
@@ -179,7 +179,7 @@ https://github.com/你的用户名(username)/你的仓库名/actions/caches
 ```  
  
 --支持极速编译`(5.10[首发]、5.15[首发]、6.1、6.6)`  
-  
+ 
 --修复`OnePlus Ace5Pro、OnePlus 13`跑不出来或者无法开机问题,直接使用官方`dtbo`就可以直接开机[@reigadegr](https://github.com/reigadegr)  
  
 --支持显示自己填入的内容在`Show selected inputs debug`这一步,同时工作流名称也可以看到一些东西  
