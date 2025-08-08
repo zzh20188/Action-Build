@@ -98,6 +98,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 2048
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+
       - name: Auto Extract
         id: extract_info
         run: |
@@ -213,32 +223,6 @@ jobs:
           fi
           # 传递组合信息
           echo "value=${FILE_BASE}_Android${ANDROID_VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Backup Fallback
-        if: ${{ env.ANDROID_SHORT_VERSION <= 14 }}
-        run: |
-          if [ -d .repo/manifests_fallback ]; then
-            cp -r .repo/manifests_fallback "$HOME/fallback_backup"
-          fi
-
-      - name: Maximize Build Space
-        if: ${{ env.ANDROID_SHORT_VERSION <= 14 }}
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 8192
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
-      - name: Restore Fallback
-        if: ${{ env.ANDROID_SHORT_VERSION <= 14 }}
-        run: |
-          if [ -d "$HOME/fallback_backup" ]; then
-            mkdir -p .repo
-            cp -r "$HOME/fallback_backup" .repo/manifests_fallback
-          fi
 
       - name: Debug Show Selected Inputs
         run: |
