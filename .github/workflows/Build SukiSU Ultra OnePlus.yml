@@ -827,7 +827,6 @@ jobs:
           elif [[ "$KERNEL_VERSION" == "5.10" ]]; then
             CLANG_PATH="clang-r416183b"
             CLANG_DIR="prebuilts-master"
-            USE_LLVM_IAS=true
           else
             echo "fallback=true" >> "$GITHUB_OUTPUT"
             echo "⚠️ 当前内核版本 \"$KERNEL_VERSION\" 没有对应 clang 工具链，回退使用官方构建脚本"
@@ -838,17 +837,20 @@ jobs:
           export PATH="/usr/lib/ccache:$PATH"
           export CC="ccache clang"
           sudo apt install -y libelf-dev ccache
-          cd kernel_workspace/kernel_platform/common
+
+          cd kernel_workspace/kernel_platform
           # 强制修改 SUBLEVEL，默认关闭
-          # sed -i 's/^SUBLEVEL[[:space:]]*=[[:space:]]*.*/SUBLEVEL = 99/' Makefile
+          # sed -i 's/^SUBLEVEL[[:space:]]*=[[:space:]]*.*/SUBLEVEL = 99/' ./common/Makefile
 
           MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
-          if [[ "$USE_LLVM_IAS" == "true" ]]; then
+
+          if grep -q '^LLVM_IAS=1' ./common/build.config.arm; then
             MAKE_ARGS="LLVM_IAS=1 $MAKE_ARGS"
           fi
+
           make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
           make -j$(nproc --all) O=out $MAKE_ARGS
           ccache -s
