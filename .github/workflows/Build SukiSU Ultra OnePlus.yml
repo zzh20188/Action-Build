@@ -483,7 +483,7 @@ jobs:
           if [[ -n "$MANUAL_HASH" ]]; then
             # 有手动 hash 的情况
             if [[ "$CUSTOM_TAG" == "F" || "$CUSTOM_TAG" == "f" || -z "$CUSTOM_TAG" ]]; then
-              VERSION_FULL="v$KSU_API_VERSION@$BRANCH_NAME[$SHORT_HASH]"
+              VERSION_FULL="v$KSU_API_VERSION-$SHORT_HASH@$BRANCH_NAME"
             else
               VERSION_FULL="v$KSU_API_VERSION-$CUSTOM_TAG@$BRANCH_NAME[$SHORT_HASH]"
             fi
