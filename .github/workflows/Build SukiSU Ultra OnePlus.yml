@@ -623,7 +623,7 @@ jobs:
       - name: Apply LSM
         run: |
           cd kernel_workspace/kernel_platform
-          echo "正在启用启用内核级基带保护支持…"
+          echo "正在启用内核级基带保护支持…"
           cd ./common/security
           wget https://github.com/vc-teahouse/Baseband-guard/archive/refs/heads/main.zip
           unzip -q main.zip
