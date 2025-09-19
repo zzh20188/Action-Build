@@ -703,9 +703,10 @@ jobs:
             echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
             echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
           fi
+
           # LSM配置*
           if [ "${{ github.event.inputs.LSM }}" = "true" ]; then
-          echo "CONFIG_SECURITY_BASEBAND_GUARD=y" >> "$CONFIG_FILE"
+            echo "CONFIG_SECURITY_BASEBAND_GUARD=y" >> "$CONFIG_FILE"
           fi
 
           # 移除构建审查
