@@ -644,7 +644,7 @@ jobs:
           echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
 
           # KPM配置
-            echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
+          echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
 
           # HOOK配置
           if [ "${{ github.event.inputs.HOOK }}" = "kprobe" ]; then
@@ -706,6 +706,7 @@ jobs:
           # LSM配置*
           if [ "${{ github.event.inputs.LSM }}" = "true" ]; then
           echo "CONFIG_SECURITY_BASEBAND_GUARD=y" >> "$CONFIG_FILE"
+          fi
 
           # 移除构建审查
           sed -i 's/check_defconfig//' ./common/build.config.gki
