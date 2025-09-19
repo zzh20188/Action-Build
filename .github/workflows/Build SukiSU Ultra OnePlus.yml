@@ -48,7 +48,7 @@ on:
         type: choice
         description: "下载SUSFS模块调用方式"
         required: true
-        default: CI
+        default: NoN
         options:
           - CI
           - Release
@@ -73,9 +73,9 @@ on:
         description: "是否启用极速构建？"
         required: true
         default: true
-      KPM:
+      LSM:
         type: boolean
-        description: "是否启用内核模块(KPM)？"
+        description: "是否启用内核层面阻止对关键分区/设备节点的非法写入(LSM)？"
         required: true
         default: true
       SCHED:
@@ -91,7 +91,7 @@ on:
 
 jobs:
   build:
-    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}${{ github.event.inputs.KPM == 'true' && ' [KPM]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.SUFFIX }}
+    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}${{ github.event.inputs.LSM == 'true' && ' [LSM]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -206,7 +206,7 @@ jobs:
           python3 -c "print(''.join(f'U+{ord(c):04X} ' for c in '''${{ github.event.inputs.SUFFIX }}'''))"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
           echo "Selected HOOK: ${{ github.event.inputs.HOOK }}"
-          echo "Selected KPM: ${{ github.event.inputs.KPM }}"
+          echo "Selected LSM: ${{ github.event.inputs.LSM }}"
           echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}"
           echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
           echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
@@ -621,6 +621,7 @@ jobs:
           echo 'lz4k_oplus_patch完成'
 
       - name: Apply LSM
+        if: ${{ github.event.inputs.LSM == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform
           echo "正在启用内核级基带保护支持…"
@@ -643,9 +644,7 @@ jobs:
           echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
 
           # KPM配置
-          if [ "${{ github.event.inputs.KPM }}" = "true" ]; then
             echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
-          fi
 
           # HOOK配置
           if [ "${{ github.event.inputs.HOOK }}" = "kprobe" ]; then
@@ -705,6 +704,7 @@ jobs:
             echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
           fi
           # LSM配置*
+          if [ "${{ github.event.inputs.LSM }}" = "true" ]; then
           echo "CONFIG_SECURITY_BASEBAND_GUARD=y" >> "$CONFIG_FILE"
 
           # 移除构建审查
@@ -882,17 +882,6 @@ jobs:
             done
           fi
 
-      - name: Apply patch_linux and replace Image
-        if: ${{ github.event.inputs.KPM == 'true' }}
-        run: |
-          cd kernel_workspace/kernel_platform/out/Final-Image-Find
-          curl -LO --retry 5 --retry-delay 2 --retry-connrefused https://raw.githubusercontent.com/Numbersf/Action-Build/SukiSU-Ultra/patches/patch_linux
-          chmod +x patch_linux
-          ./patch_linux
-          rm -f Image
-          mv oImage Image
-          cp Image $GITHUB_WORKSPACE/AnyKernel3/Image
-
       - name: Download Latest SUSFS Module from CI
         if: ${{ github.event.inputs.SUSFS_CI == 'CI' }}
         continue-on-error: true
@@ -946,7 +935,7 @@ jobs:
       - name: Set zip Suffix
         id: suffix
         run: |
-          echo "value=${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.HOOK == 'kprobe' && '_KP' || github.event.inputs.HOOK == 'manual' && '_VFS' || github.event.inputs.HOOK == 'tracepoint' && '_TP' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
+          echo "value=${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.LSM == 'true' && '_LSM' || '' }}${{ github.event.inputs.HOOK == 'kprobe' && '_KP' || github.event.inputs.HOOK == 'manual' && '_VFS' || github.event.inputs.HOOK == 'tracepoint' && '_TP' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
