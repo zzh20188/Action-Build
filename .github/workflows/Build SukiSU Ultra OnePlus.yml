@@ -623,15 +623,10 @@ jobs:
       - name: Apply LSM
         if: ${{ github.event.inputs.LSM == 'true' }}
         run: |
-          cd kernel_workspace/kernel_platform
+          cd kernel_workspace/kernel_platform/common
           echo "正在启用内核级基带保护支持…"
-          cd ./common/security
-          wget https://github.com/vc-teahouse/Baseband-guard/archive/refs/heads/main.zip
-          unzip -q main.zip
-          mv "Baseband-guard-main" baseband-guard
-          printf '\nobj-$(CONFIG_BBG) += baseband-guard/\n' >> ./Makefile
-          sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/landlock/landlock,baseband_guard/ } }' ./Kconfig
-          sed -i ':a; $!{N; ba}; s/\(endmenu\)\(.*\)$/source "security\/baseband-guard\/Kconfig"\n\1\2/' ./Kconfig
+          curl -LSs https://raw.githubusercontent.com/vc-teahouse/Baseband-guard/main/setup.sh | bash
+          sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/bpf/bpf,baseband_guard/ } }' ./security/Kconfig
 
       # 配置信息,带*为附加项目,具有一定危险性和不确定性
       - name: Add Configuration Settings
