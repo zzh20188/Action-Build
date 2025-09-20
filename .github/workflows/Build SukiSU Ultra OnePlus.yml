@@ -629,7 +629,7 @@ jobs:
           wget https://github.com/vc-teahouse/Baseband-guard/archive/refs/heads/main.zip
           unzip -q main.zip
           mv "Baseband-guard-main" baseband-guard
-          printf '\nobj-$(CONFIG_SECURITY_BASEBAND_GUARD) += baseband-guard/\n' >> ./Makefile
+          printf '\nobj-$(CONFIG_BBG) += baseband-guard/\n' >> ./Makefile
           sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/landlock/landlock,baseband_guard/ } }' ./Kconfig
           sed -i ':a; $!{N; ba}; s/\(endmenu\)\(.*\)$/source "security\/baseband-guard\/Kconfig"\n\1\2/' ./Kconfig
 
