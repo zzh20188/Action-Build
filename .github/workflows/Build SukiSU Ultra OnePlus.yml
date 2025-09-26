@@ -77,7 +77,7 @@ on:
         type: boolean
         description: "是否启用内核层面阻止对关键分区/设备节点的非法写入(LSM)？"
         required: true
-        default: true
+        default: false
       SCHED:
         type: boolean
         description: "是否添加风驰驱动？"
@@ -598,9 +598,9 @@ jobs:
           if [ "${{ github.event.inputs.HOOK }}" = "kprobe" ]; then
           echo "调用 kprobe 钩子"
           elif [ "${{ github.event.inputs.HOOK }}" = "manual" ]; then
-          cp ../../SukiSU_patch/hooks/scope_min_manual_hooks_v1.5.patch ./
+          cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
           echo "调用 manual 钩子"
-          patch -p1 -F 3 < scope_min_manual_hooks_v1.5.patch
+          patch -p1 -F 3 < syscall_hooks.patch
           elif [ "${{ github.event.inputs.HOOK }}" = "tracepoint" ]; then
           cp ../../SukiSU_patch/hooks/tracepoint_hooks.patch ./
           echo "调用 tracepoint 钩子"
