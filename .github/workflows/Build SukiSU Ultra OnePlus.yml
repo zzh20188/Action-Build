@@ -31,6 +31,7 @@ on:
           - oneplus_nord_5
           - oneplus_ace5_pro
           - oneplus_13
+          - oneplus_13_global
           - oneplus_13t
           - oneplus_13s
           - oneplus_pad_2_pro
