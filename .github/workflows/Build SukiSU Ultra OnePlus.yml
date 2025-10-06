@@ -36,6 +36,7 @@ on:
           - oneplus_13s
           - oneplus_pad_2_pro
           - oneplus_pad_3
+          - oneplus_ace5_race
       HOOK:
         type: choice
         description: "钩子选择"
@@ -132,27 +133,43 @@ jobs:
           echo "FILE_CONF=$FILE_CONF" >> $GITHUB_ENV
           echo "FILE_BASE=$FILE_BASE" >> $GITHUB_ENV
 
-          echo "🌐 拉取 OnePlus Manifest 分支列表..."
-          BRANCHES=$(curl -s https://api.github.com/repos/OnePlusOSS/kernel_manifest/branches | jq -r '.[].name')
+          # 动态调用源码清单仓库,仓库优先级：1️⃣ OnePlusOSS → 2️⃣ Numbersf(可换)
+          declare -A REPOS
+          REPOS["OnePlusOSS"]="https://api.github.com/repos/OnePlusOSS/kernel_manifest"
+          REPOS["Numbersf"]="https://api.github.com/repos/Numbersf/kernel_manifest"
 
-          FOUND=""
-          for BRANCH in $BRANCHES; do
-            XML_URL="https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/$BRANCH/${FILE}.xml"
-            README_URL="https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/$BRANCH/README.md"
-            if curl -sf --head "$XML_URL" > /dev/null; then
-              echo "✅ XML: $BRANCH"
-              curl -s -o "$XML_PATH" "$XML_URL"
-              curl -s -o "$README_PATH" "$README_URL"
-              FOUND="$BRANCH"
-              break
+          FOUND_REPO=""
+          FOUND_BRANCH=""
+
+          for OWNER in "${!REPOS[@]}"; do
+            echo "🌐 尝试拉取 ${OWNER} 分支列表..."
+            BRANCHES=$(curl -s ${REPOS[$OWNER]}/branches | jq -r '.[].name' || true)
+            if [[ -z "$BRANCHES" ]]; then
+              echo "⚠️ ${OWNER} 分支列表获取失败，跳过。"
+              continue
             fi
+            for BRANCH in $BRANCHES; do
+              XML_URL="https://raw.githubusercontent.com/${OWNER}/kernel_manifest/$BRANCH/${FILE}.xml"
+              README_URL="https://raw.githubusercontent.com/${OWNER}/kernel_manifest/$BRANCH/README.md"
+              if curl -sf --head "$XML_URL" > /dev/null; then
+                echo "✅ 在 ${OWNER} 找到 ${FILE}.xml (分支: $BRANCH)"
+                curl -s -o "$XML_PATH" "$XML_URL"
+                curl -s -o "$README_PATH" "$README_URL" || true
+                FOUND_REPO="$OWNER"
+                FOUND_BRANCH="$BRANCH"
+                break 2
+              fi
+            done
           done
 
-          if [[ -z "$FOUND" || ! -s "$XML_PATH" ]]; then
-            echo "❌ 无法找到 ${FILE}.xml"
+          if [[ -z "$FOUND_REPO" || ! -s "$XML_PATH" ]]; then
+            echo "❌ 无法在动态仓库中找到 ${FILE}.xml"
             exit 1
           fi
-          echo "📥 下载完成，开始提取 revision..."
+
+          echo "📥 已从 ${FOUND_REPO}/${FOUND_BRANCH} 下载 Manifest"
+          echo "MANIFEST_REPO=$FOUND_REPO" >> $GITHUB_ENV
+          echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
 
           # 解析 revision 字符串
           REVISION=$(grep -oP '<project[^>]+revision="\K[^"]+' "$XML_PATH" | head -n1 || true)
@@ -303,7 +320,17 @@ jobs:
           mkdir -p .repo/manifests
           FILE="${{ github.event.inputs.FILE }}"
           cp "$GITHUB_WORKSPACE/.repo/manifests_fallback/${FILE}.xml" ".repo/manifests/${FILE}.xml"
-          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/${{env.CPU}} -m "${FILE}.xml" --repo-rev=v2.16 --depth=1 --no-clone-bundle --no-tags
+
+          MANIFEST_REPO="${{ env.MANIFEST_REPO }}"
+          MANIFEST_BRANCH="${{ env.MANIFEST_BRANCH }}"
+          CPU="${{ env.CPU }}"
+          echo "MANIFEST_REPO=$MANIFEST_REPO"
+          echo "MANIFEST_BRANCH=$MANIFEST_BRANCH"
+
+          BASE_URL="https://github.com/${MANIFEST_REPO}/kernel_manifest.git"
+
+          echo "使用 $MANIFEST_REPO 的分支 $MANIFEST_BRANCH 初始化仓库..."
+          repo init -u "$BASE_URL" -b "$MANIFEST_BRANCH" -m "${FILE}.xml" --repo-rev=v2.16 --depth=1 --no-clone-bundle --no-tags
           repo sync -c -j$(nproc) --no-clone-bundle --no-tags --force-sync
 
           for dir in kernel_platform/common kernel_platform/msm-kernel; do
