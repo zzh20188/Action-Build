@@ -141,12 +141,15 @@ jobs:
           FOUND_REPO=""
           FOUND_BRANCH=""
 
-          for OWNER in "${!REPOS[@]}"; do
+          check_repo() {
+            local OWNER=$1
+            local REPO_URL=$2
+
             echo "🌐 尝试拉取 ${OWNER} 分支列表..."
-            BRANCHES=$(curl -s ${REPOS[$OWNER]}/branches | jq -r '.[].name' || true)
+            BRANCHES=$(curl -s ${REPO_URL}/branches | jq -r '.[].name' || true)
             if [[ -z "$BRANCHES" ]]; then
               echo "⚠️ ${OWNER} 分支列表获取失败，跳过。"
-              continue
+              return 1
             fi
             for BRANCH in $BRANCHES; do
               XML_URL="https://raw.githubusercontent.com/${OWNER}/kernel_manifest/$BRANCH/${FILE}.xml"
@@ -157,19 +160,32 @@ jobs:
                 curl -s -o "$README_PATH" "$README_URL" || true
                 FOUND_REPO="$OWNER"
                 FOUND_BRANCH="$BRANCH"
-                break 2
+                return 0
               fi
             done
-          done
+            return 1
+          }
+
+          # 默认仓库寻找文件
+          if check_repo "OnePlusOSS" "${REPOS["OnePlusOSS"]}"; then
+            echo "📥 已从 OnePlusOSS/${FOUND_BRANCH} 下载 Manifest"
+            echo "MANIFEST_REPO=OnePlusOSS" >> $GITHUB_ENV
+            echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
+          fi
+
+          # 动态仓库寻找文件
+          if [[ -z "$FOUND_REPO" ]]; then
+            if check_repo "Numbersf" "${REPOS["Numbersf"]}"; then
+              echo "📥 已从 Numbersf/${FOUND_BRANCH} 下载 Manifest"
+              echo "MANIFEST_REPO=Numbersf" >> $GITHUB_ENV
+              echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
+            fi
+          fi
 
           if [[ -z "$FOUND_REPO" || ! -s "$XML_PATH" ]]; then
             echo "❌ 无法在动态仓库中找到 ${FILE}.xml"
             exit 1
           fi
-
-          echo "📥 已从 ${FOUND_REPO}/${FOUND_BRANCH} 下载 Manifest"
-          echo "MANIFEST_REPO=$FOUND_REPO" >> $GITHUB_ENV
-          echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
 
           # 解析 revision 字符串
           REVISION=$(grep -oP '<project[^>]+revision="\K[^"]+' "$XML_PATH" | head -n1 || true)
