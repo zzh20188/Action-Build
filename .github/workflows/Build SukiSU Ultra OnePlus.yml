@@ -136,7 +136,7 @@ jobs:
           # 动态调用源码清单仓库,仓库优先级：1️⃣ OnePlusOSS → 2️⃣ Numbersf(可换)
           declare -A REPOS
           REPOS["OnePlusOSS"]="https://api.github.com/repos/OnePlusOSS/kernel_manifest"
-          REPOS["Numbersf"]="https://api.github.com/repos/Numbersf/kernel_manifest"
+          REPOS["Dynamic"]="https://api.github.com/repos/Numbersf/kernel_manifest"
 
           FOUND_REPO=""
           FOUND_BRANCH=""
@@ -174,8 +174,10 @@ jobs:
 
           # 动态仓库寻找文件
           if [[ -z "$FOUND_REPO" ]]; then
-            if check_repo "Numbersf" "${REPOS["Numbersf"]}"; then
-              echo "MANIFEST_REPO=Numbersf" >> $GITHUB_ENV
+            DYNAMIC_URL="${REPOS["Dynamic"]}"
+            DYNAMIC_OWNER=$(echo "$DYNAMIC_URL" | sed -E 's#https://api.github.com/repos/([^/]+)/.*#\1#')
+            if check_repo "$DYNAMIC_OWNER" "$DYNAMIC_URL"; then
+              echo "MANIFEST_REPO=$DYNAMIC_OWNER" >> $GITHUB_ENV
               echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
             fi
           fi
