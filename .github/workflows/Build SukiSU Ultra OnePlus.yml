@@ -168,7 +168,6 @@ jobs:
 
           # 默认仓库寻找文件
           if check_repo "OnePlusOSS" "${REPOS["OnePlusOSS"]}"; then
-            echo "📥 已从 OnePlusOSS/${FOUND_BRANCH} 下载 Manifest"
             echo "MANIFEST_REPO=OnePlusOSS" >> $GITHUB_ENV
             echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
           fi
@@ -176,7 +175,6 @@ jobs:
           # 动态仓库寻找文件
           if [[ -z "$FOUND_REPO" ]]; then
             if check_repo "Numbersf" "${REPOS["Numbersf"]}"; then
-              echo "📥 已从 Numbersf/${FOUND_BRANCH} 下载 Manifest"
               echo "MANIFEST_REPO=Numbersf" >> $GITHUB_ENV
               echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
             fi
