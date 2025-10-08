@@ -186,7 +186,7 @@ When there is a kernel-level update or a significant slowdown caused by changes 
  
 -- Fix the problem that the official script cannot run when the kernel version is between `5.15.0-5.15.123`, and the result of the quick compilation has problems. [@zzh20188](https://github.com/zzh20188)  
  
--- Allow custom kernel suffix.  <- **`beta`**
+-- Allow custom kernel suffix← **`beta`**
 ```
 1. When the custom kernel suffix is empty, a random string is used instead of the default “x.xx.xxx-androidxx-8-o-g3b1e97b8b29f”
 2. When custom suffix is enabled, the kernel version is modified to “x.xx.xxx-androidxx-CustomContent”, and the original “androidxx-8-o-g3b1e97b8b29f” is no longer retained.
