@@ -79,7 +79,7 @@ on:
         type: boolean
         description: "是否启用内核层面阻止对关键分区/设备节点的非法写入(LSM)？"
         required: true
-        default: false
+        default: true
       SCHED:
         type: boolean
         description: "是否添加风驰驱动？"
