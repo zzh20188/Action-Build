@@ -114,7 +114,7 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
 
-      - name: Extract OnePlus Manifest Info
+      - name: Extract Manifest Info
         id: extract_info
         run: |
           set -e
@@ -125,7 +125,7 @@ jobs:
           else
             FILE_CONF="$FILE"
           fi
-          FILE_BASE=$(echo "$FILE_CONF" | sed -E 's/_([a-zA-Z0-9])/\U\1/g; s/^oneplus/OnePlus/')
+          FILE_BASE=$(echo "$FILE_CONF" | sed -E 's/_([a-zA-Z0-9])/\U\1/g; s/^oneplus/OnePlus/; s/^realme/Realme/')
           mkdir -p ".repo/manifests_fallback"
           XML_PATH=".repo/manifests_fallback/${FILE}.xml"
           README_PATH=".repo/manifests_fallback/README.md"
@@ -191,7 +191,7 @@ jobs:
           REVISION=$(grep -oP '<project[^>]+revision="\K[^"]+' "$XML_PATH" | head -n1 || true)
           echo "解析 FILE 获取 CPU 和 ANDROID_VERSION..."
           # 提取 CPU
-          CPU=$(echo "$REVISION" | sed -E 's#^oneplus/([^_]+).*#\1#')
+          CPU=$(echo "$REVISION" | sed -E 's#^(oneplus|realme)/([^_]+).*#\2#')
           # 提取 ANDROID_VERSION
           ANDROID_VERSION=$(echo "$REVISION" | grep -oP '\d{1,2}\.\d{1,2}(\.\d{1,2})?')
           if [[ -n "$CPU" && -n "$ANDROID_VERSION" ]]; then
