@@ -682,7 +682,7 @@ jobs:
             echo "CONFIG_KSU_MANUAL_HOOK=y" >> "$CONFIG_FILE"
           elif [ "${{ github.event.inputs.HOOK }}" = "tracepoint" ]; then
             echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
-            echo "CONFIG_KSU_TRACEPOINT_HOOK=y" >> "$CONFIG_FILE" 
+            echo "CONFIG_KSU_TRACEPOINT_HOOK=y" >> "$CONFIG_FILE"
           fi
 
           # SUSFS配置
