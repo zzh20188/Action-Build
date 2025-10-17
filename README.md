@@ -167,7 +167,7 @@ v3.1.7-自定义内容@susfs-*[f5541e21]
  
 - 使用`ccache`加速工作流,仅开启极速构建`fast build`有效,第一次使用、重大更新需要换`key`要重新生成`cache`,可能会降低速度  
 ```
-你可以通过使用delete.yml(name: 清理工作流运行记录和缓存)工作流开启“是否删除所有ccache缓存”的选项来删除所有的key
+你可以通过使用delete.yml(name: Workflow and Cache Cleanup)工作流开启“是否删除所有缓存”的选项来删除所有的key
 也可以去
 https://github.com/你的用户名(username)/你的仓库名/actions/caches
 直接手动删除对应的key

@@ -1,4 +1,4 @@
-name: 清理工作流运行记录和缓存
+name: Workflow and Cache Cleanup
 
 on:
   workflow_dispatch:
@@ -136,7 +136,7 @@ jobs:
           done
 
           echo "清理本工作流运行记录（排除当前运行）..."
-          SELF_WORKFLOW_ID=$(gh api repos/$REPO/actions/workflows | jq -r '.workflows[] | select(.name == "清理工作流运行记录和缓存") | .id')
+          SELF_WORKFLOW_ID=$(gh api repos/$REPO/actions/workflows | jq -r '.workflows[] | select(.name == "Workflow and Cache Cleanup") | .id')
           if [ -n "$SELF_WORKFLOW_ID" ]; then
             SELF_RUNS=$(gh api "repos/$REPO/actions/workflows/$SELF_WORKFLOW_ID/runs?per_page=50" | jq -c '.workflow_runs[]')
             echo "$SELF_RUNS" | while read run; do
