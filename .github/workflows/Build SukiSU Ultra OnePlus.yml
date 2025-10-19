@@ -589,11 +589,40 @@ jobs:
               echo "修复内核版本6.6部分机型缺失Trusty OS导致的susfs的报错"
               sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ env.KANDROID_VERSION }}-${KERNEL_VERSION}.patch
               sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ env.KANDROID_VERSION }}-${KERNEL_VERSION}.patch
+
+          # Fake Patch to fix failures
+          fake_patched=0
+          if [ "${{ env.KANDROID_VERSION }}" = "android15" ] && [ "${{ env.KERNEL_VERSION }}" = "6.6" ]; then
+            if ! grep -qxF $'\tunsigned int nr_subpages = __PAGE_SIZE / PAGE_SIZE;' ./fs/proc/task_mmu.c; then
+              echo "未找到 nr_subpages,正在进行补丁修复"
+              sed -i -e '/int ret = 0, copied = 0;/a \\tunsigned int nr_subpages \= __PAGE_SIZE \/ PAGE_SIZE;' -e '/int ret = 0, copied = 0;/a \\tpagemap_entry_t \*res = NULL;' ./fs/proc/task_mmu.c
+              fake_patched=1
             fi
           fi
+          if [ "${{ env.KANDROID_VERSION }}" = "android12" ] && [ "${{ env.KERNEL_VERSION }}" = "5.10" ]; then
+            if ! grep -qxF $'\tif (!vma_pages(vma))' ./fs/proc/task_mmu.c; then
+              echo "未找到 vma_pages,正在进行补丁修复"
+              fake_patched=1
+            fi
+          fi
+
           echo "正在打susfs补丁"
           patch -p1 < 50_add_susfs_in_gki-${{ env.KANDROID_VERSION }}-${{ env.KERNEL_VERSION }}.patch || true
           echo "susfs_patch完成"
+
+          # Revert
+          if [ "$fake_patched" = 1 ]; then
+            if [ "${{ env.KANDROID_VERSION }}" = "android15" ] && [ "${{ env.KERNEL_VERSION }}" = "6.6" ]; then
+              if grep -qxF $'\tunsigned int nr_subpages = __PAGE_SIZE / PAGE_SIZE;' ./fs/proc/task_mmu.c; then
+                sed -i -e '/unsigned int nr_subpages \= __PAGE_SIZE \/ PAGE_SIZE;/d' -e '/pagemap_entry_t \*res = NULL;/d' ./fs/proc/task_mmu.c
+              fi
+            fi
+            if [ "${{ env.KANDROID_VERSION }}" = "android12" ] && [ "${{ env.KERNEL_VERSION }}" = "5.10" ]; then
+              if grep -qxF $'\t\tgoto show_pad;' ./fs/proc/task_mmu.c; then
+                sed -i -e 's/goto show_pad;/return 0;/' ./fs/proc/task_mmu.c
+              fi
+            fi
+          fi
 
       - name: Apply Hide Stuff Patches
         run: |
