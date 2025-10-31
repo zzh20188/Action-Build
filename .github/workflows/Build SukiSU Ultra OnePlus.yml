@@ -685,6 +685,7 @@ jobs:
           PATCHES["oneplus_ace5_ultra"]="fengchi_6.6_C_Ace5U.patch"
           PATCHES["oneplus_pad_2_pro"]="fengchi_6.6_D_Pad2P.patch"
           PATCHES["oneplus_pad_3"]="fengchi_6.6_D_Pad2P.patch"
+          PATCHES["oneplus_ace6"]="fengchi_6.6_E_Ace6.patch"
           PATCH_FILE=${PATCHES[$FILE_CONF]}
 
           if [[ -n "$PATCH_FILE" ]]; then
