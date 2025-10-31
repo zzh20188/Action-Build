@@ -178,7 +178,7 @@ https://github.com/你的用户名(username)/你的仓库名/actions/caches
  
 - 添加`TRUSTY_EXISTS`用于自动检测`6.6`内核是否内核源码存在缺陷,判断是否`sed`处理  
  
-- 支持**部分机型**开启风驰驱动(自选是否开启),驱动来自[@HanKuCha](https://github.com/HanKuCha)  
+- 支持**部分机型**开启新风驰内核(自选是否开启),驱动来自[@cctv18](https://github.com/cctv18)  
  
 - 当`ZRAM`开启时,自动下载并修改`ZRAM附加模块`,附加模块来自[@FURLC](https://github.com/FURLC)  
  

@@ -178,7 +178,7 @@ When there is a kernel-level update or a significant slowdown caused by changes 
  
 - Add `TRUSTY_EXISTS` to automatically detect whether the `6.6` kernel has defects in the kernel source code and determine whether `sed` is needed.  
  
-- Support enabling fongchi driver for selected devices (optional), driver from [@HanKuCha](https://github.com/HanKuCha)  
+- Supports enabling the NEW Fengchi kernel for **certain device** models (optional to enable), with drivers sourced from [@cctv18](https://github.com/cctv18)  
  
 - When `ZRAM` is enabled, automatically download and modify the ZRAM additional module. [@FURLC](https://github.com/FURLC)  
  
