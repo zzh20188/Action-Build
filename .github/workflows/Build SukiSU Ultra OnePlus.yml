@@ -272,7 +272,7 @@ jobs:
       - name: Install Dependencies + APTC
         uses: awalsh128/cache-apt-pkgs-action@latest 
         with: 
-          packages: python3 git curl ccache libelf-dev build-essential flex bison libssl-dev libncurses-dev liblz4-tool zlib1g-dev libxml2-utils rsync unzip gawk
+          packages: python3 git curl ccache libelf-dev build-essential flex bison libssl-dev libncurses-dev liblz4-tool zlib1g-dev libxml2-utils rsync unzip gawk dos2unix
           execute_install_scripts: true
 
       - name: Restore Ccache
@@ -635,7 +635,7 @@ jobs:
 
       # OGKI转换GKI，无需修改 dtbo 开机
       - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
-        if: ${{ env.KERNEL_VERSION == '6.6' }}
+        if: ${{ env.KERNEL_VERSION == '6.6' && github.event.inputs.SCHED == 'false' }}
         run: |
           cd kernel_workspace/kernel_platform/common
           sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
@@ -676,10 +676,27 @@ jobs:
         if: ${{ github.event.inputs.SCHED == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform/common
-          git clone https://github.com/HanKuCha/sched_ext.git
-          cp -r ./sched_ext/* ./kernel/sched
-          rm -rf ./sched_ext/.git
-          cd ./kernel/sched
+          declare -A PATCHES
+          PATCHES["oneplus_13t"]="fengchi_6.6_A_13T.patch"
+          PATCHES["oneplus_13s"]="fengchi_6.6_A_13T.patch"
+          PATCHES["oneplus_ace5_pro"]="fengchi_6.6_B_Ace5P+13.patch"
+          PATCHES["oneplus_13"]="fengchi_6.6_B_Ace5P+13.patch"
+          PATCHES["oneplus_ace5_ultra"]="fengchi_6.6_C_Ace5U.patch"
+          PATCHES["oneplus_pad_2_pro"]="fengchi_6.6_D_Pad2P.patch"
+          PATCHES["oneplus_pad_3"]="fengchi_6.6_D_Pad2P.patch"
+          PATCH_FILE=${PATCHES[$FILE_CONF]}
+
+          if [[ -n "$PATCH_FILE" ]]; then
+            echo "正在打风驰补丁: $PATCH_FILE"
+            wget -q -O "$PATCH_FILE" "https://raw.githubusercontent.com/Numbersf/Action-Build/SukiSU-Ultra/patches/$PATCH_FILE"
+            dos2unix "$PATCH_FILE"
+            patch -p1 -F 3 < "$PATCH_FILE"
+            echo "fengchi_patch完成"
+          else
+            echo "❌ 未匹配到补丁，风驰内核暂未支持你的机型，请关闭后重试"
+            exit 11
+          fi
+          
 
       - name: Apply LSM_BBG
         if: ${{ github.event.inputs.LSM == 'true' }}
