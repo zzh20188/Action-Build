@@ -34,9 +34,9 @@
 >
 >>`_y Android18 (Yogurt Parfait)`
 >
->>`_x Android17 (Xmas Pudding)`
+>>`_x Android17 (Xmas Pudding)`<strong>
 >
->>`_w Android16 (Wedding Cake)`<strong>
+>>`_w Android16 (Wedding Cake)`
 >
 >>`_v Android15 (Vanilla Ice Cream)`
 >
