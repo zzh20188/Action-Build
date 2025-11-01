@@ -117,10 +117,11 @@ jobs:
 
       - name: Extract Manifest Info
         id: extract_info
+        env:
+          FILE: ${{ github.event.inputs.FILE }}
         run: |
           set -e
           cd "$GITHUB_WORKSPACE"
-          FILE="${{ github.event.inputs.FILE }}"
           if [[ "$FILE" =~ ^(.+)_([a-zA-Z])$ ]]; then
             FILE_CONF="${BASH_REMATCH[1]}"
           else
@@ -307,10 +308,11 @@ jobs:
           sudo mv ~/repo /usr/local/bin/repo
 
       - name: Initialize Repo and Sync
+        env:
+          FILE: ${{ github.event.inputs.FILE }}
         run: |
           mkdir kernel_workspace && cd kernel_workspace
           mkdir -p .repo/manifests
-          FILE="${{ github.event.inputs.FILE }}"
           cp "$GITHUB_WORKSPACE/.repo/manifests_fallback/${FILE}.xml" ".repo/manifests/${FILE}.xml"
 
           MANIFEST_REPO="${{ env.MANIFEST_REPO }}"
@@ -548,6 +550,8 @@ jobs:
           echo "::endgroup::"
 
       - name: Apply Patches SukiSU Ultra
+        env:
+          FILE: ${{ github.event.inputs.FILE }}
         run: |
           cd kernel_workspace
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ env.KANDROID_VERSION }}-${{ env.KERNEL_VERSION }}
@@ -578,10 +582,9 @@ jobs:
           fi
           KERNEL_VERSION="${{ env.KERNEL_VERSION }}"
           TKERNEL_VERSION="${{ env.TKERNEL_VERSION }}"
-          file="${{ github.event.inputs.FILE }}"
           TRUSTY_EXISTS="false"
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            if grep -q 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${file}.xml"; then
+            if grep -q 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${FILE}.xml"; then
               TRUSTY_EXISTS="true"
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
@@ -674,25 +677,18 @@ jobs:
           echo 'lz4k_oplus_patch完成'
 
       - name: Apply SCHED
+        env:
+          FILE: ${{ github.event.inputs.FILE }}
         if: ${{ github.event.inputs.SCHED == 'true' }}
         run: |
           cd kernel_workspace/kernel_platform/common
-          declare -A PATCHES
-          PATCHES["oneplus_13t"]="fengchi_6.6_A_13T.patch"
-          PATCHES["oneplus_13s"]="fengchi_6.6_A_13T.patch"
-          PATCHES["oneplus_ace5_pro"]="fengchi_6.6_B_Ace5P+13.patch"
-          PATCHES["oneplus_13"]="fengchi_6.6_B_Ace5P+13.patch"
-          PATCHES["oneplus_ace5_ultra"]="fengchi_6.6_C_Ace5U.patch"
-          PATCHES["oneplus_pad_2_pro"]="fengchi_6.6_D_Pad2P.patch"
-          PATCHES["oneplus_pad_3"]="fengchi_6.6_D_Pad2P.patch"
-          PATCHES["oneplus_ace6"]="fengchi_6.6_E_Ace6.patch"
-          PATCH_FILE=${PATCHES[$FILE_CONF]}
-
-          if [[ -n "$PATCH_FILE" ]]; then
-            echo "正在打风驰补丁: $PATCH_FILE"
-            wget -q -O "$PATCH_FILE" "https://raw.githubusercontent.com/Numbersf/Action-Build/SukiSU-Ultra/patches/$PATCH_FILE"
-            dos2unix "$PATCH_FILE"
-            patch -p1 -F 3 < "$PATCH_FILE"
+          git clone https://github.com/Numbersf/SCHED_PATCH.git -b $CPU
+          echo "正在拉取风驰补丁"
+          cp ./SCHED_PATCH/fengchi_${FILE}.patch ./
+          if [[ -f "fengchi_${FILE}.patch" ]]; then
+            echo "正在打风驰补丁"
+            dos2unix "fengchi_${FILE}.patch"
+            patch -p1 -F 3 < "fengchi_${FILE}.patch"
             echo "fengchi_patch完成"
           else
             echo "❌ 未匹配到补丁，风驰内核暂未支持你的机型，请关闭后重试"
