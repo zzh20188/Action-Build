@@ -657,9 +657,9 @@ jobs:
           if [ "${{ github.event.inputs.HOOK }}" = "kprobe" ]; then
           echo "调用 kprobe 钩子"
           elif [ "${{ github.event.inputs.HOOK }}" = "manual" ]; then
-          cp ../../SukiSU_patch/hooks/scope_min_manual_hooks_v1.5.patch ./
+          cp ../../SukiSU_patch/hooks/scope_min_manual_hooks_v1.6.patch ./
           echo "调用 manual 钩子"
-          patch -p1 -F 3 < scope_min_manual_hooks_v1.5.patch
+          patch -p1 -F 3 < scope_min_manual_hooks_v1.6.patch
           elif [ "${{ github.event.inputs.HOOK }}" = "tracepoint" ]; then
           cp ../../SukiSU_patch/hooks/sukisu_tracepoint_hooks_v1.1.patch ./
           echo "调用 tracepoint 钩子"
