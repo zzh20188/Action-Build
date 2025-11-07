@@ -42,6 +42,7 @@ on:
           - oneplus_pad_3
           - oneplus_ace5_ultra
           - oneplus_ace_6
+          - oneplus_15
       HOOK:
         type: choice
         description: "钩子选择"
