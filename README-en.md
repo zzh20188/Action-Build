@@ -26,17 +26,17 @@
  
 ------
 > [!NOTE]
-> The _x suffix in the config file indicates the codename of the system version you are using. Reversed alphabet, lowercase incremental. Those without suffixes are mostly the factory Android version (not always, please check the info inside). Currently, I only added devices with Android15 (i.e., _v suffix) in the preselection. If you're using other Android versions, manually change _v to the correct code, provided it actually exists
+> The final ``_？`` suffix in the configuration file represents the codename of the system version you are currently using. **For ``Android15`` and earlier, the suffix uses reverse-alphabetical lowercase letters in ascending order.** Most entries without a suffix correspond to the factory default ``Android`` version.Starting from ``Android16``, a new naming scheme is used, and the previous rule becomes completely invalid.To determine the specific applicable system version, please open the manifest manually and change the suffix to another codename — as long as it actually exists.
 > <details>
-> <summary><strong>Click to view the Android version codes (subject to future updates)</strong></summary>
+> <summary><strong>Click to view the Android version codes</strong></summary>
 >
->>`_z Android19 (Zebra Cake)`
+>>`_？ Android19 (Zebra Cake)`
 >
->>`_y Android18 (Yogurt Parfait)`
+>>`_？ Android18 (Yogurt Parfait)`
 >
->>`_x Android17 (Xmas Pudding)`<strong>
+>>`_？ Android17 (Xmas Pudding)`<strong>
 >
->>`_w Android16 (Wedding Cake)`
+>>`_b Android16 (Wedding Cake)`
 >
 >>`_v Android15 (Vanilla Ice Cream)`
 >
@@ -45,38 +45,6 @@
 >>`_t Android13 (Tiramisu)`
 >
 >>`_s Android12 (Snow Cone)`</strong>
->
->>`_r Android11 (Red Velvet Cake)`
->
->>`_q Android10 (Quince Tart)`
->
->>`_p Android9 (Pie)`
->
->>`_o Android8 (Oreo)`
->
->>`_n Android7 (Nougat)`
->
->>`_m Android6 (Marshmallow)`
->
->>`_l Android5 (Lollipop)`
->
->>`_k Android4.4 (KitKat)`
->
->>`_j Android4.3–4.1 (Jelly Bean)`
->
->>`_i Android4.0 (Ice Cream Sandwich)`
->
->>`_h Android3.x (Honeycomb)`
->
->>`_g Android2.3 (Gingerbread)`
->
->>`_f Android2.2 (FroYo)`
->
->>`_e Android2.1 (Eclair)`
->
->>`_d Android1.6 (Donut)`
->
->>`_c Android1.5 (Cupcake)`
 >
 > </details>
  
@@ -159,7 +127,7 @@ Regardless of whether the custom version identifier and fallback hash are enable
 6.1.75->6.1.99
 ```  
  
-- Allows running multiple workflows in batches of 9 each time.Ordinary users are prohibited from using.  
+- Allows running multiple workflows in batches of `9` each time.Ordinary users are prohibited from using.  
  
 - Remove file-map and build method selection; let the main workflow decide automatically [@Bouteillepleine](https://github.com/Bouteillepleine)  
  

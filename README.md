@@ -26,17 +26,17 @@
  
 ------
 > [!NOTE]
->配置文件中的``_x``后缀是你正在使用系统版本的代号。**倒序字母小写递增**。而无后缀的大部分是出厂``Android``版本(并不绝对请注意清单内部信息)。目前我只在预选中添加了``Android15``的机型也就是``_v``后缀,如果你在使用其他的安卓版本,请手动将``_v``改成其他代号,前提是它们确实存在
+>配置文件中最后的一个``_？``后缀是你正在使用系统版本的代号。**``Android15``及之前为倒序字母小写递增**。而无后缀的大部分是出厂``Android``版本。``Android16``起采用新命名规则,规则将完全失效。判断具体的适用系统版本请手动打开清单,手动改成其他代号,前提是它们确实存在。
 > <details>
-> <summary><strong>点击查看详细的版本代号(部分未来可能会有改变)</strong></summary>
+> <summary><strong>点击查看详细的版本代号</strong></summary>
 >
->>`_z Android19 (Zebra Cake)`
+>>`_？ Android19 (Zebra Cake)`
 >
->>`_y Android18 (Yogurt Parfait)`
+>>`_？ Android18 (Yogurt Parfait)`
 >
->>`_x Android17 (Xmas Pudding)`<strong>
+>>`_？ Android17 (Xmas Pudding)`<strong>
 >
->>`_w Android16 (Wedding Cake)`
+>>`_b Android16 (Wedding Cake)`
 >
 >>`_v Android15 (Vanilla Ice Cream)`
 >
@@ -45,38 +45,6 @@
 >>`_t Android13 (Tiramisu)`
 >
 >>`_s Android12 (Snow Cone)`</strong>
->
->>`_r Android11 (Red Velvet Cake)`
->
->>`_q Android10 (Quince Tart)`
->
->>`_p Android9 (Pie)`
->
->>`_o Android8 (Oreo)`
->
->>`_n Android7 (Nougat)`
->
->>`_m Android6 (Marshmallow)`
->
->>`_l Android5 (Lollipop)`
->
->>`_k Android4.4 (KitKat)`
->
->>`_j Android4.3–4.1 (Jelly Bean)`
->
->>`_i Android4.0 (Ice Cream Sandwich)`
->
->>`_h Android3.x (Honeycomb)`
->
->>`_g Android2.3 (Gingerbread)`
->
->>`_f Android2.2 (FroYo)`
->
->>`_e Android2.1 (Eclair)`
->
->>`_d Android1.6 (Donut)`
->
->>`_c Android1.5 (Cupcake)`
 >
 > </details>
  
@@ -159,7 +127,7 @@ v3.1.7-自定义内容@susfs-*[f5541e21]
 6.1.75->6.1.99
 ```  
  
-- 允许分批次每次9个运行多个工作流,普通用户禁止使用  
+- 允许分批次每次`9`个运行多个工作流,普通用户禁止使用  
  
 - 删除`file-map`及编译方式并由主工作流自行选择[@Bouteillepleine](https://github.com/Bouteillepleine)  
  
