@@ -26,17 +26,17 @@
  
 ------
 > [!NOTE]
->配置文件中最后的一个``_？``后缀是你正在使用系统版本的代号。**``Android15``及之前为倒序字母小写递增**。而无后缀的大部分是出厂``Android``版本。``Android16``起采用新命名规则,规则将完全失效。判断具体的适用系统版本请手动打开清单,手动改成其他代号,前提是它们确实存在。
+>配置文件中最后的一个``_？``后缀是你正在使用系统版本的代号。而无后缀的大部分是出厂``Android``版本。**``Android16``起从``_b``开始重新计算。** 判断具体的适用安卓版本请手动打开清单,手动改成其他代号,前提是它们确实存在。
 > <details>
 > <summary><strong>点击查看详细的版本代号</strong></summary>
 >
->>`_？ Android19 (Zebra Cake)`
+>>`_？ Android19 (？)`
 >
->>`_？ Android18 (Yogurt Parfait)`
+>>`_？ Android18 (？)`
 >
->>`_？ Android17 (Xmas Pudding)`<strong>
+>>`_c Android17 (Cinnamon Bun)`<strong>
 >
->>`_b Android16 (Wedding Cake)`
+>>`_b Android16 (Baklava)`
 >
 >>`_v Android15 (Vanilla Ice Cream)`
 >

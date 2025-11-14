@@ -26,17 +26,17 @@
  
 ------
 > [!NOTE]
-> The final ``_？`` suffix in the configuration file represents the codename of the system version you are currently using. **For ``Android15`` and earlier, the suffix uses reverse-alphabetical lowercase letters in ascending order.** Most entries without a suffix correspond to the factory default ``Android`` version.Starting from ``Android16``, a new naming scheme is used, and the previous rule becomes completely invalid.To determine the specific applicable system version, please open the manifest manually and change the suffix to another codename — as long as it actually exists.
+> The final ``_？`` suffix in the configuration file represents the code name of the Android version you are currently using.Most entries without a suffix correspond to the factory default ``Android`` version. **Starting from ``Android16``, the suffixes are recalculated beginning from ``_b``.** To determine which Android version a configuration applies to, manually open the list and change the suffix to another code name—provided that the corresponding suffix actually exists.
 > <details>
 > <summary><strong>Click to view the Android version codes</strong></summary>
 >
->>`_？ Android19 (Zebra Cake)`
+>>`_？ Android19 (？)`
 >
->>`_？ Android18 (Yogurt Parfait)`
+>>`_？ Android18 (？)`
 >
->>`_？ Android17 (Xmas Pudding)`<strong>
+>>`_c Android17 (Cinnamon Bun)`<strong>
 >
->>`_b Android16 (Wedding Cake)`
+>>`_b Android16 (Baklava)`
 >
 >>`_v Android15 (Vanilla Ice Cream)`
 >
