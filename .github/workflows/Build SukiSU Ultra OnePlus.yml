@@ -43,15 +43,6 @@ on:
           - oneplus_ace5_ultra
           - oneplus_ace_6
           - oneplus_15
-      HOOK:
-        type: choice
-        description: "钩子选择"
-        required: true
-        default: manual
-        options:
-          - kprobe
-          - manual
-          - tracepoint
       SUSFS_CI:
         type: choice
         description: "下载SUSFS模块调用方式"
@@ -246,7 +237,6 @@ jobs:
           echo -n "SUFFIX Unicode: "
           python3 -c "print(''.join(f'U+{ord(c):04X} ' for c in '''${{ github.event.inputs.SUFFIX }}'''))"
           echo "Selected SUSFS_CI: ${{ github.event.inputs.SUSFS_CI }}"
-          echo "Selected HOOK: ${{ github.event.inputs.HOOK }}"
           echo "Selected LSM: ${{ github.event.inputs.LSM }}"
           echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}"
           echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
@@ -651,21 +641,6 @@ jobs:
           patch -p1 -F 3 < hmbird_patch.patch
           echo "OGKI转换GKI_patch完成"
 
-      - name: Apply HOOK
-        run: |
-          cd kernel_workspace/kernel_platform/common
-          if [ "${{ github.event.inputs.HOOK }}" = "kprobe" ]; then
-          echo "调用 kprobe 钩子"
-          elif [ "${{ github.event.inputs.HOOK }}" = "manual" ]; then
-          cp ../../SukiSU_patch/hooks/scope_min_manual_hooks_v1.6.patch ./
-          echo "调用 manual 钩子"
-          patch -p1 -F 3 < scope_min_manual_hooks_v1.6.patch
-          elif [ "${{ github.event.inputs.HOOK }}" = "tracepoint" ]; then
-          cp ../../SukiSU_patch/hooks/sukisu_tracepoint_hooks_v1.1.patch ./
-          echo "调用 tracepoint 钩子"
-          patch -p1 -F 3 < sukisu_tracepoint_hooks_v1.1.patch
-          fi
-
       - name: Apply ZRAM
         if: ${{ github.event.inputs.ZRAM == 'true' }}
         run: |
@@ -719,21 +694,9 @@ jobs:
           # KPM配置
           echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
 
-          # HOOK配置
-          if [ "${{ github.event.inputs.HOOK }}" = "kprobe" ]; then
-            echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> "$CONFIG_FILE"
-            echo "CONFIG_KPROBES=y" >> "$CONFIG_FILE"
-            echo "CONFIG_KSU_KPROBES_HOOK=y" >> "$CONFIG_FILE"
-          elif [ "${{ github.event.inputs.HOOK }}" = "manual" ]; then
-            echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
-            echo "CONFIG_KSU_MANUAL_HOOK=y" >> "$CONFIG_FILE"
-          elif [ "${{ github.event.inputs.HOOK }}" = "tracepoint" ]; then
-            echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
-            echo "CONFIG_KSU_TRACEPOINT_HOOK=y" >> "$CONFIG_FILE"
-          fi
-
           # SUSFS配置
           echo "CONFIG_KSU_SUSFS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
           echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> "$CONFIG_FILE"
           echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> "$CONFIG_FILE"
           echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> "$CONFIG_FILE"
@@ -1038,7 +1001,7 @@ jobs:
       - name: Set zip Suffix
         id: suffix
         run: |
-          echo "value=${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.LSM == 'true' && '_LSM' || '' }}${{ github.event.inputs.HOOK == 'kprobe' && '_KP' || github.event.inputs.HOOK == 'manual' && '_VFS' || github.event.inputs.HOOK == 'tracepoint' && '_TP' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
+          echo "value=${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.LSM == 'true' && '_LSM' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
