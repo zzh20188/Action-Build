@@ -1025,13 +1025,13 @@ jobs:
           else
             artifact_url=$(gh api \
               "repos/SukiSU-Ultra/SukiSU-Ultra/actions/runs/$run_id/artifacts" | \
-              jq -r '.artifacts[] | select(.name == "manager") | .archive_download_url' | head -n1)
+              jq -r '.artifacts[] | select(.name == "Manager") | .archive_download_url' | head -n1)
             if [[ -z "$artifact_url" ]]; then
-              echo "No 'manager' artifact found in run $run_id. Skipping download."
+              echo "No 'Manager' artifact found in run $run_id. Skipping download."
             else
               echo "Downloading from: $artifact_url"
-              curl -fL -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
-              unzip -j manager.zip "*.apk" -d ./AnyKernel3/
+              curl -fL -H "Authorization: token $GITHUB_TOKEN" -o Manager.zip "$artifact_url"
+              unzip -j Manager.zip "*.apk" -d ./AnyKernel3/
             fi
           fi
 
